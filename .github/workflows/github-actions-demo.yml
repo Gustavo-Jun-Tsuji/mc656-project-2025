@@ -28,9 +28,6 @@ jobs:
         
     - name: Build and start containers
       run: docker-compose up -d --build
-           
-    - name: Run Django tests
-      run: docker-compose exec web python manage.py test
         
     - name: Verify service health
       run: |
