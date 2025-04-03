@@ -18,6 +18,14 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
         
+    - name: Create .env file
+      env:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      run: |
+        echo "DB_PASSWORD=$DB_PASSWORD" > dotenv_files/.env
+        echo "SECRET_KEY=$SECRET_KEY" >> dotenv_files/.env
+        
     - name: Build and start containers
       run: docker-compose up -d --build
            
@@ -27,5 +35,5 @@ jobs:
     - name: Verify service health
       run: |
         docker-compose ps
-        sleep 10  # Wait for server to start
+        sleep 10
         curl --fail http://localhost:8000 || docker-compose logs web
