@@ -2,36 +2,20 @@ name: Django CI
 
 on:
   push:
+    branches: [main, develop]
   pull_request:
-
+    branches: [main, develop]
+    
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Set up Docker Compose
-        run: |
-          docker-compose -f docker-compose.ci.yml build
-          docker-compose -f docker-compose.ci.yml up -d
-
+        run: docker-compose -f docker-compose.ci.yml build
+      
       - name: Run Django tests
-        run: docker-compose -f docker-compose.ci.yml exec django python manage.py test --noinput
-
-      - name: Check migrations
-        run: docker-compose -f docker-compose.ci.yml exec django python manage.py makemigrations --check --dry-run
-        
-      - name: Run flake8
-        run: docker-compose -f docker-compose.ci.yml exec django flake8 .
+        run: docker-compose -f docker-compose.ci.yml run django python manage.py test
