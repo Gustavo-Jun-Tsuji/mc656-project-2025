@@ -14,4 +14,15 @@ services:
             - db
         env_file:
             - dotenv_files/.env
+    test:
+        build: .
+        command: pytest
+        volumes:
+        - .:/code
+        environment:
+        - DJANGO_SETTINGS_MODULE=project.settings
+        depends_on:
+            - db
+        env_file:
+            - dotenv_files/.env
         
