@@ -33,7 +33,7 @@ class PontoDeInteresseTestCase(TestCase):
     def test_exibir_descricao(self):
         with patch.object(builtins, 'print') as mock_print:
             self.ponto.exibir_descricao()
-            mock_print.assert_called_with("Uma praça tranquila com bancos e árvores.")
+            mock_print.assert_called_with("Descrição: Uma praça tranquila com bancos e árvores.")
 
     def test_adicionar_feedback(self):
         self.ponto.adicionar_feedback(
@@ -95,5 +95,5 @@ class FeedbackTestCase(TestCase):
         self.assertEqual(self.feedback.ponto_de_interesse, self.ponto)
 
     def test_feedback_str_representation(self):
-        expected = "Maria avaliou Parque das Águas com nota 5"
+        expected = "Maria avaliou 'Parque das Águas' com nota 5"
         self.assertEqual(str(self.feedback), expected)

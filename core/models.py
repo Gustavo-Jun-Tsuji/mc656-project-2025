@@ -22,7 +22,7 @@ class PontoDeInteresse(models.Model):
         print(f"Descrição: {self.descricao}")
 
     def adicionar_feedback(self, autor: str, comentario: str, nota: int) -> None:
-        Feedback.objects.create(ponto=self, autor=autor, comentario=comentario, nota=nota)
+        Feedback.objects.create(ponto_de_interesse=self, autor=autor, comentario=comentario, nota=nota)
 
     def feedbacks(self) -> List["Feedback"]:
         return list(self.feedback_set.all())
