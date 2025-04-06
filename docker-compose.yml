@@ -16,7 +16,7 @@ services:
             - dotenv_files/.env
     test:
         build: .
-        command: pytest
+        command: python manage.py test
         volumes:
         - .:/code
         environment:
