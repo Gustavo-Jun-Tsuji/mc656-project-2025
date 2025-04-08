@@ -1,5 +1,7 @@
+import builtins
+from unittest.mock import patch
 from django.test import TestCase
-from core.models import Route, FeedbackRoute
+from core.models import Route, FeedbackRoute, PointOfInterest, FeedbackPOI
 from django.core.exceptions import ValidationError
 
 class FeedbackRouteTestCase(TestCase):
@@ -98,3 +100,98 @@ class RouteTestCase(TestCase):
                 self.assertEqual(route.start_point, start)
                 self.assertEqual(route.end_point, end)
                 self.assertEqual(route.distance, dist)
+
+
+class PointOfInterestTestCase(TestCase):
+    def setUp(self):
+        self.point = PointOfInterest.create_point_of_interest(
+            name="Praça Central",
+            type_="Praça",
+            category="Lazer",
+            address="Av. Central, 123",
+            latitude=-22.8125,
+            longitude=-47.0689,
+            description="Uma praça tranquila com bancos e árvores."
+        )
+
+    def test_create_point_of_interest(self):
+        self.assertEqual(self.point.name, "Praça Central")
+        self.assertEqual(self.point.type, "Praça")
+        self.assertEqual(self.point.category, "Lazer")
+        self.assertEqual(self.point.address, "Av. Central, 123")
+        self.assertEqual(self.point.latitude, -22.8125)
+        self.assertEqual(self.point.longitude, -47.0689)
+        self.assertEqual(self.point.description, "Uma praça tranquila com bancos e árvores.")
+        self.assertEqual(PointOfInterest.objects.count(), 1)
+
+    def test_point_of_interest_str_representation(self):
+        expected = "Praça Central (Praça)"
+        self.assertEqual(str(self.point), expected)
+
+    def test_show_description(self):
+        with patch.object(builtins, 'print') as mock_print:
+            self.point.show_description()
+            mock_print.assert_called_with("Descrição: Uma praça tranquila com bancos e árvores.")
+
+    def test_add_feedback(self):
+        self.point.add_feedback(
+            author="João",
+            comment="Ótimo lugar!",
+            rating=5
+        )
+        feedbacks = FeedbackPOI.objects.filter(point_of_interest=self.point)
+        self.assertEqual(feedbacks.count(), 1)
+        self.assertEqual(feedbacks.first().author, "João")
+
+    def test_get_feedbacks(self):
+        FeedbackPOI.objects.create(point_of_interest=self.point, author="Ana", comment="Gostei", rating=4)
+        FeedbackPOI.objects.create(point_of_interest=self.point, author="Carlos", comment="Legal", rating=5)
+        feedbacks = self.point.get_feedbacks()
+        self.assertEqual(len(feedbacks), 2)
+
+    def test_calculate_distance(self):
+        distance = self.point.calculate_distance(user_latitude=-22.8200, user_longitude=-47.0700)
+        self.assertGreater(distance, 0)
+        self.assertLess(distance, 5)
+    
+    def test_list_points_of_interest(self):
+        PointOfInterest.create_point_of_interest(
+            name="Museu de Arte",
+            type_="Museu",
+            category="Cultura",
+            address="Rua da Cultura, 456",
+            latitude=-22.8150,
+            longitude=-47.0650,
+            description="Museu com exposições de arte moderna."
+        )
+        points = PointOfInterest.list_points_of_interest()
+        self.assertEqual(len(points), 2)
+        self.assertIn(self.point, points)
+
+
+class FeedbackPOITestCase(TestCase):
+    def setUp(self):
+        self.point = PointOfInterest.objects.create(
+            name="Parque das Águas",
+            type="Parque",
+            category="Lazer",
+            address="Rua das Flores, 789",
+            latitude=-44.7605,
+            longitude=-60.3855,
+            description="Parque com lago e pista de caminhada."
+        )
+        self.feedback = FeedbackPOI.objects.create(
+            point_of_interest=self.point,
+            author="Maria",
+            comment="Lugar ótimo para relaxar.",
+            rating=5
+        )
+
+    def test_feedback_attributes(self):
+        self.assertEqual(self.feedback.author, "Maria")
+        self.assertEqual(self.feedback.rating, 5)
+        self.assertEqual(self.feedback.point_of_interest, self.point)
+
+    def test_feedback_str_representation(self):
+        expected = "Maria avaliou 'Parque das Águas' com nota 5"
+        self.assertEqual(str(self.feedback), expected)

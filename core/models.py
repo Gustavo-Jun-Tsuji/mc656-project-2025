@@ -1,3 +1,4 @@
+import math
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from typing import List
@@ -73,3 +74,71 @@ class Route(models.Model):
     @classmethod
     def list_routes(cls) -> List["Route"]:
         return cls.objects.all()
+
+class PointOfInterest(models.Model):
+    name = models.CharField(max_length=200)
+    # TODO: replace 'type' (CharField) with a relationship to another class
+    type = models.CharField(max_length=100, help_text="Concrete form/function of the point (e.g., restaurant, park, etc.)") 
+    category = models.CharField(max_length=100, blank=True, help_text="Theme it fits into (e.g., leisure, culture, etc.)")
+    address = models.CharField(max_length=255)
+    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_edit = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.type})"
+
+    def show_description(self) -> None:
+        print(f"Descrição: {self.description}")
+
+    def add_feedback(self, author: str, comment: str, rating: int) -> None:
+        FeedbackPOI.objects.create(point_of_interest=self, author=author, comment=comment, rating=rating)
+
+    def get_feedbacks(self) -> List["FeedbackPOI"]:
+        return list(self.feedbackpoi_set.all())
+
+    def calculate_distance(self, user_latitude: float, user_longitude: float) -> float:
+        """
+        Calculates the distance in kilometers between the point of interest and the user's location
+        using the Haversine formula.
+        """
+        earth_radius = 6371
+
+        lat1 = math.radians(self.latitude)
+        lon1 = math.radians(self.longitude)
+        lat2 = math.radians(user_latitude)
+        lon2 = math.radians(user_longitude)
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        distance = earth_radius * c
+
+        return distance
+
+    @classmethod
+    def create_point_of_interest(cls, name: str, type_: str, category: str, address: str,
+                                 latitude: float, longitude: float, description: str) -> "PointOfInterest":
+        point = cls(name=name, type=type_, category=category, address=address,
+                    latitude=latitude, longitude=longitude, description=description)
+        point.save()
+        return point
+
+    @classmethod
+    def list_points_of_interest(cls) -> List["PointOfInterest"]:
+        return cls.objects.all()
+
+
+class FeedbackPOI(models.Model):
+    point_of_interest = models.ForeignKey("PointOfInterest", on_delete=models.CASCADE)
+    author = models.CharField(max_length=100)
+    comment = models.TextField(blank=True)
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], help_text="Rating from 1 to 5")
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.author} avaliou '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' com nota {self.rating}"
