@@ -17,14 +17,14 @@ class FeedbackRoute(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def display_feedback(self) -> None:
-        print(f"\nUsuário: {self.user}")
-        print(f"Avaliação: {'★' * self.rating}{'☆' * (5 - self.rating)}")
-        print(f"Mensagem: {self.message}")
-        print(f"Votos: ↑{self.upvotes} ↓{self.downvotes} (Saldo: {self.upvotes - self.downvotes})")
-        print(f"Data: {self.created_at.strftime('%d/%m/%Y %H:%M')}")
+        print(f"\nUser: {self.user}")
+        print(f"Rating: {'★' * self.rating}{'☆' * (5 - self.rating)}")
+        print(f"Message: {self.message}")
+        print(f"Votes: ↑{self.upvotes} ↓{self.downvotes} (Score: {self.upvotes - self.downvotes})")
+        print(f"Date: {self.created_at.strftime('%d/%m/%Y %H:%M')}")
     
     def __str__(self):
-        return f"Feedback por: {self.user} - {self.rating} estrelas"
+        return f"Feedback by: {self.user} - {self.rating} stars"
     
     class Meta:
         verbose_name = "Route Feedback"
@@ -41,7 +41,7 @@ class Route(models.Model):
 
     def estimated_time(self, average_speed: float) -> float:
         if average_speed <= 0:
-            raise ValueError("The average speed must be greater than zero!.")
+            raise ValueError("The average speed must be greater than zero!")
         return self.distance / average_speed
 
     def show_feedbacks(self, quantity: int) -> None:
@@ -49,7 +49,7 @@ class Route(models.Model):
             votes=models.F('upvotes') - models.F('downvotes')
         ).order_by('-votes')[:quantity]
         
-        print(f"\nTop {quantity} feedbacks por rota {self.start_point} → {self.end_point}:")
+        print(f"\nTop {quantity} feedbacks for route {self.start_point} → {self.end_point}:")
         for feedback in top_feedbacks:
             feedback.display_feedback()
 
@@ -59,7 +59,7 @@ class Route(models.Model):
             models.Q(end_point__icontains=location)
         ).prefetch_related('feedbacks')
         
-        print(f"\nFeedbacks de rotas com origem ou destino em: '{location}':")
+        print(f"\nFeedbacks from routes with origin or destination in: '{location}':")
         for route in routes:
             print(f"\nRoute: {route.start_point} → {route.end_point}")
             for feedback in route.feedbacks.all():
@@ -91,7 +91,7 @@ class PointOfInterest(models.Model):
         return f"{self.name} ({self.type})"
 
     def show_description(self) -> None:
-        print(f"Descrição: {self.description}")
+        print(f"Description: {self.description}")
 
     def add_feedback(self, author: str, comment: str, rating: int) -> None:
         FeedbackPOI.objects.create(point_of_interest=self, author=author, comment=comment, rating=rating)
@@ -132,7 +132,6 @@ class PointOfInterest(models.Model):
     def list_points_of_interest(cls) -> List["PointOfInterest"]:
         return cls.objects.all()
 
-
 class FeedbackPOI(models.Model):
     point_of_interest = models.ForeignKey("PointOfInterest", on_delete=models.CASCADE)
     author = models.CharField(max_length=100)
@@ -141,4 +140,4 @@ class FeedbackPOI(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.author} avaliou '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' com nota {self.rating}"
+        return f"{self.author} rated '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' with score {self.rating}"
