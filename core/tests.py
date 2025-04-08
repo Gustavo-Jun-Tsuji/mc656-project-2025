@@ -63,3 +63,38 @@ class FeedbackRouteTestCase(TestCase):
         self.assertIn("Mensagem: Lugar ótimo para relaxar!", output)
         self.assertIn("Votos: ↑15 ↓1 (Saldo: 14)", output)
 
+
+class RouteTestCase(TestCase):
+    def setUp(self):
+        self.route = Route.create_route("A", "B", 100.0)
+
+    def test_create_route_successfully(self):
+        self.assertEqual(self.route.start_point, "A")
+        self.assertEqual(self.route.end_point, "B")
+        self.assertEqual(self.route.distance, 100.0)
+        self.assertEqual(Route.objects.count(), 1)
+
+    def test_estimated_time_with_valid_speed(self):
+        route = Route.create_route("C", "D", 120.0)
+        tempo = route.estimated_time(60.0)
+        self.assertEqual(tempo, 2.0)
+
+    def test_estimated_time_with_zero_speed_raises_error(self):
+        with self.assertRaisesMessage(ValueError, "greater than zero"):
+            self.route.estimated_time(0)
+
+    def test_list_routes_returns_all_routes(self):
+        Route.objects.create(start_point="C", end_point="D", distance=50)
+        routes = Route.list_routes()
+
+        self.assertEqual(len(routes), 2)
+
+        expected_routes = [
+            ("A", "B", 100.0),
+            ("C", "D", 50.0),
+        ]
+        for route, (start, end, dist) in zip(routes, expected_routes):
+            with self.subTest(route=route):
+                self.assertEqual(route.start_point, start)
+                self.assertEqual(route.end_point, end)
+                self.assertEqual(route.distance, dist)
