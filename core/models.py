@@ -97,7 +97,7 @@ class PointOfInterest(models.Model):
         FeedbackPOI.objects.create(point_of_interest=self, author=author, comment=comment, rating=rating)
 
     def get_feedbacks(self) -> List["FeedbackPOI"]:
-        return list(self.feedback_set.all())
+        return list(self.feedbackpoi_set.all())
 
     def calculate_distance(self, user_latitude: float, user_longitude: float) -> float:
         """
@@ -141,4 +141,4 @@ class FeedbackPOI(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.author} rated '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' with {self.rating}"
+        return f"{self.author} avaliou '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' com nota {self.rating}"
