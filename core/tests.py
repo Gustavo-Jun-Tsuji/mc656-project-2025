@@ -1,5 +1,68 @@
 from django.test import TestCase
-from core.models import Route, PointOfInterest
+from core.models import Route, FeedbackRoute
+from django.core.exceptions import ValidationError
+
+class FeedbackRouteTestCase(TestCase):
+    def setUp(self):
+        self.route = Route.objects.create(
+            start_point="A",
+            end_point="B",
+            distance=400.0
+        )
+        self.feedback = FeedbackRoute.objects.create(
+            user="Maria",
+            rating=5,
+            message="Lugar ótimo para relaxar!",
+            upvotes=15,
+            downvotes=1
+        )
+        self.route.feedbacks.add(self.feedback)
+
+    def test_feedback_attributes(self):
+        self.assertEqual(self.feedback.user, "Maria")
+        self.assertEqual(self.feedback.rating, 5)
+        self.assertEqual(self.feedback.message, "Lugar ótimo para relaxar!")
+        self.assertEqual(self.feedback.upvotes, 15)
+        self.assertEqual(self.feedback.downvotes, 1)
+
+    def test_rating_validation(self):
+        feedback = FeedbackRoute(
+            user="João",
+            rating=3,
+            message="Legal",
+            upvotes=5,
+            downvotes=2
+        )
+        feedback.full_clean()
+
+        with self.assertRaises(ValidationError):
+            feedback.rating = -1
+            feedback.full_clean()
+
+        with self.assertRaises(ValidationError):
+            feedback.rating = 6
+            feedback.full_clean()
+
+    def test_feedback_str_representation(self):
+        expected = "Feedback por: Maria - 5 estrelas"
+        self.assertEqual(str(self.feedback), expected)
+
+    def test_display_feedback_output(self):
+        from io import StringIO
+        import sys
+        
+        captured_output = StringIO()
+        sys.stdout = captured_output
+        
+        self.feedback.display_feedback()
+        sys.stdout = sys.__stdout__
+        
+        output = captured_output.getvalue()
+        self.assertIn("Usuário: Maria", output)
+        self.assertIn("Avaliação: ★★★★★", output)
+        self.assertIn("Mensagem: Lugar ótimo para relaxar!", output)
+        self.assertIn("Votos: ↑15 ↓1 (Saldo: 14)", output)
+
 
 class RouteTestCase(TestCase):
     def setUp(self):
@@ -35,34 +98,3 @@ class RouteTestCase(TestCase):
                 self.assertEqual(route.start_point, start)
                 self.assertEqual(route.end_point, end)
                 self.assertEqual(route.distance, dist)
-
-    # def test_route_str_representation_with_pois(self):
-    #     poi1 = PointOfInterest.objects.create(type="Waterfall", description="Beautiful waterfall")
-    #     poi2 = PointOfInterest.objects.create(type="Lookout", description="Scenic view")
-
-    #     RoutePointOfInterest.objects.create(route=self.route, point_of_interest=poi1, distance=25)
-    #     RoutePointOfInterest.objects.create(route=self.route, point_of_interest=poi2, distance=75)
-
-    #     expected = "Route from A to B (100.0 km) | Points of Interest: Waterfall (25.0 km); Lookout (75.0 km)"
-    #     self.assertEqual(str(self.route), expected)
-
-
-# class PointOfInterestTestCase(TestCase):
-#     def test_create_point_of_interest_successfully(self):
-#         poi = PointOfInterest.objects.create(type="Restaurant", description="Good Food!")
-#         self.assertEqual(poi.type, "Restaurant")
-#         self.assertEqual(PointOfInterest.objects.count(), 1)
-
-
-# class RoutePointOfInterestTestCase(TestCase):
-#     def setUp(self):
-#         self.route = Route.create_route("X", "Y", 200.0)
-#         self.poi = PointOfInterest.objects.create(type="Park", description="Nice view")
-
-#     def test_association_between_route_and_poi(self):
-#         relation = RoutePointOfInterest.objects.create(
-#             route=self.route, point_of_interest=self.poi, distance=50.0
-#         )
-
-#         self.assertEqual(self.route.point_of_interest.count(), 1)
-#         self.assertEqual(relation.distance, 50.0)
