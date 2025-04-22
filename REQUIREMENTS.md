@@ -38,6 +38,7 @@ Para os requisitos do documento original de requisitos, foram pensados os épico
 | 10             | US03.1       | Como usuário, desejo visualizar rotas no mapa com detalhes como origem, destino, pontos de interesse e duração. |
 | 02             | US03.2       | Como usuário, desejo aplicar filtros nas rotas usando _tags_ para facilitar minhas buscas. |
 | 04             | US03.3       | Como usuário, desejo ver avaliações e comentários de outros usuários sobre uma rota para considerar o que os outros dizem dela antes de usá-la. |
+| 03             | US03.4       | Como usuário autenticado, desejo ver meu histórico de rotas recém visualizadas para eu facilmente retornar ao que eu estava fazendo anteriormente plataforma. |
 
 # Critérios de aceitação
 
@@ -63,16 +64,18 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 **Descrição**: Visualização e classificação de rotas e pontos de interesse.
 - **US03.1**
 	- Origem, destino, pontos de interesse e trajeto de qualquer rota selecionada em destaque sobre um mapa;
-  - (No mínimo) Avaliação média e duração em uma aba fora do mapa;
-  - 80% dos testadores sabendo reconhecer o que são todos os elementos da visualização.
+  	- (No mínimo) Avaliação média e duração em uma aba fora do mapa;
+  	- 80% dos testadores sabendo reconhecer o que são todos os elementos da visualização.
 - **US03.2**
-	- 100% das rotas disponiveis que se adequam ao(s) filtro(s) selecionados aparecendo, inclusive quando há mais de um e quando há seleção de _tags_, se existir alguma rota que se enquadre no(s) filtro(s);
-	- uma mensagem de aviso dizendo que nenhuma rota foi encontrada se não existir nenhuma rota que se enquadre no(s) filtro(s);
-  - pelo menos 3 _tags_ de rotas adicionadas.
+	- 100% das rotas disponiveis que se adequam ao(s) filtro(s) selecionados aparecendo, inclusive quando há mais de um e quando há seleção de _tags_, se existir alguma rota que se enquadre no(s) filtro(s), ou uma mensagem de aviso dizendo que nenhuma rota foi encontrada se não existir nenhuma rota que se enquadre no(s) filtro(s);
+  	- pelo menos 3 _tags_ de rotas adicionadas.
 - **US03.3**
 	- 100% das avaliações de uma rota selecionada aparecendo;
-  - ao menos 2 filtros de visualização de avaliações implementados;
-  - 100% dos filtros e suas combinações funcionando da maneira esperada, não omitindo nenhum dado.
+  	- ao menos 2 filtros de visualização de avaliações implementados;
+  	- 100% dos filtros e suas combinações funcionando da maneira esperada, não omitindo nenhum dado.
+- **US03.4**
+	- 100% das rotas mais recentemente visualizadas aparecendo em um menu para qualquer usuário, ou uma mensagem de aviso dizendo que nenhuma rota foi visitada;
+ 	- 80% dos testadores avaliando como adequada a quantidade e seleção de informações das rotas apresentadas no histórico.   
 
 A título de documentação, as frases criadas com base no método GWT foram:
 - **US01.1** - Dado que sou administrador, quando eu cadastrar um novo usuário na plataforma, então o cadastro deve ocorrer com sucesso.
@@ -87,7 +90,8 @@ A título de documentação, as frases criadas com base no método GWT foram:
 - **US02.4** – Dado que sou usuário autenticado, quando recomendo rotas para outras pessoas, então a recomendação deve chegar ao destinatário e para ele ser de fácil acesso.
 - **US03.1** – Quando eu visualizo uma rota, então ela deve estar em um mapa, com origem, destino e jornada facilmente reconhecíveis, trajeto sinalizado e pontos de interesse destacados, além de ter informações secundárias, como avaliação média e duração, reunidas em local de menor destaque.
 - **US03.2** – Quando eu aplico um filtro para visualizar apenas rotas que possuam certa(s) característica(s), então quero ver todas as rotas disponíveis na plataforma que se enquadram no meu filtro, sem exceções.
-- **US03.3** – Quando seleciono as avaliações de uma rota, então quero ver sua avaliação média e as avaliações individuais de todas as pessoas que já avaliaram essa rota, podendo inclusive escolher filtros de visualizações delas. 
+- **US03.3** – Quando seleciono as avaliações de uma rota, então quero ver sua avaliação média e as avaliações individuais de todas as pessoas que já avaliaram essa rota, podendo inclusive escolher filtros de visualizações delas.
+- **US03.4** - Dado que sou usuário autenticado, quando visualizo meu histórico de rotas recém visualizadas, então quero ver todas as rotas que eu visitei por último em ordem crescente de tempo desde minha última visualização e com o registro temporal de quando isso aconteceu.
 
 # Definition of Done (DoD) das _user stories_ (US)
 Uma _user story_ do projeto está pronta quando
