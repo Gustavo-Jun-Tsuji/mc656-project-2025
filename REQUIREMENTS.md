@@ -46,7 +46,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 
 ### EP01 - Gerenciamento de acesso e de usuários
 **Descrição**: Controle de permissões, autenticação e gestão de usuários da plataforma.
-- **US01.1** - Como administrador, desejo cadastrar um novo usuário para que ele tenha acesso à plataforma.
+- **US01.1** – Como administrador, desejo cadastrar um novo usuário para que ele tenha acesso à plataforma.
  	- Página de cadastro existente e acessível apenas a administradores.
   	- Campos obrigatórios para cadastro são validados antes do cadastro ser concluído (campos não vazios, e-mail válido e nome com caracteres do alfabeto latino).
   	- Dados válidos submetidos fazem o sistema gravar o novo usuário no banco de dados de forma persistente, i.e., o novo usuário aparece na lista dada pela US01.2.
@@ -61,7 +61,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
   	- Dados válidos submetidos fazem o sistema exibir uma mensagem "Dados atualizados com sucesso!" na tela e gravar os novos dados do usuário no banco de dados de forma persistente, i.e., os novos dados aparecem na lista dada pela US01.2.
   	- Dados inválidos submetidos não alteram nada e exibem uma mensagem de erro específico de acordo com o que está inválido.
 - **US01.4** – Como administrador, desejo excluir usuários da plataforma quando necessário para ter melhor controle sobre testes e uso do sistema.
- 	- Botão de deleção ao lado de cada usuário na lista dada pela US01.3.
+ 	- Botão de deleção ao lado de cada usuário na lista dada pela US01.2.
   	- Um clique no botão de deleção abre um _pop-up_ de alerta/confirmação.
   	- Deleção de usuário faz o sistema exibir uma mensagem "Usuário excluído com sucesso!" na tela e remove todos os dados do usuário do banco de dados de forma persistente, i.e., o usuário não aparece mais na lista dada pela US01.2.
 - **US01.5** – Como usuário, desejo realizar login com minhas credenciais para acessar funcionalidades personalizadas.
@@ -97,25 +97,25 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 
 ### EP03 - Visualizações no sistema
 **Descrição**: Visualização e classificação de rotas e pontos de interesse.
-- **US03.1** - Como usuário, desejo visualizar rotas no mapa com detalhes como origem, destino, pontos de interesse e duração.
+- **US03.1** – Como usuário, desejo visualizar rotas no mapa com detalhes como origem, destino, pontos de interesse e duração.
 	- Origem, destino, pontos de interesse e trajeto de qualquer rota selecionada em destaque sobre um mapa.
  	- Pontos de interesse destacados na rota com ícones clicáveis que exibem seus detalhes quando clicados.
   	- Pelo menos avaliação média, distância e duração em uma aba fora do mapa.
-- **US03.2** - Como usuário, desejo aplicar filtros nas rotas usando _tags_ para facilitar minhas buscas.
+- **US03.2** – Como usuário, desejo aplicar filtros nas rotas usando _tags_ para facilitar minhas buscas.
 	- Todas as rotas disponiveis que se adequam ao(s) filtro(s) selecionados aparecem como resultado, inclusive quando há mais de um e quando há seleção de _tags_, se existir alguma rota que se enquadre no(s) filtro(s), ou uma mensagem de aviso dizendo que nenhuma rota foi encontrada se não existir nenhuma rota que se enquadre no(s) filtro(s).
  	- Lista de rotas atualiza sem a necessidade de recarregar a página quando algo for marcado ou desmarcado.
   	- Pelo menos 3 _tags_ de rotas adicionadas.
-- **US03.3** - Como usuário, desejo ver avaliações e comentários de outros usuários sobre uma rota para considerar o que os outros dizem dela antes de usá-la.
+- **US03.3** – Como usuário, desejo ver avaliações e comentários de outros usuários sobre uma rota para considerar o que os outros dizem dela antes de usá-la.
 	- Todas as avaliações de uma rota selecionada aparecem em uma lista de avaliações, que contêm usuário avaliador, estrelas, data e comentário.
   	- Ao menos 2 filtros de visualização de avaliações implementados (por número de estrelas e por data).
-- **US03.4** - Como usuário autenticado, desejo ver meu histórico de rotas recém visualizadas para eu facilmente retornar ao que eu estava fazendo anteriormente plataforma.
+- **US03.4** – Como usuário autenticado, desejo ver meu histórico de rotas recém visualizadas para eu facilmente retornar ao que eu estava fazendo anteriormente plataforma.
 	- Último acesso de cada rota por um usuário gravado.
  	- Histórico de rotas exibido em ordem crescente de tempo desde o último acesso, i.e., rotas visualizadas mais recentemente vêm primeiro.
   	- Cada rota no histórico mostra uma mensagem "visto em (data), (hora)".
   	- Histórico exibe 20 últimos registros, com um link "Ver mais" que leva a uma página com o histórico completo se houver mais que 20 registros ou uma mensagem "Nenhuma rota visualizada recentemente" se não houver nenhuma rota no histórico. 
 
 A título de documentação, as frases criadas com base no método GWT foram:
-- **US01.1** - Dado que sou administrador, quando eu cadastrar um novo usuário na plataforma, então o cadastro deve ocorrer com sucesso.
+- **US01.1** – Dado que sou administrador, quando eu cadastrar um novo usuário na plataforma, então o cadastro deve ocorrer com sucesso.
 - **US01.2** – Dado que sou administrador, quando eu quiser visualizar a lista de usuários cadastrados, então todos devem aparecer na visualização.
 - **US01.3** – Dado que sou administrador, quando eu editar um dado de um usuário, então a edição deve ser imediata e definitiva, não importanto o tipo de dado que eu alterei. 
 - **US01.4** – Dado que sou administrador, quando eu excluir um usuário, então nenhum dado seu deve permanecer no banco de dados.
@@ -128,7 +128,7 @@ A título de documentação, as frases criadas com base no método GWT foram:
 - **US03.1** – Quando eu visualizo uma rota, então ela deve estar em um mapa, com origem, destino e jornada facilmente reconhecíveis, trajeto sinalizado e pontos de interesse destacados, além de ter informações secundárias, como avaliação média e duração, reunidas em local de menor destaque.
 - **US03.2** – Quando eu aplico um filtro para visualizar apenas rotas que possuam certa(s) característica(s), então quero ver todas as rotas disponíveis na plataforma que se enquadram no meu filtro, sem exceções.
 - **US03.3** – Quando seleciono as avaliações de uma rota, então quero ver sua avaliação média e as avaliações individuais de todas as pessoas que já avaliaram essa rota, podendo inclusive escolher filtros de visualizações delas.
-- **US03.4** - Dado que sou usuário autenticado, quando visualizo meu histórico de rotas recém visualizadas, então quero ver todas as rotas que eu visitei por último em ordem crescente de tempo desde minha última visualização e com o registro temporal de quando isso aconteceu.
+- **US03.4** – Dado que sou usuário autenticado, quando visualizo meu histórico de rotas recém visualizadas, então quero ver todas as rotas que eu visitei por último em ordem crescente de tempo desde minha última visualização e com o registro temporal de quando isso aconteceu.
 
 # Definition of Done (DoD) das _user stories_ (US)
 Uma _user story_ do projeto está pronta quando
