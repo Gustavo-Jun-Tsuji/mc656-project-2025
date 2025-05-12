@@ -14,14 +14,26 @@ services:
       - db
     env_file:
       - backend/dotenv_files/.env
-  test:
-    build: ./backend
-    command: python manage.py test
+
+  frontend:
+    build: ./frontend
     volumes:
-      - ./backend:/code
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
     environment:
-      - DJANGO_SETTINGS_MODULE=project.settings
+      - VITE_API_URL=http://web:8000
     depends_on:
-      - db
-    env_file:
-      - backend/dotenv_files/.env
+      - web
+  # test:
+  #   build: ./backend
+  #   command: python manage.py test
+  #   volumes:
+  #     - ./backend:/code
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=project.settings
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - backend/dotenv_files/.env
