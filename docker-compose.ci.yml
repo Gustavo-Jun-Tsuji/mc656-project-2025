@@ -7,11 +7,11 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
-  
+
   django:
     build: .
     volumes:
-      - .:/code
+      - ./backend:/code
     ports:
       - "8000:8000"
     depends_on:

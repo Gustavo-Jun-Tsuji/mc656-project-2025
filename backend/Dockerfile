@@ -17,7 +17,9 @@ FROM python:3.13-slim
 
 RUN useradd -m -r appuser && \
    mkdir /code && \
-   chown -R appuser /code
+   chown -R appuser /code && \
+   mkdir -p /scripts && \
+   chown -R appuser /scripts
 
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -32,5 +34,8 @@ RUN chmod +x /scripts/commands.sh
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
+
+# Switch to non-root user
+USER appuser
 
 EXPOSE 8000

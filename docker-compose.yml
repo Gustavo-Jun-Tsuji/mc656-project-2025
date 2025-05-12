@@ -1,28 +1,27 @@
 services:
-    db:
-        image: postgres
-        env_file:
-            - dotenv_files/.env
-    web:
-        build: .
-        command: /scripts/commands.sh
-        volumes:
-            - .:/code
-        ports:
-            - "8000:8000"
-        depends_on:
-            - db
-        env_file:
-            - dotenv_files/.env
-    test:
-        build: .
-        command: python manage.py test
-        volumes:
-        - .:/code
-        environment:
-        - DJANGO_SETTINGS_MODULE=project.settings
-        depends_on:
-            - db
-        env_file:
-            - dotenv_files/.env
-        
+  db:
+    image: postgres
+    env_file:
+      - backend/dotenv_files/.env
+  web:
+    build: ./backend
+    command: /scripts/commands.sh
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - backend/dotenv_files/.env
+  test:
+    build: ./backend
+    command: python manage.py test
+    volumes:
+      - ./backend:/code
+    environment:
+      - DJANGO_SETTINGS_MODULE=project.settings
+    depends_on:
+      - db
+    env_file:
+      - backend/dotenv_files/.env
