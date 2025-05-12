@@ -9,7 +9,7 @@ services:
       - "5432:5432"
 
   django:
-    build: .
+    build: ./backend
     volumes:
       - ./backend:/code
     ports:
