@@ -13,7 +13,8 @@ class Route(models.Model):
     
     # Store coordinates as a JSON array of [lat, lng] pairs
     coordinates = models.JSONField(
-        help_text="Array of geographic coordinates defining the route path"
+        help_text="Array of geographic coordinates defining the route path",
+        default=list
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
