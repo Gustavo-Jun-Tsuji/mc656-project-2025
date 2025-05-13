@@ -3,141 +3,61 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from typing import List
 
-class FeedbackRoute(models.Model):
-    user = models.CharField(max_length=100)
+class Route(models.Model):
+    id = models.AutoField(primary_key=True)
     
-    rating = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(5)],
-        verbose_name="Rating (0-5 stars)"
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    starting_location = models.CharField(max_length=255, blank=True, null=True)
+    ending_location = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Store coordinates as a JSON array of [lat, lng] pairs
+    coordinates = models.JSONField(
+        help_text="Array of geographic coordinates defining the route path"
     )
     
-    message = models.TextField()
-    upvotes = models.IntegerField(default=0)
-    downvotes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    def display_feedback(self) -> None:
-        print(f"\nUser: {self.user}")
-        print(f"Rating: {'★' * self.rating}{'☆' * (5 - self.rating)}")
-        print(f"Message: {self.message}")
-        print(f"Votes: ↑{self.upvotes} ↓{self.downvotes} (Score: {self.upvotes - self.downvotes})")
-        print(f"Date: {self.created_at.strftime('%d/%m/%Y %H:%M')}")
-    
-    def __str__(self):
-        return f"Feedback by: {self.user} - {self.rating} stars"
-    
-    class Meta:
-        verbose_name = "Route Feedback"
-        verbose_name_plural = "Route Feedbacks"
-
-class Route(models.Model):
-    start_point = models.CharField(max_length=200)
-    end_point = models.CharField(max_length=200)
-    distance = models.FloatField(help_text="Distance in kilometers")
-    feedbacks = models.ManyToManyField(FeedbackRoute, blank=True, related_name="routes")
 
     def __str__(self):
-        return f"{self.start_point} → {self.end_point} ({self.distance} km)"
-
-    def estimated_time(self, average_speed: float) -> float:
-        if average_speed <= 0:
-            raise ValueError("The average speed must be greater than zero!")
-        return self.distance / average_speed
-
-    def show_feedbacks(self, quantity: int) -> None:
-        top_feedbacks = self.feedbacks.annotate(
-            votes=models.F('upvotes') - models.F('downvotes')
-        ).order_by('-votes')[:quantity]
+        return self.title
+    
+    @property
+    def start_point(self):
+        """Returns the first coordinate in the route"""
+        if self.coordinates and len(self.coordinates) > 0:
+            return self.coordinates[0]
+        return None
+    
+    @property
+    def end_point(self):
+        """Returns the last coordinate in the route"""
+        if self.coordinates and len(self.coordinates) > 0:
+            return self.coordinates[-1]
+        return None
+    
+    @property
+    def distance(self):
+        """Calculate the total distance of the route in kilometers"""
+        if not self.coordinates or len(self.coordinates) < 2:
+            return 0
+            
+        def haversine(point1, point2):
+            """Calculate distance between two lat/lng points in km"""
+            lat1, lng1 = point1
+            lat2, lng2 = point2
+            
+            # Convert decimal degrees to radians
+            lat1, lng1, lat2, lng2 = map(math.radians, [lat1, lng1, lat2, lng2])
+            
+            # Haversine formula for distance on a sphere
+            dlat = lat2 - lat1
+            dlng = lng2 - lng1
+            a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng/2)**2
+            c = 2 * math.asin(math.sqrt(a))
+            r = 6371  # Radius of earth in kilometers
+            return c * r
         
-        print(f"\nTop {quantity} feedbacks for route {self.start_point} → {self.end_point}:")
-        for feedback in top_feedbacks:
-            feedback.display_feedback()
-
-    def feedbacks_by_location(self, location: str) -> None:
-        routes = Route.objects.filter(
-            models.Q(start_point__icontains=location) | 
-            models.Q(end_point__icontains=location)
-        ).prefetch_related('feedbacks')
-        
-        print(f"\nFeedbacks from routes with origin or destination in: '{location}':")
-        for route in routes:
-            print(f"\nRoute: {route.start_point} → {route.end_point}")
-            for feedback in route.feedbacks.all():
-                feedback.display_feedback()
-
-    @classmethod
-    def create_route(cls, start_point: str, end_point: str, distance: float) -> "Route":
-        route = cls(start_point=start_point, end_point=end_point, distance=distance)
-        route.save()
-        return route
-
-    @classmethod
-    def list_routes(cls) -> List["Route"]:
-        return cls.objects.all()
-
-class PointOfInterest(models.Model):
-    name = models.CharField(max_length=200)
-    # TODO: replace 'type' (CharField) with a relationship to another class
-    type = models.CharField(max_length=100, help_text="Concrete form/function of the point (e.g., restaurant, park, etc.)") 
-    category = models.CharField(max_length=100, blank=True, help_text="Theme it fits into (e.g., leisure, culture, etc.)")
-    address = models.CharField(max_length=255)
-    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
-    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_edit = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return f"{self.name} ({self.type})"
-
-    def show_description(self) -> None:
-        print(f"Description: {self.description}")
-
-    def add_feedback(self, author: str, comment: str, rating: int) -> None:
-        FeedbackPOI.objects.create(point_of_interest=self, author=author, comment=comment, rating=rating)
-
-    def get_feedbacks(self) -> List["FeedbackPOI"]:
-        return list(self.feedbackpoi_set.all())
-
-    def calculate_distance(self, user_latitude: float, user_longitude: float) -> float:
-        """
-        Calculates the distance in kilometers between the point of interest and the user's location
-        using the Haversine formula.
-        """
-        earth_radius = 6371
-
-        lat1 = math.radians(self.latitude)
-        lon1 = math.radians(self.longitude)
-        lat2 = math.radians(user_latitude)
-        lon2 = math.radians(user_longitude)
-
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-
-        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        distance = earth_radius * c
-
-        return distance
-
-    @classmethod
-    def create_point_of_interest(cls, name: str, type_: str, category: str, address: str,
-                                 latitude: float, longitude: float, description: str) -> "PointOfInterest":
-        point = cls(name=name, type=type_, category=category, address=address,
-                    latitude=latitude, longitude=longitude, description=description)
-        point.save()
-        return point
-
-    @classmethod
-    def list_points_of_interest(cls) -> List["PointOfInterest"]:
-        return cls.objects.all()
-
-class FeedbackPOI(models.Model):
-    point_of_interest = models.ForeignKey("PointOfInterest", on_delete=models.CASCADE)
-    author = models.CharField(max_length=100)
-    comment = models.TextField(blank=True)
-    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], help_text="Rating from 1 to 5")
-    added_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        return f"{self.author} rated '{self.point_of_interest.name if self.point_of_interest else 'Unknown'}' with score {self.rating}"
+        total = 0
+        for i in range(len(self.coordinates)-1):
+            total += haversine(self.coordinates[i], self.coordinates[i+1])
+        return total
