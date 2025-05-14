@@ -1,33 +1,19 @@
-import { useState } from "react";
-import api from "./api";
-import "./App.css";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import CreateRoutePage from "./pages/CreateRoutePage";
+import "./styles/App.css";
 
 function App() {
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleClick = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/test/");
-      setMessage(response.data.message);
-    } catch (error) {
-      setMessage("Error connecting to API");
-    }
-    setLoading(false);
-  };
-
   return (
-    <>
-      <div>
-        <button onClick={handleClick} disabled={loading}>
-          {loading ? "Loading..." : "Call API"}
-        </button>
-        <div style={{ marginTop: "1rem" }}>
-          <strong>API Response:</strong> {message}
-        </div>
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/routes/create" element={<CreateRoutePage />} />
+        </Routes>
       </div>
-    </>
+    </Router>
   );
 }
 

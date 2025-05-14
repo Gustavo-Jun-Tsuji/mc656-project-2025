@@ -1,0 +1,49 @@
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+  /* Add this to wrap on smaller screens */
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Add styling for the nav container */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 60%;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 1px solid #333;
+  padding: 0.25rem 0.5rem;
+  color: #333;
+}
+
+.nav a {
+  margin-left: 0; /* Remove left margin */
+  text-decoration: none;
+  color: #333;
+  white-space: nowrap; /* Optional: prevents links from breaking */
+  padding: 0.25rem 0.5rem;
+}
+
+/* Add media query for very small screens */
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav {
+    margin-top: 0.5rem;
+    max-width: 100%;
+  }
+}
