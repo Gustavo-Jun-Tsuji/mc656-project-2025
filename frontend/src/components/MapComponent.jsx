@@ -85,7 +85,7 @@ function DrawControl({ onCreated }) {
 }
 
 // Add center, zoom and readOnly props
-const MapComponent2 = ({
+const MapComponent = ({
   coordinates = [],
   setCoordinates = null,
   center = null,
