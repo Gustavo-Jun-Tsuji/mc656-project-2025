@@ -142,4 +142,3 @@ class RouteViewSetTests(APITestCase):
         response = self.client.get(f"{self.routes_url}?search=nonexistent")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
-
