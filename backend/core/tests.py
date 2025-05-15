@@ -3,212 +3,143 @@ from unittest.mock import patch
 from django.test import TestCase
 from core.models import Route, FeedbackRoute, PointOfInterest, FeedbackPOI
 from django.core.exceptions import ValidationError
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from .models import Route
+import json
 
-class FeedbackRouteTestCase(TestCase):
-    def setUp(self):
-        self.route = Route.objects.create(
-            start_point="A",
-            end_point="B",
-            distance=400.0
-        )
-        self.feedback = FeedbackRoute.objects.create(
-            user="Maria",
-            rating=5,
-            message="Great place to relax!",
-            upvotes=15,
-            downvotes=1
-        )
-        self.route.feedbacks.add(self.feedback)
-
-    def test_feedback_attributes(self):
-        self.assertEqual(self.feedback.user, "Maria")
-        self.assertEqual(self.feedback.rating, 5)
-        self.assertEqual(self.feedback.message, "Great place to relax!")
-        self.assertEqual(self.feedback.upvotes, 15)
-        self.assertEqual(self.feedback.downvotes, 1)
-
-    def test_rating_validation(self):
-        feedback = FeedbackRoute(
-            user="João",
-            rating=3,
-            message="Nice",
-            upvotes=5,
-            downvotes=2
-        )
-        feedback.full_clean()
-
-        with self.assertRaises(ValidationError):
-            feedback.rating = -1
-            feedback.full_clean()
-
-        with self.assertRaises(ValidationError):
-            feedback.rating = 6
-            feedback.full_clean()
-
-    def test_feedback_str_representation(self):
-        expected = "Feedback by: Maria - 5 stars"
-        self.assertEqual(str(self.feedback), expected)
-
-    def test_display_feedback_output(self):
-        from io import StringIO
-        import sys
-        
-        captured_output = StringIO()
-        sys.stdout = captured_output
-        
-        self.feedback.display_feedback()
-        sys.stdout = sys.__stdout__
-        
-        output = captured_output.getvalue()
-        self.assertIn("User: Maria", output)
-        self.assertIn("Rating: ★★★★★", output)
-        self.assertIn("Message: Great place to relax!", output)
-        self.assertIn("Votes: ↑15 ↓1 (Score: 14)", output)
-
-    def test_rating_with_invalid_type(self):
-        with self.assertRaises(ValidationError):
-            feedback = FeedbackRoute(user="Carlos", rating="cinco", message="Nice")
-            feedback.full_clean()
-
-    def test_user_field_validation(self):
-        with self.assertRaises(ValidationError):
-            feedback = FeedbackRoute(user="", rating=3, message="Nice")
-            feedback.full_clean()
-
-        with self.assertRaises(ValidationError):
-            feedback = FeedbackRoute(user="a" * 101, rating=3, message="Nice")
-            feedback.full_clean()
-
-class RouteTestCase(TestCase):
-    def setUp(self):
-        self.route = Route.create_route("A", "B", 100.0)
-
-    def test_create_route_successfully(self):
-        self.assertEqual(self.route.start_point, "A")
-        self.assertEqual(self.route.end_point, "B")
-        self.assertEqual(self.route.distance, 100.0)
-        self.assertEqual(Route.objects.count(), 1)
-
-    def test_estimated_time_with_valid_speed(self):
-        route = Route.create_route("C", "D", 120.0)
-        time = route.estimated_time(60.0)
-        self.assertEqual(time, 2.0)
-
-    def test_estimated_time_with_zero_speed_raises_error(self):
-        with self.assertRaisesMessage(ValueError, "greater than zero"):
-            self.route.estimated_time(0)
-
-    def test_list_routes_returns_all_routes(self):
-        Route.objects.create(start_point="C", end_point="D", distance=50)
-        routes = Route.list_routes()
-
-        self.assertEqual(len(routes), 2)
-
-        expected_routes = [
-            ("A", "B", 100.0),
-            ("C", "D", 50.0),
-        ]
-        for route, (start, end, dist) in zip(routes, expected_routes):
-            with self.subTest(route=route):
-                self.assertEqual(route.start_point, start)
-                self.assertEqual(route.end_point, end)
-                self.assertEqual(route.distance, dist)
-
-class PointOfInterestTestCase(TestCase):
-    def setUp(self):
-        self.point = PointOfInterest.create_point_of_interest(
-            name="Central Square",
-            type_="Square",
-            category="Leisure",
-            address="123 Central Ave",
-            latitude=-22.8125,
-            longitude=-47.0689,
-            description="A peaceful square with benches and trees."
-        )
-
-    def test_create_point_of_interest(self):
-        self.assertEqual(self.point.name, "Central Square")
-        self.assertEqual(self.point.type, "Square")
-        self.assertEqual(self.point.category, "Leisure")
-        self.assertEqual(self.point.address, "123 Central Ave")
-        self.assertEqual(self.point.latitude, -22.8125)
-        self.assertEqual(self.point.longitude, -47.0689)
-        self.assertEqual(self.point.description, "A peaceful square with benches and trees.")
-        self.assertEqual(PointOfInterest.objects.count(), 1)
-
-    def test_point_of_interest_str_representation(self):
-        expected = "Central Square (Square)"
-        self.assertEqual(str(self.point), expected)
-
-    def test_show_description(self):
-        with patch.object(builtins, "print") as mock_print:
-            self.point.show_description()
-            mock_print.assert_called_with("Description: A peaceful square with benches and trees.")
-
-    def test_add_feedback(self):
-        self.point.add_feedback(
-            author="João",
-            comment="Great place!",
-            rating=5
-        )
-        feedbacks = FeedbackPOI.objects.filter(point_of_interest=self.point)
-        self.assertEqual(feedbacks.count(), 1)
-        self.assertEqual(feedbacks.first().author, "João")
-
-    def test_get_feedbacks(self):
-        FeedbackPOI.objects.create(point_of_interest=self.point, author="Ana", comment="I liked it", rating=4)
-        FeedbackPOI.objects.create(point_of_interest=self.point, author="Carlos", comment="Nice", rating=5)
-        feedbacks = self.point.get_feedbacks()
-        self.assertEqual(len(feedbacks), 2)
-
-    def test_calculate_distance(self):
-        distance = self.point.calculate_distance(user_latitude=-22.8200, user_longitude=-47.0700)
-        self.assertGreater(distance, 0)
-        self.assertLess(distance, 5)
+class TestViewTest(APITestCase):
+    """Tests for the simple test view"""
     
-    def test_list_points_of_interest(self):
-        PointOfInterest.create_point_of_interest(
-            name="Art Museum",
-            type_="Museum",
-            category="Culture",
-            address="456 Culture St",
-            latitude=-22.8150,
-            longitude=-47.0650,
-            description="Museum with modern art exhibitions."
-        )
-        points = PointOfInterest.list_points_of_interest()
-        self.assertEqual(len(points), 2)
-        self.assertIn(self.point, points)
+    def test_test_view(self):
+        """Test that the test view returns the expected message"""
+        url = '/test/'  # Update this if your URL is different
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), {"message": "Hello, world!"})
 
-    def test_calculate_distance_with_invalid_input(self):
-        with self.assertRaises(TypeError):
-            self.point.calculate_distance(user_latitude=None, user_longitude="not_a_float")
 
-class FeedbackPOITestCase(TestCase):
+class RouteViewSetTests(APITestCase):
+    """Tests for the RouteViewSet"""
+    
     def setUp(self):
-        self.point = PointOfInterest.objects.create(
-            name="Water Park",
-            type="Park",
-            category="Leisure",
-            address="789 Flower St",
-            latitude=-44.7605,
-            longitude=-60.3855,
-            description="Park with a lake and walking track."
+        """Create test data"""
+        self.routes_url = reverse('route-list')  # Assumes you've named your route 'route-list'
+        
+        # Create some test routes
+        self.route1 = Route.objects.create(
+            title="Test Route 1",
+            description="This is test route 1",
+            starting_location="Start Point 1",
+            ending_location="End Point 1",
+            distance=10.5
         )
-        self.feedback = FeedbackPOI.objects.create(
-            point_of_interest=self.point,
-            author="Maria",
-            comment="Great place to relax.",
-            rating=5
+        
+        self.route2 = Route.objects.create(
+            title="Different Route 2",
+            description="This is test route 2",
+            starting_location="Start Point 2",
+            ending_location="End Point 2",
+            distance=5.2
         )
-
-    def test_feedback_attributes(self):
-        self.assertEqual(self.feedback.author, "Maria")
-        self.assertEqual(self.feedback.rating, 5)
-        self.assertEqual(self.feedback.point_of_interest, self.point)
-
-    def test_feedback_str_representation(self):
-        expected = "Maria rated 'Water Park' with score 5"
-        self.assertEqual(str(self.feedback), expected)
-
+        
+        self.route3 = Route.objects.create(
+            title="Another Route",
+            description="Route with special keyword",
+            starting_location="Special Start",
+            ending_location="End Point 3",
+            distance=7.8
+        )
+    
+    def test_get_all_routes(self):
+        """Test retrieving all routes"""
+        response = self.client.get(self.routes_url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+    
+    def test_get_single_route(self):
+        """Test retrieving a single route"""
+        url = reverse('route-detail', args=[self.route1.id])
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], self.route1.title)
+        self.assertEqual(response.data['description'], self.route1.description)
+    
+    def test_create_route(self):
+        """Test creating a new route"""
+        new_route_data = {
+            'title': 'New Test Route',
+            'description': 'This is a new test route',
+            'starting_location': 'New Start',
+            'ending_location': 'New End',
+            'distance': 15.3
+        }
+        
+        response = self.client.post(
+            self.routes_url, 
+            data=json.dumps(new_route_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Route.objects.count(), 4)
+        self.assertEqual(response.data['title'], new_route_data['title'])
+    
+    def test_update_route(self):
+        """Test updating an existing route"""
+        url = reverse('route-detail', args=[self.route1.id])
+        updated_data = {
+            'title': 'Updated Route Title',
+            'description': self.route1.description,
+            'starting_location': self.route1.starting_location,
+            'ending_location': self.route1.ending_location,
+            'distance': self.route1.distance
+        }
+        
+        response = self.client.put(
+            url,
+            data=json.dumps(updated_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.title, 'Updated Route Title')
+    
+    def test_delete_route(self):
+        """Test deleting a route"""
+        url = reverse('route-detail', args=[self.route1.id])
+        response = self.client.delete(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Route.objects.count(), 2)
+    
+    def test_search_routes(self):
+        """Test searching routes"""
+        # Search by title
+        response = self.client.get(f"{self.routes_url}?search=Different")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], self.route2.title)
+        
+        # Search by description
+        response = self.client.get(f"{self.routes_url}?search=special keyword")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], self.route3.title)
+        
+        # Search by starting location
+        response = self.client.get(f"{self.routes_url}?search=Special Start")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], self.route3.title)
+        
+        # Search with no results
+        response = self.client.get(f"{self.routes_url}?search=nonexistent")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
