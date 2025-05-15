@@ -1,8 +1,4 @@
-import builtins
-from unittest.mock import patch
-from django.test import TestCase
-from core.models import Route, FeedbackRoute, PointOfInterest, FeedbackPOI
-from django.core.exceptions import ValidationError
+from core.models import Route
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
