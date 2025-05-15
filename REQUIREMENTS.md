@@ -26,7 +26,7 @@ Para os requisitos do documento original de requisitos, foram pensados os épico
 | _Story Points_ | _User Story_ | Descrição                                                                 |
 |:--------------:|:------------:|---------------------------------------------------------------------------|
 | 03             | US02.1       | Como administrador, desejo cadastrar, editar ou excluir rotas e pontos de interesse para manter o conteúdo da plataforma atualizado. |
-| 05             | US02.2       | Como usuário autenticado, desejo adicionar rotas ou pontos de interesse para contribuir com o sistema. |
+| 05             | US02.2       | Como usuário ~~autenticado~~<sup>1</sup>, desejo adicionar rotas ou pontos de interesse para contribuir com o sistema. |
 | 03             | US02.3       | Como usuário autenticado, desejo avaliar uma rota com estrelas e um comentário para ajudar outros usuários. |
 | 03             | US02.4       | Como usuário autenticado, desejo recomendar rotas para outras pessoas por meio de um link ou sugestão no sistema para aumentar o conhecimento de rotas que acho interessante. |
 
@@ -82,7 +82,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
   	- Todas as alterações são refletidas no banco de dados, no painel e na plataforma para usuários não-administradores.
   	- Mensagens de sucesso ou erro associadas a cada operação (criação, edição, deleção). 
 - **US02.2** – Como usuário autenticado, desejo adicionar rotas ou pontos de interesse para contribuir com o sistema.
-	- Formulário de adição e aba "Minhas Contribuições" ambos disponíveis apenas para usuários logados.
+	- Formulário de adição ~~e aba "Minhas Contribuições" ambos disponíveis apenas para usuários logados~~<sup>1</sup>.
  	- Formulário contém, pelo menos, campos de nome, descrição, localização (selecionável do mapa) e tags (opcionais), todos validados para campos não vazios.
   	- Submissão com dados válidos exibe mensagem "(nome) agora está na plataforma!" e adiciona a contribuição do usuário à aba "Minhas Contribuições".
 - **US02.3** – Como usuário autenticado, desejo avaliar uma rota com estrelas e um comentário para ajudar outros usuários.
@@ -141,3 +141,6 @@ Uma _user story_ do projeto está pronta quando
 
 # Rastreabilidade
 Os requisitos e suas respectivas _user stories_ serão rastreados com uma matriz de rastreabilidade, criada e mantida no Notion do projeto. Quaisquer outras informações pertinentes serão documentadas lá.
+
+# Histórico de alterações
+<sup>1</sup> 15/05 - Não requer mais autenticação.
