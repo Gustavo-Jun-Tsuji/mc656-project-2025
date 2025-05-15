@@ -9,7 +9,7 @@ class TestViewTest(APITestCase):
     
     def test_test_view(self):
         """Test that the test view returns the expected message"""
-        url = '/test/'  # Update this if your URL is different
+        url = '/api/test/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -21,7 +21,7 @@ class RouteViewSetTests(APITestCase):
     
     def setUp(self):
         """Create test data"""
-        self.routes_url = reverse('route-list')  # Assumes you've named your route 'route-list'
+        self.routes_url = reverse('route-list')
         
         # Create some test routes with valid coordinates
         self.route1 = Route.objects.create(
