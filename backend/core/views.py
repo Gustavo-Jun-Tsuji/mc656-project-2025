@@ -22,24 +22,11 @@ class RouteViewSet(viewsets.ModelViewSet):
         search_term = self.request.query_params.get('search', None)
         
         if search_term:
-            # Split the search term into words for more accurate searching
-            search_words = search_term.strip().split()
-            
-            # Start with empty Q object
-            query = Q()
-            
-            # Add each word as a condition
-            for word in search_words:
-                if word:  # Skip empty strings
-                    query |= (
-                        Q(title__icontains=word) | 
-                        Q(description__icontains=word) |
-                        Q(starting_location__icontains=word) |
-                        Q(ending_location__icontains=word)
-                    )
-            
-            # Apply the query only if we have valid search terms
-            if query:
-                queryset = queryset.filter(query)
+            queryset = queryset.filter(
+                Q(title__icontains=search_term) | 
+                Q(description__icontains=search_term) |
+                Q(starting_location__icontains=search_term) |
+                Q(ending_location__icontains=search_term)
+            )
         
         return queryset

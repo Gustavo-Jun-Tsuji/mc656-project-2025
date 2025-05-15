@@ -50,10 +50,13 @@ class RouteViewSetTests(APITestCase):
     
     def test_get_all_routes(self):
         """Test retrieving all routes"""
+        # Count routes created in setUp
+        expected_count = Route.objects.count()
+        
         response = self.client.get(self.routes_url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)  # Should return all 3 routes
+        self.assertEqual(len(response.data['results']), expected_count)
     
     def test_get_single_route(self):
         """Test retrieving a single route"""
@@ -119,26 +122,46 @@ class RouteViewSetTests(APITestCase):
     
     def test_search_routes(self):
         """Test searching for routes"""
+        # First clear all routes and create controlled test data
+        Route.objects.all().delete()
+        
+        # Create specific test routes
+        special_route = Route.objects.create(
+            title="Special Route",
+            description="This is a special route",
+            starting_location="Start Special",
+            ending_location="End Special",
+            coordinates=[[1.0, 1.0], [2.0, 2.0]]
+        )
+        
+        regular_route = Route.objects.create(
+            title="Regular Route",
+            description="This is a regular route",
+            starting_location="Start Regular",
+            ending_location="End Regular",
+            coordinates=[[3.0, 3.0], [4.0, 4.0]]
+        )
+        
         # Search by title
         response = self.client.get(f"{self.routes_url}?search=Special")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], self.route3.title)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], special_route.title)
         
         # Search by description
-        response = self.client.get(f"{self.routes_url}?search=special keyword")
+        response = self.client.get(f"{self.routes_url}?search=special route")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
         
         # Search by starting location
-        response = self.client.get(f"{self.routes_url}?search=special start")
+        response = self.client.get(f"{self.routes_url}?search=Start Special")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
         
         # Should return multiple routes
         response = self.client.get(f"{self.routes_url}?search=route")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) > 1)
+        self.assertTrue(len(response.data['results']) > 1)
     
     def test_calculate_distance(self):
         """Test that route distance is calculated correctly"""
