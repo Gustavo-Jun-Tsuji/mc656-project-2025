@@ -1,4 +1,3 @@
-
 ## Tipo de Mudança
 - [ ] feat (nova feature)
 - [ ] fix (correção de bug)
