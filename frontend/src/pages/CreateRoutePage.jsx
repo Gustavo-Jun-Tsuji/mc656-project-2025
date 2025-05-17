@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RouteForm from "../components/RouteForm";
-import MapComponent2 from "../components/MapComponent";
+import MapComponent from "../components/MapComponent";
 import Header from "../components/Header";
 import api from "../api";
 import "../styles/CreateRoutePage.css";
@@ -44,7 +44,7 @@ const CreateRoutePage = () => {
   return (
     <>
       <Header />
-      <div className="create-route-page">
+      <div className="page-container create-route-page">
         <h2 className="page-title">Criar Nova Rota</h2>
 
         <div className="side-by-side-container">
@@ -55,7 +55,7 @@ const CreateRoutePage = () => {
 
           {/* Map Section */}
           <div className="map-section">
-            <MapComponent2
+            <MapComponent
               coordinates={formData.coordinates}
               setCoordinates={(coords) =>
                 setFormData({ ...formData, coordinates: coords })

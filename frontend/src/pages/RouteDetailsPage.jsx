@@ -63,7 +63,7 @@ const RouteDetailsPage = () => {
   return (
     <>
       <Header />
-      <div className="route-details-page">
+      <div className="page-container route-details-page">
         <h2 className="page-title">Detalhes da Rota</h2>
 
         <div className="side-by-side-container">
