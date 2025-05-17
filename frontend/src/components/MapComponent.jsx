@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -92,10 +92,17 @@ const MapComponent = ({
   zoom = 13,
   readOnly = false,
 }) => {
-  const [pathCoordinates, setPathCoordinates] = useState(coordinates);
-  const [mapCenter, setMapCenter] = useState(center || [51.505, -0.09]);
+  // Use useMemo for initial state to avoid unnecessary re-renders
+  const initialPathCoordinates = useMemo(() => coordinates, []);
+  const [pathCoordinates, setPathCoordinates] = useState(
+    initialPathCoordinates
+  );
 
-  // Get user location if no center is provided
+  // Use useMemo for map center to stabilize it
+  const defaultCenter = useMemo(() => [51.505, -0.09], []);
+  const [mapCenter, setMapCenter] = useState(center || defaultCenter);
+
+  // Get user location if no center is provided - only runs once
   useEffect(() => {
     if (!center && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -107,12 +114,25 @@ const MapComponent = ({
         }
       );
     }
-  }, [center]);
+  }, []); // Empty dependency array - only run once
 
   // Update local state when coordinates change from props
+  // Using JSON.stringify to compare arrays for true equality
   useEffect(() => {
-    setPathCoordinates(coordinates);
+    const currentCoordinatesStr = JSON.stringify(pathCoordinates);
+    const newCoordinatesStr = JSON.stringify(coordinates);
+
+    if (currentCoordinatesStr !== newCoordinatesStr) {
+      setPathCoordinates(coordinates);
+    }
   }, [coordinates]);
+
+  // When center prop changes, update state - but only if it's different
+  useEffect(() => {
+    if (center && (mapCenter[0] !== center[0] || mapCenter[1] !== center[1])) {
+      setMapCenter(center);
+    }
+  }, [center]);
 
   // When drawing is created, update both local state and parent component
   const handleCreated = ({ coordinates }) => {
@@ -122,8 +142,8 @@ const MapComponent = ({
     }
   };
 
-  // Calculate statistics for the path
-  const calculateDistance = () => {
+  // Calculate statistics for the path - memoize this calculation
+  const distance = useMemo(() => {
     if (!pathCoordinates || pathCoordinates.length < 2) return 0;
 
     let totalDistance = 0;
@@ -137,7 +157,7 @@ const MapComponent = ({
     }
 
     return (totalDistance / 1000).toFixed(2); // Convert to km
-  };
+  }, [pathCoordinates]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -150,9 +170,7 @@ const MapComponent = ({
       >
         <span style={{ marginLeft: "10px" }}>
           {pathCoordinates.length > 0
-            ? `${
-                pathCoordinates.length
-              } pontos no caminho • Distância: ${calculateDistance()} km`
+            ? `${pathCoordinates.length} pontos no caminho • Distância: ${distance} km`
             : readOnly
             ? "Não há caminho para mostrar"
             : "Desenho o caminho com as ferramentas à direita →"}
