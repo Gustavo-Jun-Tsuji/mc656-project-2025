@@ -16,6 +16,7 @@ const RouteDetailsPage = () => {
     coordinates: [],
     distance: 0,
     created_at: "",
+    image: null, // Add image field
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,6 +70,17 @@ const RouteDetailsPage = () => {
         <div className="side-by-side-container">
           {/* Details Section */}
           <div className="details-section">
+            {/* Display route image if available */}
+            {routeData.image && (
+              <div className="route-image-container">
+                <img
+                  src={routeData.image}
+                  alt={`Imagem da rota ${routeData.title}`}
+                  className="route-image"
+                />
+              </div>
+            )}
+
             <div className="detail-item">
               <label>Título:</label>
               <div className="detail-value">{routeData.title}</div>

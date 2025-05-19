@@ -7,6 +7,7 @@ services:
     build: ./backend
     volumes:
       - ./backend:/code
+      - media_data:/code/media
     ports:
       - "8000:8000"
     depends_on:
@@ -39,3 +40,4 @@ services:
 
 volumes:
   frontend_node_modules:
+  media_data:
