@@ -38,8 +38,8 @@ const Header = () => {
     }
   }
 
-  const navigateToRoute = () => {
-    navigate(`routes/${routeId}`);
+  const navigateToRoute = (routeId) => {
+    navigate(`/routes/${routeId}`);
     setSearchTerm("");
     setShowSuggestions(false);
   }
@@ -58,6 +58,27 @@ const Header = () => {
             onBlur={ () => setTimeout( () => setShowSuggestions(false), 200) }
             className="search-input"/>
         </form>
+
+        {showSuggestions && searchResults.length > 0 && (
+          <div className="suggestions-dropdown">
+            {
+              searchResults.map( (route) => (
+                <div
+                  key={route.id}
+                  className="suggestion-item"
+                  onClick={() => navigateToRoute(route.id)}
+                >
+                  <div className="route-title">{route.title}</div>
+                  <div>
+                    {route.description?.substring(0, 50)}...
+                  </div>
+                </div>
+              )
+              )
+            }
+          </div>
+        )}
+
       </div>
       <nav className="nav">
         <Link to="/">Home</Link>
