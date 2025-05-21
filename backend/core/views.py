@@ -26,7 +26,8 @@ class RouteViewSet(viewsets.ModelViewSet):
                 Q(title__icontains=search_term) | 
                 Q(description__icontains=search_term) |
                 Q(starting_location__icontains=search_term) |
-                Q(ending_location__icontains=search_term)
+                Q(ending_location__icontains=search_term) |
+                Q(tags__icontains=search_term)
             )
         
         return queryset

@@ -7,7 +7,7 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = ['id', 'title', 'description', 'starting_location', 'ending_location', 
-                  'coordinates', 'created_at', 'distance', 'start_point', 'end_point']
+                  'coordinates', 'tags', 'created_at', 'distance', 'start_point', 'end_point']
         read_only_fields = ['id', 'created_at', 'distance', 'start_point', 'end_point']
     
     def get_distance(self, obj):

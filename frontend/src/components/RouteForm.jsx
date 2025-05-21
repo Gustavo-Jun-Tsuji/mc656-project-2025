@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/RouteForm.css";
+import TagSelector from "./TagSelector";
 
 const RouteForm = ({ formData, setFormData }) => {
   const handleChange = (e) => {
@@ -65,6 +66,15 @@ const RouteForm = ({ formData, setFormData }) => {
           placeholder="Stats"
         />
       </div>
+
+      <div className="form-group">
+        <TagSelector
+          selectedTags={formData.tags}
+          setSelectedTags={(tags) => setFormData({ ...formData, tags })}
+          placeholder="Tags (opcional)"
+        />
+      </div>
+
     </div>
   );
 };

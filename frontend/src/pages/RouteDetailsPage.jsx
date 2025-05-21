@@ -16,6 +16,7 @@ const RouteDetailsPage = () => {
     coordinates: [],
     distance: 0,
     created_at: "",
+    tags: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,6 +109,23 @@ const RouteDetailsPage = () => {
               <label>Criado em:</label>
               <div className="detail-value">
                 {formattedDate || "Data não disponível"}
+              </div>
+            </div>
+
+            <div className="detail-item">
+              <label>Tags:</label>
+              <div className="detail-value">
+                {routeData.tags && routeData.tags.length > 0 ? (
+                  <div className="tags-list">
+                    {routeData.tags.map((tag, index) => (
+                      <span key={index} className="tag-pill">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  "Sem tags"
+                )}
               </div>
             </div>
           </div>
