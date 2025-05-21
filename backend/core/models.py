@@ -24,6 +24,13 @@ class Route(models.Model):
         blank=True
     )
     
+    image = models.ImageField(
+        upload_to='route_images/',
+        blank=True,
+        null=True,
+        help_text="An image representing this route"
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
