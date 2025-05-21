@@ -81,6 +81,8 @@ const CreateRoutePage = () => {
 
       routeData.append("coordinates", JSON.stringify(formData.coordinates));
 
+      routeData.append("tags", JSON.stringify(formData.tags));
+
       // Add image if one is selected
       if (formData.image) {
         routeData.append("image", formData.image);
