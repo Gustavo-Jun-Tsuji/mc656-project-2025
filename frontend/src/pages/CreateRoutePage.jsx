@@ -14,6 +14,7 @@ const CreateRoutePage = () => {
     starting_location: "",
     ending_location: "",
     coordinates: [],
+    tags: [],
   });
 
   const handleCancel = () => {
@@ -27,13 +28,28 @@ const CreateRoutePage = () => {
         return;
       }
 
+      if (!formData.starting_location) {
+        alert("Please enter a starting location");
+        return;
+      }
+
+      if (!formData.ending_location) {
+        alert("Please enter an ending location");
+        return;
+      }
+
+      if (!formData.description) {
+        alert("Please enter a description for the route");
+        return;
+      }
+
       if (formData.coordinates.length < 2) {
         alert("Please add at least two points to create a route");
         return;
       }
 
       await api.createRoute(formData);
-      alert("Route created successfully!");
+      alert(`${formData.title} agora está na plataforma!`);
       navigate("/");
     } catch (error) {
       console.error("Error creating route:", error);
@@ -50,7 +66,10 @@ const CreateRoutePage = () => {
         <div className="side-by-side-container">
           {/* Form Section */}
           <div className="form-section">
-            <RouteForm formData={formData} setFormData={setFormData} />
+            <RouteForm 
+            formData={formData} 
+            setFormData={setFormData} 
+            />
           </div>
 
           {/* Map Section */}
