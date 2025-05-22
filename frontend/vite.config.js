@@ -8,11 +8,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://backend:8000",
+        target: "https://backend:8000",
         changeOrigin: true,
       },
       "/media": {
-        target: "http://backend:8000",
+        target: "https://backend:8000",
         changeOrigin: true,
       },
     },
