@@ -1,15 +1,6 @@
-import React from "react";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
-import { Label } from "../components/ui/label";
+import "../styles/RouteForm.css";
 import TagSelector from "./TagSelector";
-import ImageUpload from "./ImageUpload";
+import PropTypes from "prop-types";
 
 const RouteForm = ({ formData, setFormData }) => {
   const handleChange = (e) => {
@@ -85,28 +76,27 @@ const RouteForm = ({ formData, setFormData }) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="tags">Tags</Label>
-          <TagSelector
-            selectedTags={formData.tags}
-            setSelectedTags={(tags) => setFormData({ ...formData, tags })}
-            placeholder="Tags (opcional)"
-          />
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* ...other fields */}
-
-          <ImageUpload
-            label="Foto do Trajeto"
-            onChange={handleImageChange}
-            value={formData.image}
-            className="w-24 md:w-32"
-          />
-        </div>
-      </CardContent>
-    </Card>
+      <div className="form-group">
+        <TagSelector
+          selectedTags={formData.tags}
+          setSelectedTags={(tags) => setFormData({ ...formData, tags })}
+          placeholder="Tags (opcional)"
+        />
+      </div>
+    </div>
   );
+};
+
+RouteForm.propTypes = {
+  formData: PropTypes.shape({
+    title: PropTypes.string,
+    starting_location: PropTypes.string,
+    ending_location: PropTypes.string,
+    description: PropTypes.string,
+    coordinates: PropTypes.arrayOf(PropTypes.any),
+    tags: PropTypes.arrayOf(PropTypes.string),
+  }),
+  setFormData: PropTypes.func,
 };
 
 export default RouteForm;

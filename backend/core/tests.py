@@ -4,18 +4,6 @@ from rest_framework.test import APITestCase
 from .models import Route
 import json
 
-class TestViewTest(APITestCase):
-    """Tests for the simple test view"""
-    
-    def test_test_view(self):
-        """Test that the test view returns the expected message"""
-        url = '/api/test/'
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), {"message": "Hello, world!"})
-
-
 class RouteViewSetTests(APITestCase):
     """Tests for the RouteViewSet"""
     

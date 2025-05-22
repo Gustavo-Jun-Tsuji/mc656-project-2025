@@ -10,10 +10,12 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
+import MapHeader from "./MapHeader";
 
 // Fix Leaflet's default icon path issue
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import PropTypes from "prop-types";
 
 // Set up the default icon
 let DefaultIcon = L.icon({
@@ -83,6 +85,10 @@ function DrawControl({ onCreated }) {
     </FeatureGroup>
   );
 }
+
+DrawControl.propTypes = {
+  onCreated: PropTypes.func.isRequired,
+};
 
 // Add center, zoom and readOnly props
 const MapComponent = ({
@@ -156,26 +162,17 @@ const MapComponent = ({
       totalDistance += point1.distanceTo(point2);
     }
 
-    return (totalDistance / 1000).toFixed(2); // Convert to km
+    return Number((totalDistance / 1000).toFixed(2));
   }, [pathCoordinates]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          padding: "10px",
-          backgroundColor: "#f5f5f5",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        <span style={{ marginLeft: "10px" }}>
-          {pathCoordinates.length > 0
-            ? `${pathCoordinates.length} pontos no caminho • Distância: ${distance} km`
-            : readOnly
-            ? "Não há caminho para mostrar"
-            : "Desenho o caminho com as ferramentas à direita →"}
-        </span>
-      </div>
+      {/* Usando o componente MapHeader extraído */}
+      <MapHeader
+        pathCoordinates={pathCoordinates}
+        distance={distance}
+        readOnly={readOnly}
+      />
 
       <div style={{ flex: 1 }}>
         <MapContainer
@@ -200,6 +197,14 @@ const MapComponent = ({
       </div>
     </div>
   );
+};
+
+MapComponent.propTypes = {
+  coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+  setCoordinates: PropTypes.func,
+  center: PropTypes.arrayOf(PropTypes.number),
+  zoom: PropTypes.number,
+  readOnly: PropTypes.bool,
 };
 
 export default MapComponent;

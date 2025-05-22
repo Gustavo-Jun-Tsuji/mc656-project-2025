@@ -16,7 +16,7 @@ const RouteDetailsPage = () => {
     coordinates: [],
     distance: 0,
     created_at: "",
-    image: null, // Add image field
+    image: null,
     tags: [],
   });
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,6 @@ const RouteDetailsPage = () => {
     const fetchRouteData = async () => {
       try {
         console.log("Fetching route with ID:", id);
-        // Make sure this method exists in your api service
         const response = await api.getRoute(id);
         const data = response.data;
         console.log("Route data received:", data);
@@ -82,64 +81,69 @@ const RouteDetailsPage = () => {
               </div>
             )}
 
-            <div className="detail-item">
-              <label>Título:</label>
-              <div className="detail-value">{routeData.title}</div>
-            </div>
-
-            <div className="detail-item">
-              <label>Descrição:</label>
-              <div className="detail-value description">
-                {routeData.description || "Sem descrição"}
+            <dl className="details-list">
+              <div className="detail-item">
+                <dt>Título:</dt>
+                <dd>{routeData.title}</dd>
               </div>
-            </div>
 
-            <div className="detail-item">
-              <label>Local de início:</label>
-              <div className="detail-value">
-                {routeData.starting_location || "Não especificado"}
+              <div className="detail-item">
+                <dt>Descrição:</dt>
+                <dd className="description">
+                  {routeData.description || "Sem descrição"}
+                </dd>
               </div>
-            </div>
 
-            <div className="detail-item">
-              <label>Local de término:</label>
-              <div className="detail-value">
-                {routeData.ending_location || "Não especificado"}
+              <div className="detail-item">
+                <dt>Local de início:</dt>
+                <dd>{routeData.starting_location || "Não especificado"}</dd>
               </div>
-            </div>
 
-            <div className="detail-item">
-              <label>Distância:</label>
-              <div className="detail-value">
-                {routeData.distance
-                  ? `${routeData.distance.toFixed(2)} km`
-                  : "Não calculada"}
+              <div className="detail-item">
+                <dt>Local de término:</dt>
+                <dd>{routeData.ending_location || "Não especificado"}</dd>
               </div>
-            </div>
 
-            <div className="detail-item">
-              <label>Criado em:</label>
-              <div className="detail-value">
-                {formattedDate || "Data não disponível"}
+              <div className="detail-item">
+                <dt>Distância:</dt>
+                <dd>
+                  {routeData.distance
+                    ? `${routeData.distance.toFixed(2)} km`
+                    : "Não calculada"}
+                </dd>
               </div>
-            </div>
 
-            <div className="detail-item">
-              <label>Tags:</label>
-              <div className="detail-value">
-                {routeData.tags && routeData.tags.length > 0 ? (
-                  <div className="tags-list">
-                    {routeData.tags.map((tag, index) => (
-                      <span key={index} className="tag-pill">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  "Sem tags"
-                )}
+              <div className="detail-item">
+                <dt>Duração estimada:</dt>
+                <dd>
+                  {routeData.distance
+                    ? `${Math.round(routeData.distance * 12)} min`
+                    : "Não calculada"}
+                </dd>
               </div>
-            </div>
+
+              <div className="detail-item">
+                <dt>Criado em:</dt>
+                <dd>{formattedDate || "Data não disponível"}</dd>
+              </div>
+
+              <div className="detail-item">
+                <dt>Tags:</dt>
+                <dd>
+                  {routeData.tags && routeData.tags.length > 0 ? (
+                    <div className="tags-list">
+                      {routeData.tags.map((tag, index) => (
+                        <span key={index} className="tag-pill">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    "Sem tags"
+                  )}
+                </dd>
+              </div>
+            </dl>
           </div>
 
           {/* Map Section */}
