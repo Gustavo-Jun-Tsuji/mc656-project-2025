@@ -69,7 +69,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
   	- Campos vazios ou credenciais incorretas exibem aviso "Usuário ou senha inválidos" na tela.
   	- Campos preenchidos e corretos redirecionam o usuário para a página principal da plataforma com sessão autenticada.
   	- Opção de _logout_ desliga a sessão e redireciona o usuário para a tela inicial da plataforma.
-- **US01.6** – Como visitante, desejo visualizar rotas e pontos de interesse sem estar logado para rapidamente ter acesso às informações mais pertinentes da plataforma.
+- **US01.6** – Como visitante, desejo visualizar rotas e pontos de interesse sem estar logado para rapidamente ter acesso às informações mais pertinentes da plataforma.<sup>4</sup>
 	- Visitantes não precisam de sessão autenticada para acessar rotas e pontos de interesse.
  	- Páginas de rotas e pontos de interesse exibem informações, mas impedem a edição, a avaliação e a recomendação, ações que, quando tentadas, fazem o sistema exibir um aviso "Faça login para (ação)".
 
@@ -84,7 +84,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 - **US02.2** – Como usuário autenticado, desejo adicionar rotas ou pontos de interesse para contribuir com o sistema.
 	- Formulário de adição ~~e aba "Minhas Contribuições" ambos disponíveis apenas para usuários logados~~<sup>1</sup>.
  	- Formulário contém, pelo menos, campos de nome, descrição, localização (selecionável do mapa) e tags (opcionais), todos validados para campos não vazios.
-  	- Submissão com dados válidos exibe mensagem "(nome) agora está na plataforma!" e adiciona a contribuição do usuário à aba "Minhas Contribuições".
+  	- Submissão com dados válidos exibe mensagem "(nome) agora está na plataforma!" ~~e adiciona a contribuição do usuário à aba "Minhas Contribuições".~~<sup>1</sup>
 - **US02.3** – Como usuário autenticado, desejo avaliar uma rota com estrelas e um comentário para ajudar outros usuários.
 	- Pop-up de avaliação disponível com estrelas, de 1 a 5, e um campo de comentário.
  	- Validação de um mínimo de 1 estrela e comentário não vazio.
@@ -99,8 +99,8 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 **Descrição**: Visualização e classificação de rotas e pontos de interesse.
 - **US03.1** – Como usuário, desejo visualizar rotas no mapa com detalhes como origem, destino, pontos de interesse e duração.
 	- Origem, destino, pontos de interesse e trajeto de qualquer rota selecionada em destaque sobre um mapa.
- 	- Pontos de interesse destacados na rota com ícones clicáveis que exibem seus detalhes quando clicados.
-  	- Pelo menos avaliação média, distância e duração em uma aba fora do mapa.
+ 	- ~~Pontos de interesse destacados na rota com ícones clicáveis que exibem seus detalhes quando clicados.~~<sup>2</sup>
+  	- Pelo menos ~~avaliação média,~~<sup>3</sup> distância e duração em uma aba fora do mapa.
 - **US03.2** – Como usuário, desejo aplicar filtros nas rotas usando _tags_ para facilitar minhas buscas.
 	- Todas as rotas disponiveis que se adequam ao(s) filtro(s) selecionados aparecem como resultado, inclusive quando há mais de um e quando há seleção de _tags_, se existir alguma rota que se enquadre no(s) filtro(s), ou uma mensagem de aviso dizendo que nenhuma rota foi encontrada se não existir nenhuma rota que se enquadre no(s) filtro(s).
  	- Lista de rotas atualiza sem a necessidade de recarregar a página quando algo for marcado ou desmarcado.
@@ -144,3 +144,9 @@ Os requisitos e suas respectivas _user stories_ serão rastreados com uma matriz
 
 # Histórico de alterações
 <sup>1</sup> 15/05 - Não requer mais autenticação.
+
+<sup>2</sup> 22/05 - Fora do escopo do MVP.
+
+<sup>3</sup> 22/05 - Com base na escolha de prioridades das user stories, a US de avaliações virá depois, então a avaliação como informação será adicionada depois.
+
+<sup>4</sup> 22/05 - Dada a alteração do dia 15/05 (não requer mais autenticação), a user story terá os critérios de aceitação relaxados para apenas "Páginas de rotas e pontos de interesse exibem informações."
