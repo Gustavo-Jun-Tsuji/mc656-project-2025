@@ -15,6 +15,7 @@ import MapHeader from "./MapHeader";
 // Fix Leaflet's default icon path issue
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import PropTypes from "prop-types";
 
 // Set up the default icon
 let DefaultIcon = L.icon({
@@ -192,6 +193,14 @@ const MapComponent = ({
       </div>
     </div>
   );
+};
+
+MapComponent.propTypes = {
+  coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+  setCoordinates: PropTypes.func,
+  center: PropTypes.arrayOf(PropTypes.number),
+  zoom: PropTypes.number,
+  readOnly: PropTypes.bool,
 };
 
 export default MapComponent;
