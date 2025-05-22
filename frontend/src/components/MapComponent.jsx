@@ -10,6 +10,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
+import MapHeader from "./MapHeader";
 
 // Fix Leaflet's default icon path issue
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -161,21 +162,12 @@ const MapComponent = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          padding: "10px",
-          backgroundColor: "#f5f5f5",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        <span style={{ marginLeft: "10px" }}>
-          {pathCoordinates.length > 0
-            ? `${pathCoordinates.length} pontos no caminho • Distância: ${distance} km`
-            : readOnly
-            ? "Não há caminho para mostrar"
-            : "Desenho o caminho com as ferramentas à direita →"}
-        </span>
-      </div>
+      {/* Usando o componente MapHeader extraído */}
+      <MapHeader
+        pathCoordinates={pathCoordinates}
+        distance={distance}
+        readOnly={readOnly}
+      />
 
       <div style={{ flex: 1 }}>
         <MapContainer
