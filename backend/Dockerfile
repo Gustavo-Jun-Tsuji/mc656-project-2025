@@ -10,7 +10,10 @@ RUN pip install --upgrade pip
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./project/ ./project/
+COPY ./core/ ./core/
+COPY ./scripts/ ./scripts/
+COPY ./manage.py ./
 
 RUN chmod +x scripts/commands.sh
 
