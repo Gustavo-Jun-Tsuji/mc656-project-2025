@@ -7,9 +7,6 @@ from rest_framework.response import Response
 from .models import Route
 from .serializers import RouteSerializer
 
-def test(request):
-    return JsonResponse({"message": "Hello, world!"})
-
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().order_by('-created_at')
     serializer_class = RouteSerializer

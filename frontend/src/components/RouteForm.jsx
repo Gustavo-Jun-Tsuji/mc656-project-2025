@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
 import "../styles/RouteForm.css";
 import TagSelector from "./TagSelector";
+import PropTypes from "prop-types";
 
 const RouteForm = ({ formData, setFormData }) => {
   const handleChange = (e) => {
@@ -74,9 +74,20 @@ const RouteForm = ({ formData, setFormData }) => {
           placeholder="Tags (opcional)"
         />
       </div>
-
     </div>
   );
+};
+
+RouteForm.propTypes = {
+  formData: PropTypes.shape({
+    title: PropTypes.string,
+    starting_location: PropTypes.string,
+    ending_location: PropTypes.string,
+    description: PropTypes.string,
+    coordinates: PropTypes.arrayOf(PropTypes.any),
+    tags: PropTypes.arrayOf(PropTypes.string),
+  }),
+  setFormData: PropTypes.func,
 };
 
 export default RouteForm;

@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/StatsDisplay.css";
+import PropTypes from "prop-types";
 
 const StatsDisplay = ({ coordinates }) => {
   // Calculate total distance
@@ -29,7 +30,7 @@ const StatsDisplay = ({ coordinates }) => {
       distance += R * c;
     }
 
-    return distance.toFixed(2);
+    return Math.round(distance * 100) / 100;
   };
 
   const distance = calculateTotalDistance();
@@ -52,6 +53,10 @@ const StatsDisplay = ({ coordinates }) => {
       </div>
     </div>
   );
+};
+
+StatsDisplay.propTypes = {
+  coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
 };
 
 export default StatsDisplay;
