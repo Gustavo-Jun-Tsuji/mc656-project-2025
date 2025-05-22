@@ -59,14 +59,20 @@ const SearchBar = () => {
       {showSuggestions && searchResults.length > 0 && (
         <div className="suggestions-dropdown">
           {searchResults.map((route) => (
-            <div
+            <button
               key={route.id}
               className="suggestion-item"
               onClick={() => navigateToRoute(route.id)}
+              type="button"
+              tabIndex={0}
+              aria-label={`View route: ${route.title}`}
             >
               <div className="route-title">{route.title}</div>
-              <div>{route.description?.substring(0, 50)}...</div>
-            </div>
+              <div className="route-description">
+                {route.description?.substring(0, 50)}
+                {route.description?.length > 50 ? "..." : ""}
+              </div>
+            </button>
           ))}
         </div>
       )}

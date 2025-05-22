@@ -58,20 +58,25 @@ const TagSelector = ({ selectedTags, setSelectedTags, placeholder }) => {
         style={{ marginBottom: "0.3em" }}
       />
       {search && (
-        <div className="tag-dropdown">
+        <div className="tag-dropdown" role="listbox">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((tag) => (
-              <div
+              <button
                 key={tag}
                 onClick={() => handleSelect(tag)}
                 className="tag-dropdown-option"
                 onMouseDown={(e) => e.preventDefault()} // evita perder foco do input
+                type="button"
+                role="option"
+                tabIndex={0}
               >
                 {highlightMatch(tag, search)}
-              </div>
+              </button>
             ))
           ) : (
-            <div className="tag-dropdown-empty">Nenhuma tag encontrada</div>
+            <div className="tag-dropdown-empty" role="status">
+              Nenhuma tag encontrada
+            </div>
           )}
         </div>
       )}
