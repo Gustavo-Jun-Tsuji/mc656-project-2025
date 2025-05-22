@@ -16,6 +16,20 @@ class Route(models.Model):
         help_text="Array of geographic coordinates defining the route path",
         default=list
     )
+
+    # Optional list of tags for categorizing the route, stored as a JSON array of strings
+    tags = models.JSONField(
+        help_text="Array of tags associated with the route",
+        default=list,
+        blank=True
+    )
+    
+    image = models.ImageField(
+        upload_to='route_images/',
+        blank=True,
+        null=True,
+        help_text="An image representing this route"
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -11,14 +11,17 @@ const HomePage = () => {
     const fetchRoutes = async () => {
       try {
         const response = await api.getAllRoutes();
-        setRoutes(response.data.results || response.data);
+        let data = response.data.results ?? response.data;
+        if (!Array.isArray(data)) {
+          data = [];
+        }
+        setRoutes(data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching routes:", error);
         setLoading(false);
       }
     };
-
     fetchRoutes();
   }, []);
 

@@ -14,7 +14,12 @@ COPY . .
 
 RUN chmod +x scripts/commands.sh
 
+# Create media directory and set proper permissions before switching users
+RUN mkdir -p media
+RUN chmod 755 media
 RUN useradd -m appuser
+RUN chown -R appuser:appuser media
+
 USER appuser
 
 EXPOSE 8000
