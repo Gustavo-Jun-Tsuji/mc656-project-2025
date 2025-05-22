@@ -107,28 +107,6 @@ const CreateRoutePage = () => {
           {/* Form Section */}
           <div className="form-section">
             <RouteForm formData={formData} setFormData={setFormData} />
-
-            {/* Image Upload Section */}
-            <div className="image-upload-section">
-              <h3>Imagem da Rota</h3>
-              <div className="form-group">
-                <label htmlFor="route-image">Selecione uma imagem:</label>
-                <input
-                  type="file"
-                  id="route-image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="form-control"
-                />
-              </div>
-
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="image-preview">
-                  <img src={imagePreview} alt="Preview" />
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Map Section */}
