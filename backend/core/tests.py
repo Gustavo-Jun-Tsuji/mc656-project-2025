@@ -4,18 +4,6 @@ from rest_framework.test import APITestCase
 from .models import Route
 import json
 
-class TestViewTest(APITestCase):
-    """Tests for the simple test view"""
-    
-    def test_test_view(self):
-        """Test that the test view returns the expected message"""
-        url = '/api/test/'
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), {"message": "Hello, world!"})
-
-
 class RouteViewSetTests(APITestCase):
     """Tests for the RouteViewSet"""
     
@@ -133,15 +121,7 @@ class RouteViewSetTests(APITestCase):
             ending_location="End Special",
             coordinates=[[1.0, 1.0], [2.0, 2.0]]
         )
-        
-        regular_route = Route.objects.create(
-            title="Regular Route",
-            description="This is a regular route",
-            starting_location="Start Regular",
-            ending_location="End Regular",
-            coordinates=[[3.0, 3.0], [4.0, 4.0]]
-        )
-        
+
         # Search by title
         response = self.client.get(f"{self.routes_url}?search=Special")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

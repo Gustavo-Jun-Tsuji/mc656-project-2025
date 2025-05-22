@@ -86,6 +86,10 @@ function DrawControl({ onCreated }) {
   );
 }
 
+DrawControl.propTypes = {
+  onCreated: PropTypes.func.isRequired,
+};
+
 // Add center, zoom and readOnly props
 const MapComponent = ({
   coordinates = [],

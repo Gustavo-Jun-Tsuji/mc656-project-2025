@@ -30,7 +30,7 @@ const StatsDisplay = ({ coordinates }) => {
       distance += R * c;
     }
 
-    return Number(distance).toFixed(2);
+    return Math.round(distance * 100) / 100;
   };
 
   const distance = calculateTotalDistance();
