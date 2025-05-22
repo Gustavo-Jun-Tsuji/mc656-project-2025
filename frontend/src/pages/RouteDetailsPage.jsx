@@ -118,6 +118,15 @@ const RouteDetailsPage = () => {
             </div>
 
             <div className="detail-item">
+              <label>Duração estimada:</label>
+              <div className="detail-value">
+                {routeData.distance
+                  ? `${Math.round(routeData.distance * 12)} min`
+                  : "Não calculada"}
+              </div>
+            </div>
+
+            <div className="detail-item">
               <label>Criado em:</label>
               <div className="detail-value">
                 {formattedDate || "Data não disponível"}
