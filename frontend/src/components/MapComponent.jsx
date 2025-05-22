@@ -157,7 +157,7 @@ const MapComponent = ({
       totalDistance += point1.distanceTo(point2);
     }
 
-    return (totalDistance / 1000).toFixed(2); // Convert to km
+    return Number((totalDistance / 1000).toFixed(2));
   }, [pathCoordinates]);
 
   return (
