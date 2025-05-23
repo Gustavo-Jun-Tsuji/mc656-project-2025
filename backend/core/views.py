@@ -23,6 +23,7 @@ class CurrentUserView(APIView):
         return Response(serializer.data)
 
 class RouteViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Route.objects.all().order_by('-created_at')
     serializer_class = RouteSerializer
     
