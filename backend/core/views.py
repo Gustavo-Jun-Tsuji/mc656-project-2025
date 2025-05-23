@@ -5,6 +5,7 @@ from rest_framework import viewsets, status, filters, generics
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from .models import Route
 from .serializers import RouteSerializer, UserSerializer
@@ -13,6 +14,13 @@ class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]  # Allow any user to create an account
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().order_by('-created_at')

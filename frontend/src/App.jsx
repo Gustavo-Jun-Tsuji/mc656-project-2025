@@ -1,4 +1,5 @@
 import React from "react";
+import { AuthProvider } from "./context/AuthContext";
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,43 +23,45 @@ function Logout() {
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/logout" element={<Logout />} />
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/logout" element={<Logout />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/routes/create"
-            element={
-              <ProtectedRoute>
-                <CreateRoutePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/routes/:id"
-            element={
-              <ProtectedRoute>
-                <RouteDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/routes/create"
+              element={
+                <ProtectedRoute>
+                  <CreateRoutePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/routes/:id"
+              element={
+                <ProtectedRoute>
+                  <RouteDetailsPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </Router>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

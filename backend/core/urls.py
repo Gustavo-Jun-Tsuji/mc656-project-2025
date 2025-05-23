@@ -11,7 +11,8 @@ urlpatterns = [
     path('', include(router.urls)),
     
     # Authentication Endpoints
-    path('user/register', views.CreateUserView.as_view(), name='register'),
+    path('user/register/', views.CreateUserView.as_view(), name='register'),
+    path('user/current/', views.CurrentUserView.as_view(), name='current_user'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

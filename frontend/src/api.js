@@ -22,7 +22,10 @@ caller.interceptors.request.use(
 
 export const api = {
   // Authentication endpoints:
-  refreshToken: (refreshToken) => caller.post("/token/refresh/"),
+  login: (credentials) => caller.post("/token/", credentials),
+  refreshToken: (refreshToken) => caller.post("/token/refresh/", refreshToken),
+  register: (userData) => caller.post("/user/register/", userData),
+  getCurrentUser: () => caller.get("/user/current/"),
 
   // Route endpoints
   getAllRoutes: () => caller.get(`/routes/`),
