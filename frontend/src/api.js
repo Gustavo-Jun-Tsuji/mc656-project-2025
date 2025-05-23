@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ACCESS_TOKEN_NAME } from "./constants";
+import { ACCESS_TOKEN_KEYNAME } from "./constants";
 
 const caller = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -7,7 +7,7 @@ const caller = axios.create({
 
 caller.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(ACCESS_TOKEN_NAME);
+    const token = localStorage.getItem(ACCESS_TOKEN_KEYNAME);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,6 +21,10 @@ caller.interceptors.request.use(
 );
 
 export const api = {
+  // Authentication endpoints:
+  refreshToken: (refreshToken) => caller.post("/token/refresh/"),
+
+  // Route endpoints
   getAllRoutes: () => caller.get(`/routes/`),
   getRoute: (id) => caller.get(`/routes/${id}/`),
   createRoute: (data) =>
