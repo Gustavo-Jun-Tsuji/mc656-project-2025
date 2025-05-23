@@ -1,19 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import TAG_OPTIONS from "../tags";
-import "../styles/Tags.css";
 import PropTypes from "prop-types";
+import TagChip from "./ui/TagChip";
+import { Input } from "../components/ui/input";
 
-const TagSelector = ({ selectedTags, setSelectedTags, placeholder }) => {
+const TagSelector = ({
+  selectedTags = [],
+  setSelectedTags = () => {},
+  placeholder = "",
+}) => {
   const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef(null);
+
   const filteredOptions = TAG_OPTIONS.filter(
     (tag) =>
       tag.toLowerCase().includes(search.toLowerCase()) &&
       !selectedTags.includes(tag)
   );
 
+  useEffect(() => {
+    if (open && inputRef.current) inputRef.current.focus();
+  }, [open]);
+
   const handleSelect = (tag) => {
     setSelectedTags([...selectedTags, tag]);
     setSearch("");
+    setTimeout(() => {
+      if (inputRef.current === document.activeElement) {
+        setOpen(true);
+      }
+    }, 0);
   };
 
   const handleRemove = (tag) => {
@@ -27,59 +44,65 @@ const TagSelector = ({ selectedTags, setSelectedTags, placeholder }) => {
     return (
       <>
         {tag.slice(0, index)}
-        <strong>{tag.slice(index, index + search.length)}</strong>
+        <span className="font-semibold text-primary-dark">
+          {tag.slice(index, index + search.length)}
+        </span>
         {tag.slice(index + search.length)}
       </>
     );
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      <div className="tags-list">
+    <div className="relative w-full rounded-xl px-3 py-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         {selectedTags.map((tag, index) => (
-          <span key={index} className="tag-pill">
-            {tag}
-            <button
-              type="button"
-              onClick={() => handleRemove(tag)}
-              className="tag-remove-btn"
-            >
-              ×
-            </button>
-          </span>
+          <TagChip key={index} tag={tag} onRemove={handleRemove} />
         ))}
       </div>
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={placeholder}
-        className="form-control"
-        style={{ marginBottom: "0.3em" }}
-      />
-      {search && (
-        <div className="tag-dropdown" role="listbox">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => handleSelect(tag)}
-                className="tag-dropdown-option"
-                onMouseDown={(e) => e.preventDefault()} // evita perder foco do input
-                type="button"
-                role="option"
-                tabIndex={0}
-              >
-                {highlightMatch(tag, search)}
-              </button>
-            ))
-          ) : (
-            <div className="tag-dropdown-empty" role="status">
-              Nenhuma tag encontrada
-            </div>
-          )}
-        </div>
-      )}
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          type="text"
+          value={search}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 100)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setOpen(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && filteredOptions.length > 0) {
+              e.preventDefault();
+              handleSelect(filteredOptions[0]);
+            }
+          }}
+          placeholder={placeholder}
+          className="w-full px-3 py-2 text-sm bg-orange-50 border border-orange-300 focus:ring-0 focus:outline-none"
+        />
+        {open && (
+          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((tag) => (
+                <button
+                  key={tag}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(tag)}
+                  className="w-full text-left px-4 py-2 hover:bg-primary/10 focus:bg-primary/20 transition-colors"
+                  type="button"
+                  role="option"
+                  tabIndex={0}
+                >
+                  {highlightMatch(tag, search)}
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-2 text-gray-500 text-sm">
+                Nenhuma tag encontrada
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

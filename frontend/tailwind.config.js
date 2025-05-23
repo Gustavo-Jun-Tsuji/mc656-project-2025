@@ -7,6 +7,11 @@ module.exports = {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			sans: ['"Anek Latin"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			press: ['"Press Start 2P"', 'cursive'],
+			bungee: ['"Bungee"', 'cursive'],
+		},
   		colors: {
   			primary: {
   				DEFAULT: 'hsl(var(--primary))',
@@ -56,7 +61,27 @@ module.exports = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			blue: {
+				900: '#00104E', // Navy Blue
+				800: '#00125B', // Deep Blue
+				700: '#223689', // Royal Blue
+				400: '#BAC3DF', // Light Blue
+				100: '#E7EEFF', // Pale Blue
+			},
+			gray: {
+				400: '#918586', // Warm Gray
+				100: '#F4F4F4', // Light Gray
+				200: '#F8F8F8', // Extra Light Gray
+				700: '#676767', // Medium Gray
+			},
+			orange: {
+				500: '#FF9900', // Vivid Orange
+				100: '#FFDBA6', // Light Orange
+			},
+			purple: {
+				400: '#7D8BBD', // Soft Purple
+			},
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

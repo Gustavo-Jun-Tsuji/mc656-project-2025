@@ -3,7 +3,7 @@ import { ImageIcon, X } from "lucide-react";
 import { Label } from "./ui/label";
 
 const ImageUpload = ({
-  label = "Upload Image",
+  label = "",
   onChange,
   value = null,
   className = "",
@@ -36,7 +36,7 @@ const ImageUpload = ({
     <div className={`space-y-2 ${className}`}>
       <Label className="text-navy-700 font-medium">{label}</Label>
       <div
-        className="border border-dashed border-orange-300 rounded-md bg-white h-24 flex items-center justify-center cursor-pointer relative overflow-hidden"
+        className="rounded-md bg-white h-24 flex items-center justify-center cursor-pointer relative overflow-hidden"
         onClick={() => fileInputRef.current?.click()}
       >
         <input
