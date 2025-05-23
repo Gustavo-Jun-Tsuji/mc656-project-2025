@@ -1,8 +1,24 @@
 import axios from "axios";
+import { ACCESS_TOKEN_NAME } from "./constants";
 
 const caller = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
+
+caller.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(ACCESS_TOKEN_NAME);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const api = {
   getAllRoutes: () => caller.get(`/routes/`),
