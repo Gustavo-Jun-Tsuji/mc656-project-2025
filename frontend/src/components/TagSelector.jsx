@@ -3,6 +3,7 @@ import TAG_OPTIONS from "../tags";
 import PropTypes from "prop-types";
 import TagChip from "./ui/TagChip";
 import { Input } from "../components/ui/input";
+import { Plus } from "lucide-react";
 
 const TagSelector = ({
   selectedTags = [],
@@ -53,34 +54,46 @@ const TagSelector = ({
   };
 
   return (
-    <div className="relative w-full rounded-xl px-3 py-2">
+    <div className="relative w-fit rounded-xl">
       <div className="flex flex-wrap gap-2 mb-2">
         {selectedTags.map((tag, index) => (
           <TagChip key={index} tag={tag} onRemove={handleRemove} />
         ))}
       </div>
       <div className="relative">
-        <Input
-          ref={inputRef}
-          type="text"
-          value={search}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 100)}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setOpen(true);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && filteredOptions.length > 0) {
-              e.preventDefault();
-              handleSelect(filteredOptions[0]);
-            }
-          }}
-          placeholder={placeholder}
-          className="w-full px-3 py-2 text-sm bg-orange-50 border border-orange-300 focus:ring-0 focus:outline-none"
-        />
+        {!open ? (
+          <button
+            type="button"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-5  0 border border-orange-300 text-orange-500 hover:bg-orange-200 transition"
+            onClick={() => setOpen(true)}
+            tabIndex={0}
+            aria-label="Adicionar tag"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        ) : (
+          <Input
+            ref={inputRef}
+            type="text"
+            value={search}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 100)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && filteredOptions.length > 0) {
+                e.preventDefault();
+                handleSelect(filteredOptions[0]);
+              }
+            }}
+            placeholder={placeholder}
+            className="w-[200px]"
+          />
+        )}
         {open && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+          <div className="absolute z-10 mt-1 w-[200px] bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((tag) => (
                 <button

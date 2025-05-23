@@ -43,24 +43,16 @@ export default function ComponentsPage() {
       <h2 className="text-lg font-bold mt-8 mb-2">Inputs</h2>
       <div className="flex flex-wrap gap-2 mb-4 w-fit">
         <Label htmlFor="input-demo">Input</Label>
-        <Input
-          id="input-demo"
-          placeholder="Digite algo..."
-          className="px-2 py-1 text-sm"
-        />
+        <Input id="input-demo" placeholder="Digite algo..." />
       </div>
       <div className="flex flex-wrap gap-2 mb-4 w-fit">
         <Label htmlFor="textarea-demo">Textarea</Label>
-        <Textarea
-          id="textarea-demo"
-          placeholder="Digite um texto maior..."
-          className="px-2 py-1 text-sm min-h-[40px]"
-        />
+        <Textarea id="textarea-demo" placeholder="Digite um texto maior..." />
       </div>
 
       <h2 className="text-lg font-bold mt-8 mb-2">Image Upload</h2>
       <div className="flex flex-wrap gap-2 mb-4 w-fit">
-        <ImageUpload />
+        <ImageUpload className="w-[120px]" />
       </div>
 
       <h2 className="text-lg font-bold mt-8 mb-2">Buttons</h2>
@@ -83,8 +75,8 @@ export default function ComponentsPage() {
       <h2 className="text-lg font-bold mt-2">Tags Selector</h2>
       <TagSelectorDemo />
 
-      <h2></h2>
-      <div>
+      <h2 className="text-lg font-bold mt-2">Create Route Form</h2>
+      <div className="max-w-xl ">
         <RouteForm formData={formData} setFormData={setFormData} />
       </div>
     </div>

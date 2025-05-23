@@ -33,10 +33,10 @@ const ImageUpload = ({
   };
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`${className}`}>
       <Label className="text-navy-700 font-medium">{label}</Label>
       <div
-        className="rounded-md bg-white h-24 flex items-center justify-center cursor-pointer relative overflow-hidden"
+        className="w-full h-28 border border-primary-dark rounded-md cursor-pointer relative overflow-hidden"
         onClick={() => fileInputRef.current?.click()}
       >
         <input
@@ -52,19 +52,19 @@ const ImageUpload = ({
             <img
               src={preview}
               alt="Preview"
-              className="h-full w-full object-cover rounded-md"
+              className="absolute inset-0 w-full h-full object-cover"
             />
             <button
               type="button"
               onClick={removeImage}
-              className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm"
+              className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm z-10"
             >
               <X className="h-3 w-3 text-gray-500" />
             </button>
           </>
         ) : (
-          <div className="flex flex-col items-center text-orange-400">
-            <ImageIcon className="h-8 w-8 mb-1" />
+          <div className="flex flex-col items-center justify-center text-primary-dark w-full h-full">
+            <ImageIcon />
             <span className="text-xs text-center">Selecione uma imagem</span>
           </div>
         )}
