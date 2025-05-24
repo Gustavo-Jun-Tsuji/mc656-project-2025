@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RouteForm from "../components/RouteForm";
-import MapComponent from "../components/MapComponent";
+import MapComponent from "../components/map/MapComponent";
 import Header from "../components/Header";
 import api from "../api";
-import "../styles/CreateRoutePage.css";
+import { Button } from "../components/ui/button";
+import { ArrowLeft, Route } from "lucide-react";
 
 const CreateRoutePage = () => {
   const navigate = useNavigate();
@@ -100,35 +101,55 @@ const CreateRoutePage = () => {
   return (
     <>
       <Header />
-      <div className="page-container create-route-page">
-        <h2 className="page-title">Criar Nova Rota</h2>
+      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-10">
+        <div className="flex flex-col rounded-3xl shadow-2xl p-[80px] pt-[30px] pb-[30px] w-4/5 mx-auto">
+          {/* Conteúdo principal */}
+          <div className="flex gap-[50px] ">
+            <div className="flex flex-col flex-1 items-center">
+              {/* Formulário */}
+              <div className="flex flex-col h-full w-full">
+                <RouteForm formData={formData} setFormData={setFormData} />
+              </div>
+              <div>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-secondary-dark text-xl"
+                  onClick={handleCancel}
+                >
+                  <ArrowLeft className="w-8 h-8" />
+                  Voltar
+                </Button>
+              </div>
+            </div>
 
-        <div className="side-by-side-container">
-          {/* Form Section */}
-          <div className="form-section">
-            <RouteForm formData={formData} setFormData={setFormData} />
+            {/* Mapa */}
+            <div className="flex flex-col flex-1 items-center">
+              <div className="w-full h-full flex flex-col justify-between">
+                <div className="rounded-xl overflow-hidden border border-gray-200 shadow flex-1 max-h-[580px]">
+                  <MapComponent
+                    coordinates={formData.coordinates}
+                    setCoordinates={(coords) =>
+                      setFormData({ ...formData, coordinates: coords })
+                    }
+                    center={[-22.817166, -47.069806]}
+                    zoom={16}
+                  />
+                </div>
+                <div className="flex justify-center mt-[50px]">
+                  <Button
+                    className="bg-primary-dark hover:bg-orange-400 text-secondary-dark text-xl rounded-xl px-8 w-[250px]"
+                    type="button"
+                    onClick={handleSubmit}
+                  >
+                    Criar Rota
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Map Section */}
-          <div className="map-section">
-            <MapComponent
-              coordinates={formData.coordinates}
-              setCoordinates={(coords) =>
-                setFormData({ ...formData, coordinates: coords })
-              }
-              center={[-22.817166, -47.069806]} // Centro do ciclo básico
-              zoom={16}
-            />
-          </div>
-        </div>
-
-        <div className="buttons">
-          <button className="btn cancel" onClick={handleCancel}>
-            CANCELAR
-          </button>
-          <button className="btn submit" onClick={handleSubmit}>
-            ENVIAR
-          </button>
+          {/* Botões na parte inferior */}
+          <div className="flex justify-evenly mt-8"></div>
         </div>
       </div>
     </>

@@ -11,6 +11,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import MapHeader from "./MapHeader";
+import MapFooter from "./MapFooter";
 
 // Fix Leaflet's default icon path issue
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -87,7 +88,7 @@ function DrawControl({ onCreated }) {
 }
 
 DrawControl.propTypes = {
-  onCreated: PropTypes.func.isRequired,
+  onCreated: PropTypes.func,
 };
 
 // Add center, zoom and readOnly props
@@ -166,19 +167,22 @@ const MapComponent = ({
   }, [pathCoordinates]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="flex flex-col h-full w-full">
       {/* Usando o componente MapHeader extraído */}
-      <MapHeader
-        pathCoordinates={pathCoordinates}
-        distance={distance}
-        readOnly={readOnly}
-      />
+      <MapHeader readOnly={readOnly} />
 
-      <div style={{ flex: 1 }}>
+      {/* Container do mapa com altura explícita */}
+      <div style={{ height: "500px", width: "100%" }} className="flex-1">
         <MapContainer
           center={mapCenter}
           zoom={zoom}
-          style={{ height: "500px", width: "100%" }}
+          style={{ height: "100%", width: "100%" }}
+          whenCreated={(mapInstance) => {
+            // Força o redimensionamento do mapa após renderização
+            setTimeout(() => {
+              mapInstance.invalidateSize();
+            }, 100);
+          }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -195,6 +199,11 @@ const MapComponent = ({
           )}
         </MapContainer>
       </div>
+      <MapFooter
+        points={pathCoordinates.length}
+        distance={distance}
+        eta={distance > 0 ? `${Math.round((distance / 5) * 60)} min` : "--"}
+      />
     </div>
   );
 };

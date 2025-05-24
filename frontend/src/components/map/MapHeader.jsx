@@ -1,12 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const MapHeader = ({ pathCoordinates, distance, readOnly }) => {
+const MapHeader = ({ readOnly }) => {
   const getHeaderMessage = () => {
-    if (pathCoordinates.length > 0) {
-      return `${pathCoordinates.length} pontos no caminho • Distância: ${distance} km`;
-    }
-
     if (readOnly) {
       return "Não há caminho para mostrar";
     }

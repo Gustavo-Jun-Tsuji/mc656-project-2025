@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
-import ImageUpload from "../components/ImageUpload";
-import TagSelector from "../components/TagSelector";
+import ImageUpload from "./forms/ImageUpload";
+import TagSelector from "./forms/TagSelector";
 
 export default function RouteForm({ formData, setFormData }) {
   const [tags, setTags] = useState([]);
@@ -18,11 +18,11 @@ export default function RouteForm({ formData, setFormData }) {
   };
 
   return (
-    <form className="max-w-xl mx-auto p-6 rounded-xl">
+    <form className="w-full mx-auto rounded-xl">
       <div className="mb-6">
         <div className="flex justify-between items-center">
-          <Label htmlFor="route-name" className="text-xl">
-            Nome da Rota
+          <Label htmlFor="route-name" className="text-2xl">
+            Nome
           </Label>
           <span className="text-xs text-gray-500">
             {formData.title.length}/40
@@ -34,14 +34,14 @@ export default function RouteForm({ formData, setFormData }) {
           maxLength={40}
           value={formData.title}
           onChange={handleChange}
-          className="!text-xl"
+          className="!text-2xl h-[70px]"
         />
       </div>
 
-      <div className="flex gap-6 mb-6 items-center">
-        <div className="flex flex-col flex-1 gap-4">
+      <div className="flex gap-20 mb-6 items-center w-full h-[200px]">
+        <div className="flex flex-col flex-1 gap-10 h-full">
           <div>
-            <Label htmlFor="route-start">Início da Rota</Label>
+            <Label htmlFor="route-start">Origem</Label>
             <Input
               id="route-start"
               name="starting_location"
@@ -50,7 +50,7 @@ export default function RouteForm({ formData, setFormData }) {
             />
           </div>
           <div>
-            <Label htmlFor="route-end">Fim da Rota</Label>
+            <Label htmlFor="route-end">Destino</Label>
             <Input
               id="route-end"
               name="ending_location"
@@ -59,20 +59,15 @@ export default function RouteForm({ formData, setFormData }) {
             />
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center min-w-[120px] h-full">
-          <Label htmlFor="route-end">Fim da Rota</Label>
-          <ImageUpload
-            onChange={handleImageChange}
-            value={formData.image}
-            className="w-full"
-          />
+        <div className="flex flex-col items-center justify-center flex-1 h-full">
+          <ImageUpload onChange={handleImageChange} value={formData.image} />
         </div>
       </div>
 
       <div className="mb-6">
         <div className="flex justify-between items-center">
-          <Label htmlFor="route-description" className="text-xl">
-            Descrição da Rota
+          <Label htmlFor="route-description" className="text-2xl">
+            Descrição
           </Label>
           <span className="text-xs text-gray-500">
             {formData.description.length}/200
@@ -84,10 +79,13 @@ export default function RouteForm({ formData, setFormData }) {
           maxLength={200}
           value={formData.description}
           onChange={handleChange}
+          className="h-[100px]"
         />
       </div>
-      <div className="mb-8">
-        <Label htmlFor="route-description">Tags</Label>
+      <div>
+        <Label htmlFor="route-description" className="text-2xl">
+          Tags
+        </Label>
         <TagSelector
           selectedTags={formData.tags}
           setSelectedTags={(tags) => setFormData({ ...formData, tags })}

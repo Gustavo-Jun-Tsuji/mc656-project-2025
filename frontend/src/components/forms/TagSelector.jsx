@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import TAG_OPTIONS from "../tags";
+import TAG_OPTIONS from "../../tags";
 import PropTypes from "prop-types";
-import TagChip from "./ui/TagChip";
-import { Input } from "../components/ui/input";
+import TagChip from "../ui/TagChip";
+import { Input } from "../ui/input";
 import { Plus } from "lucide-react";
 
 const TagSelector = ({
@@ -93,7 +93,7 @@ const TagSelector = ({
           />
         )}
         {open && (
-          <div className="absolute z-10 mt-1 w-[200px] bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+          <div className="absolute z-10 mt-1 w-[200px] bg-white border border-gray-200 rounded-md shadow-lg overflow-auto">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((tag) => (
                 <button

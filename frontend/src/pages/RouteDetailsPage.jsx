@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import MapComponent from "../components/MapComponent";
+import MapComponent from "../components/map/MapComponent";
 import api from "../api";
 import "../styles/RouteDetailsPage.css";
 

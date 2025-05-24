@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import TagSelector from "../components/TagSelector";
+import TagSelector from "../components/forms/TagSelector";
 import TagChip from "../components/ui/TagChip";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
-import ImageUpload from "../components/ImageUpload";
+import ImageUpload from "../components/forms/ImageUpload";
 import { Button } from "../components/ui/button";
 import { ArrowLeft, Route } from "lucide-react";
 import RouteForm from "../components/RouteForm";
+import MapComponent from "../components/map/MapComponent";
 
 function TagSelectorDemo() {
   const [tags, setTags] = useState([]);
@@ -31,8 +32,11 @@ export default function ComponentsPage() {
     image: null,
     tags: [],
   });
+
+  const [coordinates, setCoordinates] = useState([]);
+
   return (
-    <div className="p-8">
+    <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Catálogo de Componentes</h1>
 
       <h2 className="text-lg font-bold mb-2">Tag</h2>
@@ -78,6 +82,17 @@ export default function ComponentsPage() {
       <h2 className="text-lg font-bold mt-2">Create Route Form</h2>
       <div className="max-w-xl ">
         <RouteForm formData={formData} setFormData={setFormData} />
+      </div>
+
+      <h2 className="text-lg font-bold mt-2">Map Component</h2>
+      <div className="max-w-3xl mb-8" style={{ height: "500px" }}>
+        <MapComponent
+          coordinates={coordinates}
+          setCoordinates={setCoordinates}
+          center={[-23.55052, -46.633308]} // exemplo: São Paulo
+          zoom={13}
+          readOnly={false}
+        />
       </div>
     </div>
   );

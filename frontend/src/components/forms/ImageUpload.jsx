@@ -1,13 +1,8 @@
 import React, { useRef, useState } from "react";
 import { ImageIcon, X } from "lucide-react";
-import { Label } from "./ui/label";
+import { Label } from "../ui/label";
 
-const ImageUpload = ({
-  label = "",
-  onChange,
-  value = null,
-  className = "",
-}) => {
+const ImageUpload = ({ label = "", onChange, value = null }) => {
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(
     value && typeof value === "object" && "url" in value ? value.url : null
@@ -33,10 +28,10 @@ const ImageUpload = ({
   };
 
   return (
-    <div className={`${className}`}>
+    <div className="h-full w-full">
       <Label className="text-navy-700 font-medium">{label}</Label>
       <div
-        className="w-full h-28 border border-primary-dark rounded-md cursor-pointer relative overflow-hidden"
+        className="w-full h-full border border-primary-dark rounded-md cursor-pointer relative overflow-hidden"
         onClick={() => fileInputRef.current?.click()}
       >
         <input

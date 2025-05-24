@@ -15,7 +15,8 @@ module.exports = {
   		colors: {
   			primary: {
   				DEFAULT: '#FFDBA6', // Light Orange
-  				light: '#FFFCF7', // Pale Orange
+  				very_light: '#FFFCF7', 
+				light: '#ffe7c6', 
   				dark: '#fe9900', // Vivid Orange
 				foreground: 'hsl(var(--primary-foreground))'
 			},
