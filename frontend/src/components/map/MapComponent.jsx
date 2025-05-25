@@ -5,6 +5,7 @@ import {
   FeatureGroup,
   useMap,
   Polyline,
+  Marker,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -26,6 +27,20 @@ let DefaultIcon = L.icon({
   iconAnchor: [12, 41],
 });
 
+const startIcon = new L.Icon({
+  iconUrl:
+    "https://img.icons8.com/?size=100&id=Oy6rGo29AK6S&format=png&color=000000",
+  iconSize: [40, 40],
+  iconAnchor: [20, 34],
+});
+
+const endIcon = new L.Icon({
+  iconUrl:
+    "https://img.icons8.com/?size=100&id=8W4MiLVFCP1e&format=png&color=000000",
+  iconSize: [40, 40],
+  iconAnchor: [15, 37],
+});
+
 L.Marker.prototype.options.icon = DefaultIcon;
 
 // Custom component to initialize the draw control
@@ -43,10 +58,31 @@ function DrawControl({ onCreated }) {
           circlemarker: false,
           polygon: false,
           marker: false,
-          polyline: true,
+          polyline: {
+            shapeOptions: {
+              weight: 4,
+            },
+            metric: true,
+            feet: false,
+            showLength: true,
+            icon: new L.Icon({
+              iconUrl:
+                "https://img.icons8.com/?size=100&id=30567&format=png&color=000000",
+              iconSize: [30, 30],
+              iconAnchor: [15, 25],
+            }),
+          },
         },
         edit: {
           featureGroup: featGroupRef.current,
+          poly: {
+            // Personalização dos marcadores durante a edição
+            icon: new L.DivIcon({
+              iconSize: new L.Point(8, 8),
+              className:
+                "leaflet-div-icon leaflet-editing-icon custom-vertex-icon",
+            }),
+          },
         },
       });
 
@@ -68,6 +104,26 @@ function DrawControl({ onCreated }) {
           if (onCreated) {
             onCreated({ layer, coordinates });
           }
+        }
+      });
+      map.on(L.Draw.Event.EDITED, (e) => {
+        const layers = e.layers;
+        layers.eachLayer((layer) => {
+          if (layer instanceof L.Polyline) {
+            const coordinates = layer
+              .getLatLngs()
+              .map((point) => [point.lat, point.lng]);
+            if (onCreated) {
+              onCreated({ layer, coordinates });
+            }
+          }
+        });
+      });
+
+      map.on(L.Draw.Event.DELETED, (e) => {
+        // Se todos os pontos foram removidos, envie uma array vazia
+        if (onCreated) {
+          onCreated({ coordinates: [] });
         }
       });
     }
@@ -191,10 +247,28 @@ const MapComponent = ({
 
           {/* Show either draw controls or just the polyline depending on readOnly */}
           {!readOnly ? (
-            <DrawControl onCreated={handleCreated} />
+            <>
+              <DrawControl onCreated={handleCreated} />
+              {pathCoordinates.length >= 2 && (
+                <>
+                  <Marker position={pathCoordinates[0]} icon={startIcon} />
+                  <Marker
+                    position={pathCoordinates[pathCoordinates.length - 1]}
+                    icon={endIcon}
+                  />
+                </>
+              )}
+            </>
           ) : (
             pathCoordinates.length >= 2 && (
-              <Polyline positions={pathCoordinates} color="blue" weight={5} />
+              <>
+                <Polyline positions={pathCoordinates} color="blue" weight={5} />
+                <Marker position={pathCoordinates[0]} icon={startIcon} />
+                <Marker
+                  position={pathCoordinates[pathCoordinates.length - 1]}
+                  icon={endIcon}
+                />
+              </>
             )
           )}
         </MapContainer>

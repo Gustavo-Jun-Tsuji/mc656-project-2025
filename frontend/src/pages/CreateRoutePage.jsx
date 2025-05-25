@@ -125,7 +125,7 @@ const CreateRoutePage = () => {
             {/* Mapa */}
             <div className="flex flex-col flex-1 items-center">
               <div className="w-full h-full flex flex-col justify-between">
-                <div className="rounded-xl overflow-hidden border border-gray-200 shadow flex-1 max-h-[580px]">
+                <div className="rounded-xl overflow-hidden border border-gray-200 shadow flex-1 max-h-[530px]">
                   <MapComponent
                     coordinates={formData.coordinates}
                     setCoordinates={(coords) =>

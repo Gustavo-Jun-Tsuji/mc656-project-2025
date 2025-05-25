@@ -11,14 +11,8 @@ const MapHeader = ({ readOnly }) => {
   };
 
   return (
-    <div
-      style={{
-        padding: "10px",
-        backgroundColor: "#f5f5f5",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-      <span style={{ marginLeft: "10px" }}>{getHeaderMessage()}</span>
+    <div className="p-2 bg-white border-b border-gray-300 flex items-center">
+      <span className="ml-2">{getHeaderMessage()}</span>
     </div>
   );
 };
