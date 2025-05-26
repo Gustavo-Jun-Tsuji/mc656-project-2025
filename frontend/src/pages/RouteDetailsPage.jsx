@@ -18,6 +18,7 @@ const RouteDetailsPage = () => {
     created_at: "",
     image: null,
     tags: [],
+    username: "",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -125,6 +126,12 @@ const RouteDetailsPage = () => {
               <div className="detail-item">
                 <dt>Criado em:</dt>
                 <dd>{formattedDate || "Data não disponível"}</dd>
+              </div>
+
+              {/* Add author information here */}
+              <div className="detail-item">
+                <dt>Criado por:</dt>
+                <dd>{routeData.username || "Usuário desconhecido"}</dd>
               </div>
 
               <div className="detail-item">

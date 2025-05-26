@@ -29,8 +29,24 @@ class RouteViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """
-        Allow filtering by query parameters
+        Optionally restricts the returned routes to a given user,
+        by filtering against a `user` query parameter in the URL.
+        
+        endpoints: /routes/?user=1
+        or         /routes/?search=keyword
+        or even    /routes/?user=1&search=keyword
         """
+        
+        # If user id is provided in the query parameters, filter by user
+        user_term = self.request.query_params.get('user', None)
+        if user_term:
+            try:
+                user_id = int(user_term)
+                return self.queryset.filter(user_id=user_id)
+            except (ValueError, TypeError):
+                return self.queryset.none()
+            
+        # Allow filtering by query parameters
         queryset = super().get_queryset()
         search_term = self.request.query_params.get('search', None)
         
@@ -44,3 +60,18 @@ class RouteViewSet(viewsets.ModelViewSet):
             )
         
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_routes(self, request):
+        """
+        Custom action to get routes created by the current user.
+        endpoints: /routes/my_routes/
+        """
+        user_routes = self.queryset.filter(user=request.user)
+        serializer = self.get_serializer(user_routes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
