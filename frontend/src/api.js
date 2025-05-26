@@ -29,6 +29,7 @@ export const api = {
 
   // Route endpoints
   getAllRoutes: () => caller.get(`/routes/`),
+  getMyRoutes: () => caller.get(`/routes/my_routes/`),
   getRoute: (id) => caller.get(`/routes/${id}/`),
   createRoute: (data) =>
     caller.post(`/routes/`, data, {

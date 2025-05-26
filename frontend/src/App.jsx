@@ -9,6 +9,7 @@ import {
 import HomePage from "./pages/HomePage";
 import CreateRoutePage from "./pages/CreateRoutePage";
 import RouteDetailsPage from "./pages/RouteDetailsPage";
+import MyRoutesPage from "./pages/MyRoutesPage";
 import "./styles/App.css";
 import { ACCESS_TOKEN_KEYNAME, REFRESH_TOKEN_KEYNAME } from "./constants";
 import RegisterPage from "./pages/RegisterPage";
@@ -37,6 +38,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-routes"
+              element={
+                // Add this route
+                <ProtectedRoute>
+                  <MyRoutesPage />
                 </ProtectedRoute>
               }
             />
