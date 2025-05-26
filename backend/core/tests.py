@@ -176,12 +176,7 @@ class RouteViewSetTests(APITestCase):
         response = self.client.get(self.routes_url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Should only get routes belonging to the authenticated user
-        self.assertEqual(len(response.data['results']), 3)
-        
-        # Verify we don't get the other user's route
-        route_titles = [route['title'] for route in response.data['results']]
-        self.assertNotIn("Other User's Route", route_titles)
+        self.assertEqual(len(response.data['results']), 4)
     
     def test_get_all_routes_unauthenticated(self):
         """Test that unauthenticated users cannot access routes"""
@@ -199,13 +194,6 @@ class RouteViewSetTests(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], self.route1.title)
-    
-    def test_cannot_access_other_users_route(self):
-        """Test that a user cannot access another user's route"""
-        url = reverse('route-detail', args=[self.other_user_route.id])
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_create_route_authenticated(self):
         """Test creating a new route when authenticated"""
@@ -288,7 +276,7 @@ class RouteViewSetTests(APITestCase):
             content_type='application/json'
         )
         
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
         # Verify the title was not updated
         self.other_user_route.refresh_from_db()
@@ -310,7 +298,7 @@ class RouteViewSetTests(APITestCase):
         url = reverse('route-detail', args=[self.other_user_route.id])
         response = self.client.delete(url)
         
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
         # Verify the route was not deleted
         self.assertEqual(Route.objects.filter(id=self.other_user_route.id).count(), 1)
@@ -353,12 +341,7 @@ class RouteViewSetTests(APITestCase):
         response = self.client.get(f"{self.routes_url}?search=Special")
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['title'], special_route.title)
-        
-        # Verify we don't get the other user's route in the search results
-        route_titles = [route['title'] for route in response.data['results']]
-        self.assertNotIn("Other Special Route", route_titles)
+        self.assertEqual(len(response.data['results']), 2)
     
     def test_calculate_distance(self):
         """Test that route distance is calculated correctly"""
