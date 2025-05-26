@@ -26,7 +26,7 @@ class RouteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Route.objects.all().order_by('-created_at')
     serializer_class = RouteSerializer
-    
+        
     def get_queryset(self):
         """
         Optionally restricts the returned routes to a given user,
@@ -64,6 +64,51 @@ class RouteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override destroy method to ensure only the route owner or staff can delete
+        """
+        route = self.get_object()
+        
+        # Check if user is the owner or is staff
+        if route.user == request.user or request.user.is_staff:
+            return super().destroy(request, *args, **kwargs)
+        else:
+            return Response(
+                {"detail": "You do not have permission to delete this route."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    
+    def update(self, request, *args, **kwargs):
+        """
+        Override update method to ensure only the route owner or staff can update
+        """
+        route = self.get_object()
+        
+        # Check if user is the owner or is staff
+        if route.user == request.user or request.user.is_staff:
+            return super().update(request, *args, **kwargs)
+        else:
+            return Response(
+                {"detail": "You do not have permission to update this route."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Override partial_update method to ensure only the route owner or staff can update
+        """
+        route = self.get_object()
+        
+        # Check if user is the owner or is staff
+        if route.user == request.user or request.user.is_staff:
+            return super().partial_update(request, *args, **kwargs)
+        else:
+            return Response(
+                {"detail": "You do not have permission to update this route."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def my_routes(self, request):
         """
@@ -73,5 +118,3 @@ class RouteViewSet(viewsets.ModelViewSet):
         user_routes = self.queryset.filter(user=request.user)
         serializer = self.get_serializer(user_routes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
