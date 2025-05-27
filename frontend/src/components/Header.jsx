@@ -9,6 +9,7 @@ const Header = () => {
       <SearchBar />
       <nav className="nav">
         <Link to="/">Home</Link>
+        <Link to="/my-routes">My Routes</Link>
         <Link to="/routes/create">Create Route</Link>
       </nav>
     </header>
