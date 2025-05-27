@@ -228,11 +228,20 @@ const MapComponent = ({
       <MapHeader readOnly={readOnly} />
 
       {/* Container do mapa com altura explícita */}
-      <div style={{ height: "500px", width: "100%" }} className="flex-1">
+      <div
+        style={{
+          height: "500px",
+          width: "100%",
+          position: "relative",
+          zIndex: 0,
+        }}
+        className="flex-1"
+      >
         <MapContainer
           center={mapCenter}
           zoom={zoom}
           style={{ height: "100%", width: "100%" }}
+          zIndex={0}
           whenCreated={(mapInstance) => {
             // Força o redimensionamento do mapa após renderização
             setTimeout(() => {

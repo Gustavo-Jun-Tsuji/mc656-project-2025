@@ -25,16 +25,16 @@ export default function RouteForm({ formData, setFormData }) {
             Nome
           </Label>
           <span className="text-xs text-gray-500">
-            {formData.title.length}/40
+            {formData.title.length}/30
           </span>
         </div>
         <Input
           id="route-name"
           name="title"
-          maxLength={40}
+          maxLength={30}
           value={formData.title}
           onChange={handleChange}
-          className="!text-2xl h-[70px]"
+          className="!text-2xl h-[50px]"
         />
       </div>
 

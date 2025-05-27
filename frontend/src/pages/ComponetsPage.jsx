@@ -6,9 +6,10 @@ import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 import ImageUpload from "../components/forms/ImageUpload";
 import { Button } from "../components/ui/button";
-import { ArrowLeft, Route } from "lucide-react";
+import { ArrowLeft, Route, Search } from "lucide-react";
 import RouteForm from "../components/RouteForm";
 import MapComponent from "../components/map/MapComponent";
+import SearchBar from "../components/SearchBar";
 
 function TagSelectorDemo() {
   const [tags, setTags] = useState([]);
@@ -94,6 +95,10 @@ export default function ComponentsPage() {
           readOnly={false}
         />
       </div>
+      <div>
+        <SearchBar />
+      </div>
+      <div className="h-12"></div>
     </div>
   );
 }

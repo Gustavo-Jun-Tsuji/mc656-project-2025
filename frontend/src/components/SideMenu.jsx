@@ -11,9 +11,9 @@ const SideMenu = ({ userName = "Fulano de Tal" }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="text-white hover:bg-primary-dark p-6 w-[100px] h-[100px] " // 100px × 100px
+          className="text-white hover:bg-primary-dark" // 100px × 100px
         >
-          <Menu size={48} className="min-w-[30px] min-h-[30px]" />
+          <Menu size={48} className="min-w-[50px] min-h-[50px]" />
           <span className="sr-only">Menu</span>
         </Button>
       </SheetTrigger>

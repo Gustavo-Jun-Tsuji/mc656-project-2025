@@ -3,19 +3,18 @@ import SideMenu from "./SideMenu";
 
 const Header = () => {
   return (
-    <header className="bg-primary-dark h-[120px] w-full flex items-center justify-between px-4 shadow-md">
-      {/* Side Menu com mais espaço */}
-      <div className="min-w-[150px]">
+    <header className="bg-primary-dark h-[120px] w-full flex items-center px-12 shadow-md">
+      <div className="min-w-[100px] flex justify-start">
         <SideMenu userName="Fulano de Tal" />
       </div>
 
-      {/* Barra de pesquisa centralizada */}
-      <div className="flex-1 max-w-md mx-auto">
-        <SearchBar />
+      <div className="flex-1 flex justify-center h-full items-center">
+        <div className="w-full max-w-[500px] h-[50px] flex items-center relative">
+          <SearchBar />
+        </div>
       </div>
 
-      {/* Espaço equivalente para manter a barra de pesquisa centralizada */}
-      <div className="min-w-[150px]"></div>
+      <div className="min-w-[100px]"></div>
     </header>
   );
 };
