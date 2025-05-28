@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import TAG_OPTIONS from "../../tags";
 import PropTypes from "prop-types";
-import TagChip from "../ui/TagChip";
+import TagChip from "./TagChip";
 import { Input } from "../ui/input";
 import { Plus } from "lucide-react";
 

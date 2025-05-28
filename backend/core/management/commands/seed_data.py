@@ -24,59 +24,39 @@ class Command(BaseCommand):
             tags=None,
             image=None,
         ):
-            route = Route.objects.create(
-                user=user,
-                title=title,
-                description=description,
-                starting_location=starting_location,
-                ending_location=ending_location,
-                coordinates=coordinates,
-                tags=tags or [],
-                image=image,
-            )
-            self.stdout.write(f"Route '{title}' created for user {user.username}.")
+            existing_route = Route.objects.filter(user=user, title=title).first()
+
+            if existing_route:
+                self.stdout.write(
+                    f"Route '{title}' already exists for {user.username}."
+                )
+                return existing_route
+            else:
+                route = Route.objects.create(
+                    user=user,
+                    title=title,
+                    description=description,
+                    starting_location=starting_location,
+                    ending_location=ending_location,
+                    coordinates=coordinates,
+                    tags=tags or [],
+                    image=image,
+                )
+                self.stdout.write(f"Route '{title}' created by {user.username}.")
 
         add_user("Dummy", "d@email.com", "123")
         add_user("Sunny", "s@email.com", "123")
         add_user("Mummy", "m@email.com", "123")
-
-        add_route(
-            user=User.objects.get(username="Dummy"),
-            title="PB CB, círculo externo",
-            description="Uma rota criada pelo Dummy.",
-            starting_location="PB",
-            ending_location="CB",
-            coordinates=[
-                [-22.817623718567944, -47.0711516458838],
-                [-22.818256628413273, -47.0706155481404],
-                [-22.818474190493244, -47.07001511866778],
-                [-22.818454412136706, -47.06909303054912],
-                [-22.817861060104644, -47.06840682543757],
-            ],
-            tags=["caminhada", "plana"],
-            image="route_images/cover_image_unicamp.jpg",
-        )
-
-        add_route(
-            user=User.objects.get(username="Mummy"),
-            title="Rota do PB para o IC",
-            description="Uma rota criada pelo Dummy. Muita subida!",
-            starting_location="PB",
-            ending_location="IC",
-            coordinates=[
-                [-22.816812798529927, -47.071340552585085],
-                [-22.817010584350285, -47.069710815445134],
-                [-22.814874482289913, -47.0640925110942],
-                [-22.814063545882522, -47.064482259658625],
-            ],
-            tags=["subida"],
-            image="route_images/cover_image_unicamp.jpg",
-        )
+        add_user("Bunny", "b@email.com", "123")
+        add_user("Funny", "f@email.com", "123")
+        add_user("Runny", "r@email.com", "123")
+        add_user("Honey", "h@email.com", "123")
+        add_user("Nanny", "n@email.com", "123")
 
         add_route(
             user=User.objects.get(username="Sunny"),
             title="Pikachu!",
-            description="Temos que pegar!s",
+            description="Uma rota criada pelo Sunny.",
             starting_location="?",
             ending_location="?",
             coordinates=[
@@ -160,4 +140,117 @@ class Command(BaseCommand):
                 [-22.81643700467991, -47.0652034525386],
             ],
             tags=["cultural"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Dummy"),
+            title="PB CB, círculo externo",
+            description="Uma rota criada pelo Dummy.",
+            starting_location="PB",
+            ending_location="CB",
+            coordinates=[
+                [-22.817623718567944, -47.0711516458838],
+                [-22.818256628413273, -47.0706155481404],
+                [-22.818474190493244, -47.07001511866778],
+                [-22.818454412136706, -47.06909303054912],
+                [-22.817861060104644, -47.06840682543757],
+            ],
+            tags=["caminhada", "plana"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Mummy"),
+            title="Rota do PB para o IC",
+            description="Uma rota criada pelo Mummy. Muita subida!",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816812798529927, -47.071340552585085],
+                [-22.817010584350285, -47.069710815445134],
+                [-22.814874482289913, -47.0640925110942],
+                [-22.814063545882522, -47.064482259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Bunny"),
+            title="Rota do PB para o IC - Bunny",
+            description="Uma rota criada pelo Bunny.",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816812798529927, -47.071340552585085],
+                [-22.817110584350285, -47.069710815445134],
+                [-22.814974482289913, -47.0640925110942],
+                [-22.814163545882522, -47.064582259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Funny"),
+            title="Rota do PB para o IC - Funny",
+            description="Uma rota criada pelo Funny.",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816912798529927, -47.071440552585085],
+                [-22.817210584350285, -47.069810815445134],
+                [-22.814774482289913, -47.0641925110942],
+                [-22.814263545882522, -47.064682259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Runny"),
+            title="Rota do PB para o IC - Runny",
+            description="Uma rota criada pelo Runny.",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816712798529927, -47.071240552585085],
+                [-22.817310584350285, -47.069910815445134],
+                [-22.814674482289913, -47.0642925110942],
+                [-22.814363545882522, -47.064782259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Honey"),
+            title="Rota do PB para o IC - Honey",
+            description="Uma rota criada pelo Honey.",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816612798529927, -47.071140552585085],
+                [-22.817410584350285, -47.070010815445134],
+                [-22.814574482289913, -47.0643925110942],
+                [-22.814463545882522, -47.064882259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Nanny"),
+            title="Rota do PB para o IC - Nanny",
+            description="Uma rota criada pelo Nanny.",
+            starting_location="PB",
+            ending_location="IC",
+            coordinates=[
+                [-22.816512798529927, -47.071040552585085],
+                [-22.817510584350285, -47.070110815445134],
+                [-22.814474482289913, -47.0644925110942],
+                [-22.814563545882522, -47.064982259658625],
+            ],
+            tags=["subida"],
+            image="route_images/cover_image_unicamp.jpg",
         )

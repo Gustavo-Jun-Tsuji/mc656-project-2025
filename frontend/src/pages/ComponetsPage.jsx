@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TagSelector from "../components/forms/TagSelector";
-import TagChip from "../components/ui/TagChip";
+import TagChip from "../components/forms/TagChip";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
@@ -10,6 +10,9 @@ import { ArrowLeft, Route, Search } from "lucide-react";
 import RouteForm from "../components/RouteForm";
 import MapComponent from "../components/map/MapComponent";
 import SearchBar from "../components/SearchBar";
+import LatestRoutes from "../components/LatestRoute";
+import RouteCard from "../components/RouteCard";
+import api from "../api";
 
 function TagSelectorDemo() {
   const [tags, setTags] = useState([]);
@@ -35,6 +38,27 @@ export default function ComponentsPage() {
   });
 
   const [coordinates, setCoordinates] = useState([]);
+  const [routeData, setRouteData] = useState(null);
+  const [routes, setRoutes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRoute() {
+      try {
+        setIsLoading(true);
+        const response = await api.getRoute(2);
+        setRouteData(response.data);
+        const routesResponse = await api.getAllRoutes();
+        setRoutes(routesResponse.data.results);
+      } catch (error) {
+        console.error("Erro ao carregar rota:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchRoute();
+  }, []);
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
@@ -99,6 +123,19 @@ export default function ComponentsPage() {
         <SearchBar />
       </div>
       <div className="h-12"></div>
+      <div>
+        {isLoading ? (
+          <p>Carregando rota...</p>
+        ) : routeData ? (
+          <RouteCard route={routeData} />
+        ) : (
+          <p>Nenhuma rota encontrada.</p>
+        )}
+      </div>
+      <div className="h-12"></div>
+      <div>
+        <LatestRoutes routes={routes} />
+      </div>
     </div>
   );
 }

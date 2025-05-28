@@ -155,6 +155,7 @@ const RouteDetailsPage = () => {
 
           {/* Map Section */}
           <div className="map-section">
+            {console.log(routeData.coordinates, centerCoordinates)}
             <MapComponent
               coordinates={routeData.coordinates || []}
               center={centerCoordinates}

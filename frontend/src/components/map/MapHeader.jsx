@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 const MapHeader = ({ readOnly }) => {
   const getHeaderMessage = () => {
     if (readOnly) {
-      return "Não há caminho para mostrar";
+      return "Mapa:";
     }
 
     return "Desenhe o caminho com as ferramentas à direita →";
