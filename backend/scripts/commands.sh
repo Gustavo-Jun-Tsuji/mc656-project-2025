@@ -8,6 +8,9 @@ echo "🛠️ Aplicando migrações do banco de dados..."
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 
+echo "Populando tabelas"
+python manage.py seed_data
+
 if [ "$DJANGO_SUPERUSER_USERNAME" ] && [ "$DJANGO_SUPERUSER_EMAIL" ] && [ "$DJANGO_SUPERUSER_PASSWORD" ]; then
   echo "👤 Criando superusuário (se necessário)..."
   python manage.py shell <<EOF
