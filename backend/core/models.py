@@ -41,6 +41,21 @@ class Route(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
 
+    upvotes = models.ManyToManyField(
+        User,
+        related_name="upvoted_routes",
+        blank=True,
+        help_text="Users that upvoted this route"
+    )
+    
+    downvotes = models.ManyToManyField(
+        User,
+        related_name="downvoted_routes",
+        blank=True,
+        help_text="Users that downvoted this route"
+    )
+
+
     def __str__(self):
         return self.title
     

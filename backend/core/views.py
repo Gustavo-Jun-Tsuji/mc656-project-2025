@@ -118,3 +118,57 @@ class RouteViewSet(viewsets.ModelViewSet):
         user_routes = self.queryset.filter(user=request.user)
         serializer = self.get_serializer(user_routes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def vote(self, request, pk=None):
+        """
+        Endpoint for upvoting/downvoting a route
+        payload example: {"vote_type": "upvote"} or {"vote_type": "downvote"}
+        """
+        route = self.get_object()
+        user = request.user
+        vote_type = request.data.get('vote_type', '').lower()
+        
+        if vote_type == 'upvote':
+            # Remove downvote se existir
+            route.downvotes.remove(user)
+            # Adiciona ou remove upvote
+            if user in route.upvotes.all():
+                route.upvotes.remove(user)
+                message = "Removed upvote"
+            else:
+                route.upvotes.add(user)
+                message = "Added upvote"
+        
+        elif vote_type == 'downvote':
+            # Remove upvote se existir
+            route.upvotes.remove(user)
+            # Adiciona ou remove downvote
+            if user in route.downvotes.all():
+                route.downvotes.remove(user)
+                message = "Removed downvote"
+            else:
+                route.downvotes.add(user)
+                message = "Added downvote"
+        
+        else:
+            return Response(
+                {"error": "Unvalid vote. Use 'upvote' or 'downvote'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        route.save()
+        return Response({
+            "message": message,
+            "upvotes_count": route.upvotes.count(),
+            "downvotes_count": route.downvotes.count(),
+            "user_vote": self.get_user_vote(route, user)
+        }, status=status.HTTP_200_OK)
+    
+    def get_user_vote(self, route, user):
+        """Returns the users vote for the route"""
+        if user in route.upvotes.all():
+            return "upvote"
+        elif user in route.downvotes.all():
+            return "downvote"
+        return None
