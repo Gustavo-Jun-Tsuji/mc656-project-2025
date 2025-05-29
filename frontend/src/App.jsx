@@ -11,6 +11,7 @@ import CreateRoutePage from "./pages/CreateRoutePage";
 import RouteDetailsPage from "./pages/RouteDetailsPage";
 import MyRoutesPage from "./pages/MyRoutesPage";
 import "./styles/App.css";
+import ComponentsPage from "./pages/ComponetsPage";
 import { ACCESS_TOKEN_KEYNAME, REFRESH_TOKEN_KEYNAME } from "./constants";
 import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -68,6 +69,7 @@ function App() {
             />
 
             <Route path="*" element={<NotFoundPage />} />
+            <Route path="/components/" element={<ComponentsPage />} />
           </Routes>
         </div>
       </Router>

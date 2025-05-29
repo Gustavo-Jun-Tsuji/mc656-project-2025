@@ -18,8 +18,12 @@ COPY ./manage.py ./
 RUN chmod +x scripts/commands.sh
 
 # Create media directory and set proper permissions before switching users
-RUN mkdir -p media
-RUN chmod 755 media
+RUN mkdir -p media/route_images
+RUN chmod 755 media/route_images
+
+# Copy images to media directory
+COPY ./images/* ./media/route_images/
+
 RUN useradd -m appuser
 RUN chown -R appuser:appuser media
 

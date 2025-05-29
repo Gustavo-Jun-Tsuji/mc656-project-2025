@@ -5,12 +5,14 @@ import {
   FeatureGroup,
   useMap,
   Polyline,
+  Marker,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import MapHeader from "./MapHeader";
+import MapFooter from "./MapFooter";
 
 // Fix Leaflet's default icon path issue
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -23,6 +25,20 @@ let DefaultIcon = L.icon({
   shadowUrl: iconShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
+});
+
+const startIcon = new L.Icon({
+  iconUrl:
+    "https://img.icons8.com/?size=100&id=Oy6rGo29AK6S&format=png&color=000000",
+  iconSize: [40, 40],
+  iconAnchor: [20, 34],
+});
+
+const endIcon = new L.Icon({
+  iconUrl:
+    "https://img.icons8.com/?size=100&id=8W4MiLVFCP1e&format=png&color=000000",
+  iconSize: [40, 40],
+  iconAnchor: [15, 37],
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
@@ -42,10 +58,31 @@ function DrawControl({ onCreated }) {
           circlemarker: false,
           polygon: false,
           marker: false,
-          polyline: true,
+          polyline: {
+            shapeOptions: {
+              weight: 4,
+            },
+            metric: true,
+            feet: false,
+            showLength: true,
+            icon: new L.Icon({
+              iconUrl:
+                "https://img.icons8.com/?size=100&id=30567&format=png&color=000000",
+              iconSize: [30, 30],
+              iconAnchor: [15, 25],
+            }),
+          },
         },
         edit: {
           featureGroup: featGroupRef.current,
+          poly: {
+            // Personalização dos marcadores durante a edição
+            icon: new L.DivIcon({
+              iconSize: new L.Point(8, 8),
+              className:
+                "leaflet-div-icon leaflet-editing-icon custom-vertex-icon",
+            }),
+          },
         },
       });
 
@@ -69,6 +106,26 @@ function DrawControl({ onCreated }) {
           }
         }
       });
+      map.on(L.Draw.Event.EDITED, (e) => {
+        const layers = e.layers;
+        layers.eachLayer((layer) => {
+          if (layer instanceof L.Polyline) {
+            const coordinates = layer
+              .getLatLngs()
+              .map((point) => [point.lat, point.lng]);
+            if (onCreated) {
+              onCreated({ layer, coordinates });
+            }
+          }
+        });
+      });
+
+      map.on(L.Draw.Event.DELETED, (e) => {
+        // Se todos os pontos foram removidos, envie uma array vazia
+        if (onCreated) {
+          onCreated({ coordinates: [] });
+        }
+      });
     }
 
     return () => {
@@ -87,7 +144,7 @@ function DrawControl({ onCreated }) {
 }
 
 DrawControl.propTypes = {
-  onCreated: PropTypes.func.isRequired,
+  onCreated: PropTypes.func,
 };
 
 // Add center, zoom and readOnly props
@@ -166,19 +223,31 @@ const MapComponent = ({
   }, [pathCoordinates]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="flex flex-col h-full w-full">
       {/* Usando o componente MapHeader extraído */}
-      <MapHeader
-        pathCoordinates={pathCoordinates}
-        distance={distance}
-        readOnly={readOnly}
-      />
+      <MapHeader readOnly={readOnly} />
 
-      <div style={{ flex: 1 }}>
+      {/* Container do mapa com altura explícita */}
+      <div
+        style={{
+          height: "500px",
+          width: "100%",
+          position: "relative",
+          zIndex: 0,
+        }}
+        className="flex-1"
+      >
         <MapContainer
           center={mapCenter}
           zoom={zoom}
-          style={{ height: "500px", width: "100%" }}
+          style={{ height: "100%", width: "100%" }}
+          zIndex={0}
+          whenCreated={(mapInstance) => {
+            // Força o redimensionamento do mapa após renderização
+            setTimeout(() => {
+              mapInstance.invalidateSize();
+            }, 100);
+          }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -187,14 +256,37 @@ const MapComponent = ({
 
           {/* Show either draw controls or just the polyline depending on readOnly */}
           {!readOnly ? (
-            <DrawControl onCreated={handleCreated} />
+            <>
+              <DrawControl onCreated={handleCreated} />
+              {pathCoordinates.length >= 2 && (
+                <>
+                  <Marker position={pathCoordinates[0]} icon={startIcon} />
+                  <Marker
+                    position={pathCoordinates[pathCoordinates.length - 1]}
+                    icon={endIcon}
+                  />
+                </>
+              )}
+            </>
           ) : (
             pathCoordinates.length >= 2 && (
-              <Polyline positions={pathCoordinates} color="blue" weight={5} />
+              <>
+                <Polyline positions={pathCoordinates} color="blue" weight={5} />
+                <Marker position={pathCoordinates[0]} icon={startIcon} />
+                <Marker
+                  position={pathCoordinates[pathCoordinates.length - 1]}
+                  icon={endIcon}
+                />
+              </>
             )
           )}
         </MapContainer>
       </div>
+      <MapFooter
+        points={pathCoordinates.length}
+        distance={distance}
+        eta={distance > 0 ? `${Math.round((distance / 5) * 60)} min` : "--"}
+      />
     </div>
   );
 };

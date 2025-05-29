@@ -1,124 +1,72 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import api from "../api";
-import "../styles/RouteCard.css";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const RouteCard = ({ route, onDelete }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+const RouteCard = ({ route, onRouteHover }) => {
+  const navigate = useNavigate();
 
-  // Format the creation date
-  const formatDate = (dateString) => {
-    if (!dateString) return "Unknown date";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("pt-BR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date);
+  const username = route.username || "Usuário";
+  const avatarSeed = username;
+  const avatarFallback = route.user?.username?.charAt(0) || "F";
+
+  // Handler para quando o mouse entra no card
+  const handleMouseEnter = () => {
+    if (onRouteHover) {
+      onRouteHover(route);
+    }
   };
 
-  // Format distance to show in km with 1 decimal place
-  const formatDistance = (distance) => {
-    if (distance === null || distance === undefined) return "Unknown";
-    return `${distance.toFixed(1)} km`;
-  };
-
-  // Handle delete button click
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this route?")) {
-      try {
-        setIsDeleting(true);
-        await api.deleteRoute(route.id);
-        if (onDelete) onDelete(route.id);
-      } catch (error) {
-        console.error("Error deleting route:", error);
-        alert("Failed to delete route. Please try again.");
-      } finally {
-        setIsDeleting(false);
-      }
+  // Handler para quando o mouse sai do card (opcional)
+  const handleMouseLeave = () => {
+    if (onRouteHover) {
+      onRouteHover(null);
     }
   };
 
   return (
-    <div className="route-card">
-      <div className="route-card-image">
-        {route.image ? (
-          <img src={route.image} alt={route.title} />
-        ) : (
-          <div className="route-card-no-image">No Image</div>
-        )}
-      </div>
-
-      <div className="route-card-content">
-        <h3 className="route-card-title">{route.title}</h3>
-
-        <div className="route-card-metadata">
-          <div className="route-card-metadata-item">
-            <span className="route-card-metadata-label">Distance:</span>
-            <span className="route-card-metadata-value">
-              {formatDistance(route.distance)}
+    <Card
+      className="cursor-pointer group transition-colors w-full rounded-md"
+      onClick={() => navigate(`/routes/${route.id}`)}
+      onMouseEnter={handleMouseEnter}
+    >
+      <CardContent className="p-4 rounded-md bg-secondary-very_light border-b border-secondary-light group-hover:bg-primary-very_light transition-colors">
+        <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-12 w-12 bg-primary-dark">
+              <AvatarImage
+                src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${avatarSeed}`}
+              />
+              <AvatarFallback className="bg-primary-dark text-primary-foreground">
+                {avatarFallback}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-md font-medium text-secondary-dark">
+              {username}
             </span>
           </div>
 
-          <div className="route-card-metadata-item">
-            <span className="route-card-metadata-label">Created:</span>
-            <span className="route-card-metadata-value">
-              {formatDate(route.created_at)}
-            </span>
+          <div className="text-center">
+            <div className="font-medium text-secondary-dark text-md">
+              {route.title}
+            </div>
+            <div className="text-xs text-secondary-dark   mt-1">
+              {route.description?.substring(0, 40)}
+              {route.description?.length > 40 ? "..." : ""}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs px-3 py-1 border border-primary-dark rounded-md text-secondary-dark flex items-center">
+              <span>{route.starting_location}</span>
+              <ArrowRight className="h-3 w-3 mx-1 text-secondary-dark" />
+              <span>{route.ending_location}</span>
+            </div>
           </div>
         </div>
-
-        <p className="route-card-description">
-          {route.description
-            ? route.description.length > 100
-              ? `${route.description.substring(0, 100)}...`
-              : route.description
-            : "No description provided"}
-        </p>
-
-        <div className="route-card-locations">
-          <div className="route-card-location">
-            <span className="route-card-location-label">From:</span>
-            <span className="route-card-location-value">
-              {route.starting_location || "Not specified"}
-            </span>
-          </div>
-
-          <div className="route-card-location">
-            <span className="route-card-location-label">To:</span>
-            <span className="route-card-location-value">
-              {route.ending_location || "Not specified"}
-            </span>
-          </div>
-        </div>
-
-        {route.tags && route.tags.length > 0 && (
-          <div className="route-card-tags">
-            {route.tags.map((tag, index) => (
-              <span key={index} className="route-card-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="route-card-actions">
-        <Link
-          to={`/routes/${route.id}`}
-          className="route-card-button view-button"
-        >
-          View Details
-        </Link>
-        <button
-          onClick={handleDelete}
-          className="route-card-button delete-button"
-          disabled={isDeleting}
-        >
-          {isDeleting ? "Deleting..." : "Delete"}
-        </button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

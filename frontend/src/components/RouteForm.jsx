@@ -1,93 +1,96 @@
-import "../styles/RouteForm.css";
-import TagSelector from "./TagSelector";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Label } from "../components/ui/label";
+import ImageUpload from "./forms/ImageUpload";
+import TagSelector from "./forms/TagSelector";
 
-const RouteForm = ({ formData, setFormData }) => {
+export default function RouteForm({ formData, setFormData }) {
+  const [tags, setTags] = useState([]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  return (
-    <div className="route-form">
-      <h2>Criar rota</h2>
+  const handleImageChange = (file) => {
+    setFormData({ ...formData, image: file });
+  };
 
-      <div className="form-group">
-        <input
-          type="text"
+  return (
+    <form className="w-full mx-auto rounded-xl">
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <Label htmlFor="route-name" className="text-2xl">
+            Nome
+          </Label>
+          <span className="text-xs text-gray-500">
+            {formData.title.length}/30
+          </span>
+        </div>
+        <Input
+          id="route-name"
           name="title"
+          maxLength={30}
           value={formData.title}
           onChange={handleChange}
-          placeholder="Título"
-          className="form-control"
+          className="!text-2xl h-[50px]"
         />
       </div>
 
-      <div className="form-row">
-        <div className="form-group half">
-          <input
-            type="text"
-            name="starting_location"
-            value={formData.starting_location}
-            onChange={handleChange}
-            placeholder="Origem"
-            className="form-control"
-          />
+      <div className="flex gap-20 mb-6 items-center w-full h-[200px]">
+        <div className="flex flex-col flex-1 gap-10 h-full">
+          <div>
+            <Label htmlFor="route-start">Origem</Label>
+            <Input
+              id="route-start"
+              name="starting_location"
+              value={formData.starting_location}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <Label htmlFor="route-end">Destino</Label>
+            <Input
+              id="route-end"
+              name="ending_location"
+              value={formData.ending_location}
+              onChange={handleChange}
+            />
+          </div>
         </div>
-        <div className="form-group half">
-          <input
-            type="text"
-            name="ending_location"
-            value={formData.ending_location}
-            onChange={handleChange}
-            placeholder="Destino"
-            className="form-control"
-          />
+        <div className="flex flex-col items-center justify-center flex-1 h-full">
+          <ImageUpload onChange={handleImageChange} value={formData.image} />
         </div>
       </div>
 
-      <div className="form-group">
-        <textarea
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <Label htmlFor="route-description" className="text-2xl">
+            Descrição
+          </Label>
+          <span className="text-xs text-gray-500">
+            {formData.description.length}/200
+          </span>
+        </div>
+        <Textarea
+          id="route-description"
           name="description"
+          maxLength={200}
           value={formData.description}
           onChange={handleChange}
-          placeholder="Descrição"
-          className="form-control"
-          rows="4"
-        ></textarea>
-      </div>
-
-      <div className="form-group">
-        <input
-          type="text"
-          readOnly
-          value={`${formData.coordinates?.length || 0} pontos`}
-          className="form-control"
-          placeholder="Stats"
+          className="h-[100px]"
         />
       </div>
-
-      <div className="form-group">
+      <div>
+        <Label htmlFor="route-description" className="text-2xl">
+          Tags
+        </Label>
         <TagSelector
           selectedTags={formData.tags}
           setSelectedTags={(tags) => setFormData({ ...formData, tags })}
-          placeholder="Tags (opcional)"
         />
       </div>
-    </div>
+    </form>
   );
-};
-
-RouteForm.propTypes = {
-  formData: PropTypes.shape({
-    title: PropTypes.string,
-    starting_location: PropTypes.string,
-    ending_location: PropTypes.string,
-    description: PropTypes.string,
-    coordinates: PropTypes.arrayOf(PropTypes.any),
-    tags: PropTypes.arrayOf(PropTypes.string),
-  }),
-  setFormData: PropTypes.func,
-};
-
-export default RouteForm;
+}
