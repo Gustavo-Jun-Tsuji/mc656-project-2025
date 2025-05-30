@@ -367,3 +367,140 @@ class RouteViewSetTests(APITestCase):
         
         self.assertEqual(empty_response.status_code, status.HTTP_200_OK)
         self.assertEqual(empty_response.data['distance'], 0)
+
+    def test_upvote_route(self):
+        """Test upvoting a route"""
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 1)
+        self.assertEqual(response.data['downvotes_count'], 0)
+        self.assertEqual(response.data['user_vote'], 'upvote')
+
+        # Verify the upvote was added in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.upvotes.count(), 1)
+        self.assertTrue(self.route1.upvotes.filter(id=self.user.id).exists())
+
+    def test_downvote_route(self):
+        """Test downvoting a route"""
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 0)
+        self.assertEqual(response.data['downvotes_count'], 1)
+        self.assertEqual(response.data['user_vote'], 'downvote')
+
+        # Verify the downvote was added in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.downvotes.count(), 1)
+        self.assertTrue(self.route1.downvotes.filter(id=self.user.id).exists())
+
+    def test_remove_upvote(self):
+        """Test removing an upvote by clicking upvote again"""
+        # First upvote the route
+        self.route1.upvotes.add(self.user)
+
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 0)
+        self.assertEqual(response.data['user_vote'], None)
+
+        # Verify the upvote was removed in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.upvotes.count(), 0)
+
+    def test_remove_downvote(self):
+        """Test removing a downvote by clicking downvote again"""
+        # First downvote the route
+        self.route1.downvotes.add(self.user)
+
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['downvotes_count'], 0)
+        self.assertEqual(response.data['user_vote'], None)
+
+        # Verify the downvote was removed in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.downvotes.count(), 0)
+
+    def test_change_vote_upvote_to_downvote(self):
+        """Test changing vote from upvote to downvote"""
+        # First upvote the route
+        self.route1.upvotes.add(self.user)
+        
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 0)
+        self.assertEqual(response.data['downvotes_count'], 1)
+        self.assertEqual(response.data['user_vote'], 'downvote')
+        
+        # Verify the vote was changed in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.upvotes.count(), 0)
+        self.assertEqual(self.route1.downvotes.count(), 1)
+        self.assertTrue(self.route1.downvotes.filter(id=self.user.id).exists())
+
+    def test_change_vote_downvote_to_upvote(self):
+        """Test changing vote from downvote to upvote"""
+        # First downvote the route
+        self.route1.downvotes.add(self.user)
+
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 1)
+        self.assertEqual(response.data['downvotes_count'], 0)
+        self.assertEqual(response.data['user_vote'], 'upvote')
+
+        # Verify the vote was changed in the database
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.upvotes.count(), 1)
+        self.assertEqual(self.route1.downvotes.count(), 0)
+        self.assertTrue(self.route1.upvotes.filter(id=self.user.id).exists())
+
+    def test_vote_unauthenticated(self):
+        """Test that unauthenticated users cannot vote"""
+        # Remove credentials
+        self.client.credentials()
+
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Verify no votes were added
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.upvotes.count(), 0)
+        self.assertEqual(self.route1.downvotes.count(), 0)
+
+    def test_invalid_vote_type(self):
+        """Test that an invalid vote type returns an error"""
+        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
+        response = self.client.post(url, {'vote_type': 'invalid_type'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+
+    def test_vote_counts_in_route_detail(self):
+        """Test that vote counts appear in route detail endpoint"""
+        # Add upvotes from multiple users
+        self.route1.upvotes.add(self.user)
+        self.route1.upvotes.add(self.other_user)
+        
+        url = reverse('route-detail', args=[self.route1.id])
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['upvotes_count'], 2)
+        self.assertEqual(response.data['downvotes_count'], 0)
+        self.assertEqual(response.data['user_vote'], 'upvote')

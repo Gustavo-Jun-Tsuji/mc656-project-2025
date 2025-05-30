@@ -40,6 +40,8 @@ export const api = {
   updateRoute: (id, data) => caller.put(`/routes/${id}/`, data),
   deleteRoute: (id) => caller.delete(`/routes/${id}/`),
   searchRoutes: (term) => caller.get(`/routes/?search=${term}`),
+  voteRoute: (id, voteType) => caller.post(`/routes/${id}/vote/`, { vote_type: voteType }),
+  
 };
 
 export default api;
