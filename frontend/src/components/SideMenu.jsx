@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Menu, MapPin, Heart, Flag, Compass } from "lucide-react";
+import { Menu, MapPin, ThumbsUp, Flag, Compass } from "lucide-react";
 import { api } from "../api";
 
 const SideMenu = () => {
@@ -73,10 +73,10 @@ const SideMenu = () => {
             <span className="text-lg">Minhas Rotas</span>
           </Link>
           <Link
-            to="/rotas-favoritas"
+            to="/liked-routes"
             className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
           >
-            <Heart size={20} />
+            <ThumbsUp size={20} />
             <span className="text-lg">Rotas Favoritas</span>
           </Link>
           <Link

@@ -17,6 +17,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import LikedRoutesPage from "./pages/LikedRoutesPage";
 
 function Logout() {
   localStorage.clear();
@@ -49,6 +50,15 @@ function App() {
                 // Add this route
                 <ProtectedRoute>
                   <MyRoutesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/liked-routes"
+              element={
+                // Add this route
+                <ProtectedRoute>
+                  <LikedRoutesPage />
                 </ProtectedRoute>
               }
             />

@@ -119,6 +119,16 @@ class RouteViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user_routes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_liked_routes(self, request):
+        """
+        Custom action to get routes liked (upvoted) by the current user.
+        endpoints: /routes/my_liked_routes/
+        """
+        liked_routes = self.queryset.filter(upvotes=request.user)
+        serializer = self.get_serializer(liked_routes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def vote(self, request, pk=None):
         """

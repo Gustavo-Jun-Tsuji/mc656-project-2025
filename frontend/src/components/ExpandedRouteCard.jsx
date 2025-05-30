@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Heart, Trash2, Clock, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  Trash2,
+  Clock,
+  MapPin,
+  Image as ImageIcon,
+} from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const ExpandedRouteCard = ({
-  route,
-  showDeleteButton = false,
-  onDelete,
-  onLike,
-  isLiked = false,
-}) => {
+const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -24,6 +24,12 @@ const ExpandedRouteCard = ({
     e.stopPropagation();
     if (isDeleting) return;
 
+    const confirmed = window.confirm(
+      `Tem certeza que deseja deletar a rota "${route.title}"? Esta ação não pode ser desfeita.`
+    );
+
+    if (!confirmed) return;
+
     setIsDeleting(true);
     try {
       await onDelete(route.id);
@@ -31,13 +37,6 @@ const ExpandedRouteCard = ({
       console.error("Erro ao deletar rota:", error);
     } finally {
       setIsDeleting(false);
-    }
-  };
-
-  const handleLike = async (e) => {
-    e.stopPropagation();
-    if (onLike) {
-      await onLike(route.id, !isLiked);
     }
   };
 
@@ -67,19 +66,6 @@ const ExpandedRouteCard = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {onLike && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLike}
-                className={`p-2 ${
-                  isLiked ? "text-red-500" : "text-gray-400"
-                } hover:text-red-500`}
-              >
-                <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-              </Button>
-            )}
-
             {showDeleteButton && (
               <Button
                 variant="ghost"
@@ -97,16 +83,23 @@ const ExpandedRouteCard = ({
 
       <CardContent className="pt-0" onClick={handleCardClick}>
         <div className="space-y-4">
-          {/* Route Image */}
-          {route.image && (
-            <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+          {/* Route Image or Placeholder */}
+          <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+            {route.image ? (
               <img
                 src={route.image}
                 alt={route.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                className="w-full h-full object-cover"
               />
-            </div>
-          )}
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="text-center text-gray-400">
+                  <ImageIcon className="h-12 w-12 mx-auto mb-2" />
+                  <p className="text-sm font-medium">Sem imagem</p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Route Title */}
           <div>
@@ -152,22 +145,18 @@ const ExpandedRouteCard = ({
                   </Badge>
                 )}
               </div>
-
-              {route.likes_count !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4" />
-                  <span>{route.likes_count}</span>
-                </div>
-              )}
             </div>
 
             {/* Tags */}
             {route.tags && route.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {route.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
+                  <span
+                    key={index}
+                    className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
+                  >
                     {tag}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             )}
