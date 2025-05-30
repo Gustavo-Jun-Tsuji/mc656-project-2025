@@ -66,7 +66,7 @@ const SideMenu = () => {
 
         <nav className="flex flex-col">
           <Link
-            to="/my_routes"
+            to="/my-routes"
             className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
           >
             <MapPin size={20} />
