@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import MapComponent from "../components/map/MapComponent";
 import api from "../api";
 import { Button } from "../components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ThumbsUp, ThumbsDown } from "lucide-react";
 
 const RouteDetailsPage = () => {
   const { id } = useParams();
@@ -129,11 +129,45 @@ const RouteDetailsPage = () => {
                   )}
 
                   <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                        Título
-                      </h3>
-                      <p className="text-gray-700">{routeData.title}</p>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Título
+                        </h3>
+                        <p className="text-gray-700">{routeData.title}</p>
+                      </div>
+
+                      {/* Voting section moved to top right */}
+                      <div className="flex gap-2 ml-6">
+                        <button
+                          className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                            routeData.user_vote === "upvote"
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-white border-gray-300 text-gray-600 hover:bg-green-50"
+                          }`}
+                          onClick={() => handleVote("upvote")}
+                          disabled={voteLoading}
+                        >
+                          <ThumbsUp className="w-4 h-4" />
+                          <span className="text-sm font-medium">
+                            {routeData.upvotes_count || 0}
+                          </span>
+                        </button>
+                        <button
+                          className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                            routeData.user_vote === "downvote"
+                              ? "bg-red-100 border-red-300 text-red-700"
+                              : "bg-white border-gray-300 text-gray-600 hover:bg-red-50"
+                          }`}
+                          onClick={() => handleVote("downvote")}
+                          disabled={voteLoading}
+                        >
+                          <ThumbsDown className="w-4 h-4" />
+                          <span className="text-sm font-medium">
+                            {routeData.downvotes_count || 0}
+                          </span>
+                        </button>
+                      </div>
                     </div>
 
                     <div>
@@ -143,30 +177,6 @@ const RouteDetailsPage = () => {
                       <p className="text-gray-700">
                         {routeData.description || "Sem descrição"}
                       </p>
-                    </div>
-
-                    <div className="detail-item voting-section">
-                      <dt>Avaliação:</dt>
-                      <dd className="votes-container">
-                        <button
-                          className={`vote-btn upvote ${
-                            routeData.user_vote === "upvote" ? "active" : ""
-                          }`}
-                          onClick={() => handleVote("upvote")}
-                          disabled={voteLoading}
-                        >
-                          👍 {routeData.upvotes_count || 0}
-                        </button>
-                        <button
-                          className={`vote-btn downvote ${
-                            routeData.user_vote === "downvote" ? "active" : ""
-                          }`}
-                          onClick={() => handleVote("downvote")}
-                          disabled={voteLoading}
-                        >
-                          👎 {routeData.downvotes_count || 0}
-                        </button>
-                      </dd>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
