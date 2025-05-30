@@ -27,7 +27,8 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="app">
+        <div className="app pt-20">
+          {/* Added padding to avoid overlap with header */}
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

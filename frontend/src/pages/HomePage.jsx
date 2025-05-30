@@ -97,10 +97,11 @@ const HomePage = () => {
           </div>
           <button
             onClick={() => navigate("/routes/create")}
-            className="fixed bottom-12 right-12 bg-primary-dark hover:bg-primary text-white rounded-full w-[100px] h-[100px] flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            className="fixed bottom-12 right-12 bg-primary-dark hover:bg-primary text-white rounded-full w-20 h-20 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             aria-label="Criar nova rota"
+            title="Criar nova rota"
           >
-            <PlusIcon size={48} />
+            <PlusIcon size={36} />
           </button>
         </div>
       </div>

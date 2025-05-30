@@ -3,7 +3,7 @@ import SideMenu from "./SideMenu";
 
 const Header = () => {
   return (
-    <header className="bg-primary-dark h-[120px] w-full flex items-center px-12 shadow-md">
+    <header className="bg-primary-dark/80 backdrop-blur h-20 w-full flex items-center px-12 shadow-md fixed top-0 z-50">
       {/* Lado esquerdo - Menu e Logo com largura fixa */}
       <div className="w-[220px] flex items-center">
         <div className="flex justify-start">
