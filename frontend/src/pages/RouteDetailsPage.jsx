@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import MapComponent from "../components/map/MapComponent";
 import api from "../api";
-import "../styles/RouteDetailsPage.css";
+import { Button } from "../components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const RouteDetailsPage = () => {
   const { id } = useParams();
@@ -59,116 +60,156 @@ const RouteDetailsPage = () => {
     return new Date(routeData.created_at).toLocaleDateString();
   }, [routeData.created_at]);
 
-  if (loading) return <div className="loading">Carregando...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex items-center justify-center pt-20">
+          <div className="text-xl">Carregando...</div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex items-center justify-center pt-20">
+          <div className="text-xl text-red-600">{error}</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Header />
-      <div className="page-container route-details-page">
-        <h2 className="page-title">Detalhes da Rota</h2>
-
-        <div className="side-by-side-container">
-          {/* Details Section */}
-          <div className="details-section">
-            {/* Display route image if available */}
-            {routeData.image && (
-              <div className="route-image-container">
-                <img
-                  src={routeData.image}
-                  alt={`Imagem da rota ${routeData.title}`}
-                  className="route-image"
-                />
-              </div>
-            )}
-
-            <dl className="details-list">
-              <div className="detail-item">
-                <dt>Título:</dt>
-                <dd>{routeData.title}</dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Descrição:</dt>
-                <dd className="description">
-                  {routeData.description || "Sem descrição"}
-                </dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Local de início:</dt>
-                <dd>{routeData.starting_location || "Não especificado"}</dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Local de término:</dt>
-                <dd>{routeData.ending_location || "Não especificado"}</dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Distância:</dt>
-                <dd>
-                  {routeData.distance
-                    ? `${routeData.distance.toFixed(2)} km`
-                    : "Não calculada"}
-                </dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Duração estimada:</dt>
-                <dd>
-                  {routeData.distance
-                    ? `${Math.round(routeData.distance * 12)} min`
-                    : "Não calculada"}
-                </dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Criado em:</dt>
-                <dd>{formattedDate || "Data não disponível"}</dd>
-              </div>
-
-              {/* Add author information here */}
-              <div className="detail-item">
-                <dt>Criado por:</dt>
-                <dd>{routeData.username || "Usuário desconhecido"}</dd>
-              </div>
-
-              <div className="detail-item">
-                <dt>Tags:</dt>
-                <dd>
-                  {routeData.tags && routeData.tags.length > 0 ? (
-                    <div className="tags-list">
-                      {routeData.tags.map((tag, index) => (
-                        <span key={index} className="tag-pill">
-                          {tag}
-                        </span>
-                      ))}
+      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-20">
+        <div className="flex flex-col rounded-3xl shadow-2xl p-[80px] pt-[30px] pb-[30px] w-4/5 mx-auto">
+          {/* Conteúdo principal */}
+          <div className="flex gap-[50px]">
+            <div className="flex flex-col flex-1 items-center">
+              {/* Details Section - Single Card */}
+              <div className="flex flex-col h-full w-full">
+                <div className="bg-white p-6 rounded-xl shadow border border-gray-200">
+                  {/* Display route image if available */}
+                  {routeData.image && (
+                    <div className="mb-6">
+                      <img
+                        src={routeData.image}
+                        alt={`Imagem da rota ${routeData.title}`}
+                        className="w-full h-48 object-cover rounded-xl border border-gray-200 shadow"
+                      />
                     </div>
-                  ) : (
-                    "Sem tags"
                   )}
-                </dd>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                        Título
+                      </h3>
+                      <p className="text-gray-700">{routeData.title}</p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                        Descrição
+                      </h3>
+                      <p className="text-gray-700">
+                        {routeData.description || "Sem descrição"}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Local de início
+                        </h3>
+                        <p className="text-gray-700">
+                          {routeData.starting_location || "Não especificado"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Local de término
+                        </h3>
+                        <p className="text-gray-700">
+                          {routeData.ending_location || "Não especificado"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Criado em
+                        </h3>
+                        <p className="text-gray-700">
+                          {formattedDate || "Data não disponível"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Criado por
+                        </h3>
+                        <p className="text-gray-700">
+                          {routeData.username || "Usuário desconhecido"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                        Tags
+                      </h3>
+                      {routeData.tags && routeData.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {routeData.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700">Sem tags</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </dl>
-          </div>
 
-          {/* Map Section */}
-          <div className="map-section">
-            {console.log(routeData.coordinates, centerCoordinates)}
-            <MapComponent
-              coordinates={routeData.coordinates || []}
-              center={centerCoordinates}
-              zoom={16}
-              readOnly={true}
-            />
-          </div>
-        </div>
+              <div className="mt-6">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-secondary-dark text-xl h-12 w-[250px]"
+                  onClick={handleBack}
+                >
+                  <ArrowLeft className="w-8 h-8" />
+                  Voltar
+                </Button>
+              </div>
+            </div>
 
-        <div className="buttons">
-          <button className="btn back" onClick={handleBack}>
-            VOLTAR
-          </button>
+            {/* Map Section */}
+            <div className="flex flex-col flex-1 items-center">
+              <div className="w-full h-full flex flex-col justify-between">
+                <div className="rounded-xl overflow-hidden border border-gray-200 shadow flex-1 max-h-[530px]">
+                  <MapComponent
+                    coordinates={routeData.coordinates || []}
+                    center={centerCoordinates}
+                    zoom={16}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
