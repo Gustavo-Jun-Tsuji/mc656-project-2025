@@ -85,10 +85,10 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 	- Formulário de adição ~~e aba "Minhas Contribuições" ambos disponíveis apenas para usuários logados~~<sup>1</sup>.
  	- Formulário contém, pelo menos, campos de nome, descrição, localização (selecionável do mapa) e tags (opcionais), todos validados para campos não vazios.
   	- Submissão com dados válidos exibe mensagem "(nome) agora está na plataforma!" ~~e adiciona a contribuição do usuário à aba "Minhas Contribuições".~~<sup>1</sup>
-- **US02.3** – Como usuário autenticado, desejo avaliar uma rota com estrelas e um comentário para ajudar outros usuários.
-	- Pop-up de avaliação disponível com estrelas, de 1 a 5, e um campo de comentário.
- 	- Validação de um mínimo de 1 estrela e comentário não vazio.
-  	- Avaliação submetida com dados válidos faz com que o sistema exiba uma mensagem "Avaliação submetida!", atualize imediatamente a média de estrelas do que foi avaliado e vincule a avaliação ao que foi avaliado e ao usuário avaliador no banco de dados.
+- **US02.3** – Como usuário autenticado, desejo avaliar uma rota ~~com estrelas e um comentário~~<sup>5</sup> para ajudar outros usuários.
+  	- Pop-up de avaliação disponível com ~~estrelas, de 1 a 5, e um campo de comentário~~ um sistema de _upvotes_ e _downvotes_<sup>5</sup>.
+  	- ~~Validação de um mínimo de 1 estrela e comentário não vazio.~~ <sup>5</sup>
+   	- Avaliação submetida ~~com dados válidos faz com que o sistema exiba uma mensagem "Avaliação submetida!", atualize~~ atualiza imediatamente ~~a média de estrelas~~ o número de upvotes/downvotes do que foi avaliado e ~~vincule~~ vincula a avaliação ao que foi avaliado e ao usuário avaliador no banco de dados.<sup>5</sup>
 - **US02.4** – Como usuário autenticado, desejo recomendar rotas para outras pessoas por meio de um link ou sugestão no sistema para aumentar o conhecimento de rotas que acho interessante.
 	- Botão de recomendação associado a rotas e pontos de interesse abre _pop-up_ de envio.
  	- _Pop-up_ de envio permite escolher dentre lista de amigos um destinatário.
@@ -105,7 +105,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 	- Todas as rotas disponiveis que se adequam ao(s) filtro(s) selecionados aparecem como resultado, inclusive quando há mais de um e quando há seleção de _tags_, se existir alguma rota que se enquadre no(s) filtro(s), ou uma mensagem de aviso dizendo que nenhuma rota foi encontrada se não existir nenhuma rota que se enquadre no(s) filtro(s).
  	- Lista de rotas atualiza sem a necessidade de recarregar a página quando algo for marcado ou desmarcado.
   	- Pelo menos 3 _tags_ de rotas adicionadas.
-- **US03.3** – Como usuário, desejo ver avaliações e comentários de outros usuários sobre uma rota para considerar o que os outros dizem dela antes de usá-la.
+- **US03.3** – Como usuário, desejo ver avaliações e comentários de outros usuários sobre uma rota para considerar o que os outros dizem dela antes de usá-la.<sup>5</sup>
 	- Todas as avaliações de uma rota selecionada aparecem em uma lista de avaliações, que contêm usuário avaliador, estrelas, data e comentário.
   	- Ao menos 2 filtros de visualização de avaliações implementados (por número de estrelas e por data).
 - **US03.4** – Como usuário autenticado, desejo ver meu histórico de rotas recém visualizadas para eu facilmente retornar ao que eu estava fazendo anteriormente plataforma.
@@ -150,3 +150,5 @@ Os requisitos e suas respectivas _user stories_ serão rastreados com uma matriz
 <sup>3</sup> 22/05 - Com base na escolha de prioridades das user stories, a US de avaliações virá depois, então a avaliação como informação será adicionada depois.
 
 <sup>4</sup> 22/05 - Dada a alteração do dia 15/05 (não requer mais autenticação), a user story terá os critérios de aceitação relaxados para apenas "Páginas de rotas e pontos de interesse exibem informações."
+
+<sup>5</sup> 30/05 - Sistema de avaliação com 5 estrelas substituído por sistema com upvotes/downvotes. Anteriormente, uma avaliação implicitamente requeria um comentário do usuário avaliador para explicar o número de estrelas dado; agora, isso não é mais necessário, agilizando a sequência de ações na UX. Com isso, a US03.3 se tornou consequência direta da US02.3. Comentários de avaliações não farão mais parte do MVP.
