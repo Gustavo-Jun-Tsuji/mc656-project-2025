@@ -46,21 +46,21 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 
 ### EP01 - Gerenciamento de acesso e de usuários
 **Descrição**: Controle de permissões, autenticação e gestão de usuários da plataforma.
-- **US01.1** – Como administrador, desejo cadastrar um novo usuário para que ele tenha acesso à plataforma.
+- **US01.1** – Como administrador, desejo cadastrar um novo usuário para que ele tenha acesso à plataforma.<sup>6</sup>
  	- Página de cadastro existente e acessível apenas a administradores.
   	- Campos obrigatórios para cadastro são validados antes do cadastro ser concluído (campos não vazios, e-mail válido e nome com caracteres do alfabeto latino).
   	- Dados válidos submetidos fazem o sistema gravar o novo usuário no banco de dados de forma persistente, i.e., o novo usuário aparece na lista dada pela US01.2.
   	- Uma mensagem "Usuário <nome> cadastrado com sucesso!" aparece na tela.
-- **US01.2** – Como administrador, desejo visualizar a lista de usuários cadastrados para acompanhar quem usa o sistema.
+- **US01.2** – Como administrador, desejo visualizar a lista de usuários cadastrados para acompanhar quem usa o sistema.<sup>6</sup>
  	- Lista deve exibir, pelo menos, nome, e-mail e data de criação dos usuários.
   	- Usuários devem aparecer em tabelas paginadas, tendo 25 usuários por página no máximo.
   	- Apenas administradores podem acessar essa visualização.
-- **US01.3** – Como administrador, desejo editar os dados de um usuário para manter o sistema atualizado.
+- **US01.3** – Como administrador, desejo editar os dados de um usuário para manter o sistema atualizado.<sup>6</sup>
  	- Botão de edição ao lado de cada usuário na lista dada pela US01.2.
   	- Dados novos são validados antes da edição ser concluída (vide US01.1).
   	- Dados válidos submetidos fazem o sistema exibir uma mensagem "Dados atualizados com sucesso!" na tela e gravar os novos dados do usuário no banco de dados de forma persistente, i.e., os novos dados aparecem na lista dada pela US01.2.
   	- Dados inválidos submetidos não alteram nada e exibem uma mensagem de erro específico de acordo com o que está inválido.
-- **US01.4** – Como administrador, desejo excluir usuários da plataforma quando necessário para ter melhor controle sobre testes e uso do sistema.
+- **US01.4** – Como administrador, desejo excluir usuários da plataforma quando necessário para ter melhor controle sobre testes e uso do sistema.<sup>6</sup>
  	- Botão de deleção ao lado de cada usuário na lista dada pela US01.2.
   	- Um clique no botão de deleção abre um _pop-up_ de alerta/confirmação.
   	- Deleção de usuário faz o sistema exibir uma mensagem "Usuário excluído com sucesso!" na tela e remove todos os dados do usuário do banco de dados de forma persistente, i.e., o usuário não aparece mais na lista dada pela US01.2.
@@ -75,7 +75,7 @@ Os critérios de aceitação dos épicos e _user stories_ foram feitos com base 
 
 ### EP02 - Interações usuários-sistema
 **Descrição**: Contribuições do usuário com o conteúdo da plataforma.
-- **US02.1** – Como administrador, desejo cadastrar, editar ou excluir rotas e pontos de interesse para manter o conteúdo da plataforma atualizado.
+- **US02.1** – Como administrador, desejo cadastrar, editar ou excluir rotas e pontos de interesse para manter o conteúdo da plataforma atualizado.<sup>6</sup>
 	- Painel de rotas e pontos de interesse existente e acessível apenas por administradores.
  	- Rotas e pontos de interesse possuem botões de criação, edição e deleção.
   	- Campos obrigatórios (nome, descrição, coordenadas geográficas etc.) validados (campos não vazios e tipo de dado).
@@ -152,3 +152,5 @@ Os requisitos e suas respectivas _user stories_ serão rastreados com uma matriz
 <sup>4</sup> 22/05 - Dada a alteração do dia 15/05 (não requer mais autenticação), a user story terá os critérios de aceitação relaxados para apenas "Páginas de rotas e pontos de interesse exibem informações."
 
 <sup>5</sup> 30/05 - Sistema de avaliação com 5 estrelas substituído por sistema com upvotes/downvotes. Anteriormente, uma avaliação implicitamente requeria um comentário do usuário avaliador para explicar o número de estrelas dado; agora, isso não é mais necessário, agilizando a sequência de ações na UX. Com isso, a US03.3 se tornou consequência direta da US02.3. Comentários de avaliações não farão mais parte do MVP.
+
+<sup>6</sup> 30/05 - A implementação do backend em Python/Django já contempla a existência de um administrador pelo próprio Django com permissões de acesso ao banco de dados, atendendo às _user stories_ US01.1, US01.2, US01.3, US01.4 (CRUD de usuários pelo administrador) e US02.1 (CRUD de rotas pelo administrador).
