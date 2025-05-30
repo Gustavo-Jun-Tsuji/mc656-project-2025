@@ -19,9 +19,13 @@ const RouteDetailsPage = () => {
     image: null,
     tags: [],
     username: "",
+    upvotes_count: 0,
+    downvotes_count: 0,
+    user_vote: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [voteLoading, setVoteLoading] = useState(false);
 
   useEffect(() => {
     const fetchRouteData = async () => {
@@ -44,6 +48,27 @@ const RouteDetailsPage = () => {
 
   const handleBack = () => {
     navigate("/");
+  };
+
+  const handleVote = async (voteType) => {
+    if (voteLoading) return;
+    
+    try {
+      setVoteLoading(true);
+      const response = await api.voteRoute(id, voteType);
+      
+      setRouteData(prev => ({
+        ...prev,
+        upvotes_count: response.data.upvotes_count,
+        downvotes_count: response.data.downvotes_count,
+        user_vote: response.data.user_vote
+      }));
+      
+    } catch (err) {
+      console.error("Error voting:", err);
+    } finally {
+      setVoteLoading(false);
+    }
   };
 
   // Use useMemo to stabilize the center coordinates
@@ -92,6 +117,26 @@ const RouteDetailsPage = () => {
                 <dt>Descrição:</dt>
                 <dd className="description">
                   {routeData.description || "Sem descrição"}
+                </dd>
+              </div>
+
+              <div className="detail-item voting-section">
+                <dt>Avaliação:</dt>
+                <dd className="votes-container">
+                  <button 
+                    className={`vote-btn upvote ${routeData.user_vote === "upvote" ? "active" : ""}`}
+                    onClick={() => handleVote("upvote")}
+                    disabled={voteLoading}
+                  >
+                    👍 {routeData.upvotes_count || 0}
+                  </button>
+                  <button 
+                    className={`vote-btn downvote ${routeData.user_vote === "downvote" ? "active" : ""}`}
+                    onClick={() => handleVote("downvote")}
+                    disabled={voteLoading}
+                  >
+                    👎 {routeData.downvotes_count || 0}
+                  </button>
                 </dd>
               </div>
 
