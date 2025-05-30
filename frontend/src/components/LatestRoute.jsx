@@ -20,7 +20,7 @@ const LatestRoutes = ({ routes = [], onHoveredRouteChange }) => {
   // Mostrar mensagem de erro se ocorrer
   if (error) {
     return (
-      <Card className="shadow-sm">
+      <Card className="shadow-sm h-full">
         <CardHeader className="pb-2">
           <CardTitle className="text-secondary-dark text-xl">
             Últimas Rotas Adicionadas
@@ -34,14 +34,14 @@ const LatestRoutes = ({ routes = [], onHoveredRouteChange }) => {
   }
 
   return (
-    <Card className="shadow-xl rounded-xl p-5 bg-secondary-very_light border ">
-      <CardHeader className="pb-8 border-b border-secondary-light">
+    <Card className="shadow-xl rounded-xl p-5 bg-secondary-very_light border h-full flex flex-col">
+      <CardHeader className="pb-8 border-b border-secondary-light flex-shrink-0">
         <CardTitle className="text-blue-800 text-xl text-center">
           Últimas Rotas Adicionadas
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {routes
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .map((route, index) => (

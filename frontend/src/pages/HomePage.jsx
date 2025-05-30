@@ -74,10 +74,10 @@ const HomePage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-10">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-20">
         <div className="flex flex-row gap-12 p-4 w-4/5 mx-auto">
           <div className="flex-1">
-            <div className="rounded-lg shadow-md h-[650px]">
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow h-[650px]">
               <div className="map-section h-full">
                 <MapComponent
                   coordinates={currentHoveredRoute?.coordinates || []}
@@ -89,7 +89,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="flex-1 max-w-[550px] flex items-center">
+          <div className="flex-1 max-w-[550px] h-[650px]">
             <LatestRoute
               routes={routes}
               onHoveredRouteChange={handleHoveredRouteChange}
