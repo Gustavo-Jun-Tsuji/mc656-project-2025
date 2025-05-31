@@ -97,6 +97,14 @@ const RouteListPage = ({
                 {title}
               </CardTitle>
 
+              {filteredRoutes.length > 0 && (
+                <div className="text-center mt-8 text-gray-500">
+                  {filteredRoutes.length} rota
+                  {filteredRoutes.length !== 1 ? "s" : ""} encontrada
+                  {filteredRoutes.length !== 1 ? "s" : ""}
+                </div>
+              )}
+
               {(showSearchFilter || showFilterByButtons) && (
                 <div className="space-y-4 pt-4">
                   {/* Search Bar */}
@@ -162,14 +170,6 @@ const RouteListPage = ({
                   isLiked={route.is_liked}
                 />
               ))}
-            </div>
-          )}
-
-          {filteredRoutes.length > 0 && (
-            <div className="text-center mt-8 text-gray-500">
-              {filteredRoutes.length} rota
-              {filteredRoutes.length !== 1 ? "s" : ""} encontrada
-              {filteredRoutes.length !== 1 ? "s" : ""}
             </div>
           )}
         </div>
