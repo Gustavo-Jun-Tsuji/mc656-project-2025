@@ -8,6 +8,7 @@ import { ArrowRight } from "lucide-react";
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -36,7 +37,6 @@ const SearchBar = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // Navigate to search results page with the search term
       navigate(`/routes/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setShowSuggestions(false);
     }
@@ -48,19 +48,31 @@ const SearchBar = () => {
     setShowSuggestions(false);
   };
 
+  const handleFocus = () => {
+    setIsFocused(true);
+    if (searchTerm) {
+      setShowSuggestions(true);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    setTimeout(() => setShowSuggestions(false), 200);
+  };
+
   return (
     <div className="relative w-full h-full">
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
           <Input
             type="text"
-            placeholder="Buscar Rotas..."
+            placeholder={isFocused ? "" : "Buscar Rotas..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onFocus={() => searchTerm && setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             className="w-full min-h-[50px] pl-10 pr-4 py-2 bg-primary-light placeholder:text-lg"
-            style={{ textAlign: searchTerm ? "left" : "center" }}
+            style={{ textAlign: searchTerm || isFocused ? "left" : "center" }}
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         </div>
