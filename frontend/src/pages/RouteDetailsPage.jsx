@@ -4,7 +4,16 @@ import Header from "../components/Header";
 import MapComponent from "../components/map/MapComponent";
 import api from "../api";
 import { Button } from "../components/ui/button";
-import { ArrowLeft, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Badge } from "../components/ui/badge";
+import {
+  ArrowLeft,
+  ThumbsUp,
+  ThumbsDown,
+  ArrowRight,
+  MapPin,
+  Clock,
+  Image as ImageIcon,
+} from "lucide-react";
 
 const RouteDetailsPage = () => {
   const { id } = useParams();
@@ -48,7 +57,7 @@ const RouteDetailsPage = () => {
   }, [id]);
 
   const handleBack = () => {
-    navigate("/");
+    navigate(-1); // Go back to previous page instead of home
   };
 
   const handleVote = async (voteType) => {
@@ -111,33 +120,50 @@ const RouteDetailsPage = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-20">
         <div className="flex flex-col rounded-3xl shadow-2xl p-[80px] pt-[30px] pb-[30px] w-4/5 mx-auto">
-          {/* Conteúdo principal */}
-          <div className="flex gap-[50px]">
-            <div className="flex flex-col flex-1 items-center">
-              {/* Details Section - Single Card */}
-              <div className="flex flex-col h-full w-full">
-                <div className="bg-white p-6 rounded-xl shadow border border-gray-200">
-                  {/* Display route image if available */}
-                  {routeData.image && (
-                    <div className="mb-6">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-secondary-dark text-xl h-12"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="w-6 h-6" />
+              Voltar
+            </Button>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex gap-[50px] h-[600px]">
+            {/* Details Section */}
+            <div className="flex-1">
+              <div className="bg-white p-6 rounded-xl shadow border border-gray-200 h-full overflow-y-auto">
+                <div className="space-y-6">
+                  {/* Route Image or Placeholder - Same as ExpandedRouteCard */}
+                  <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+                    {routeData.image ? (
                       <img
                         src={routeData.image}
-                        alt={`Imagem da rota ${routeData.title}`}
-                        className="w-full h-48 object-cover rounded-xl border border-gray-200 shadow"
+                        alt={routeData.title}
+                        className="w-full h-full object-cover"
                       />
-                    </div>
-                  )}
-
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                          Título
-                        </h3>
-                        <p className="text-gray-700">{routeData.title}</p>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                        <div className="text-center text-gray-400">
+                          <ImageIcon className="h-12 w-12 mx-auto mb-2" />
+                          <p className="text-sm font-medium">Sem imagem</p>
+                        </div>
                       </div>
+                    )}
+                  </div>
 
-                      {/* Voting section moved to top right */}
+                  {/* Title and Description - Similar to ExpandedRouteCard */}
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <h1 className="font-semibold text-2xl text-secondary-dark">
+                        {routeData.title}
+                      </h1>
+
+                      {/* Voting section */}
                       <div className="flex gap-2 ml-6">
                         <button
                           className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
@@ -170,101 +196,82 @@ const RouteDetailsPage = () => {
                       </div>
                     </div>
 
+                    <p className="text-gray-600 text-base leading-relaxed">
+                      {routeData.description || "Sem descrição"}
+                    </p>
+                  </div>
+
+                  {/* Origin to Destination - Same as ExpandedRouteCard */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-green-600" />
+                      <span className="font-medium">
+                        {routeData.starting_location || "Origem"}
+                      </span>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-red-600" />
+                      <span className="font-medium">
+                        {routeData.ending_location || "Destino"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                        Descrição
+                        Criado em
                       </h3>
                       <p className="text-gray-700">
-                        {routeData.description || "Sem descrição"}
+                        {formattedDate || "Data não disponível"}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                          Local de início
-                        </h3>
-                        <p className="text-gray-700">
-                          {routeData.starting_location || "Não especificado"}
-                        </p>
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                          Local de término
-                        </h3>
-                        <p className="text-gray-700">
-                          {routeData.ending_location || "Não especificado"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                          Criado em
-                        </h3>
-                        <p className="text-gray-700">
-                          {formattedDate || "Data não disponível"}
-                        </p>
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                          Criado por
-                        </h3>
-                        <p className="text-gray-700">
-                          {routeData.username || "Usuário desconhecido"}
-                        </p>
-                      </div>
-                    </div>
-
                     <div>
                       <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                        Tags
+                        Criado por
                       </h3>
-                      {routeData.tags && routeData.tags.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {routeData.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-700">Sem tags</p>
-                      )}
+                      <p className="text-gray-700">
+                        {routeData.username || "Usuário desconhecido"}
+                      </p>
                     </div>
+                  </div>
+
+                  {/* Tags - Same style as ExpandedRouteCard */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                      Tags
+                    </h3>
+                    {routeData.tags && routeData.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {routeData.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-700">Sem tags</p>
+                    )}
                   </div>
                 </div>
               </div>
-
-              <div className="mt-6">
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 text-secondary-dark text-xl h-12 w-[250px]"
-                  onClick={handleBack}
-                >
-                  <ArrowLeft className="w-8 h-8" />
-                  Voltar
-                </Button>
-              </div>
             </div>
 
-            {/* Map Section */}
-            <div className="flex flex-col flex-1 items-center">
-              <div className="w-full h-full flex flex-col justify-between">
-                <div className="rounded-xl overflow-hidden border border-gray-200 shadow flex-1 max-h-[530px]">
-                  <MapComponent
-                    coordinates={routeData.coordinates || []}
-                    center={centerCoordinates}
-                    zoom={16}
-                    readOnly={true}
-                  />
-                </div>
+            {/* Map Section - Same height as details */}
+            <div className="flex-1">
+              <div className="rounded-xl overflow-hidden border border-gray-200 shadow h-full">
+                <MapComponent
+                  coordinates={routeData.coordinates || []}
+                  center={centerCoordinates}
+                  zoom={16}
+                  readOnly={true}
+                />
               </div>
             </div>
           </div>
