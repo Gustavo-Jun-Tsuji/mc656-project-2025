@@ -41,12 +41,13 @@ const LikedRoutesPage = () => {
 
   return (
     <RouteListPage
-      title="Rotas Favoritas"
+      title="Rotas Curtidas"
       routes={routes}
       loading={loading}
       error={error}
       showLikeButton={true}
       showSearchFilter={true}
+      showFilterByButtons={true}
       onLikeRoute={handleLikeRoute}
       emptyStateMessage="Você ainda não favoritou nenhuma rota. Explore e encontre rotas interessantes!"
     />

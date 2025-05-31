@@ -35,8 +35,10 @@ const SearchBar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchResults.length > 0) {
-      navigateToRoute(searchResults[0].id);
+    if (searchTerm.trim()) {
+      // Navigate to search results page with the search term
+      navigate(`/routes/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setShowSuggestions(false);
     }
   };
 

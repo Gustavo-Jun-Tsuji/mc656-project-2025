@@ -14,6 +14,7 @@ const RouteListPage = ({
   showDeleteButton = false,
   showLikeButton = false,
   showSearchFilter = false,
+  showFilterByButtons = false,
   onDeleteRoute,
   onLikeRoute,
   emptyStateMessage = "Nenhuma rota encontrada",
@@ -96,44 +97,48 @@ const RouteListPage = ({
                 {title}
               </CardTitle>
 
-              {showSearchFilter && (
+              {(showSearchFilter || showFilterByButtons) && (
                 <div className="space-y-4 pt-4">
                   {/* Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      type="text"
-                      placeholder={`Buscar em ${title}...`}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+                  {showSearchFilter && (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        type="text"
+                        placeholder={`Buscar em ${title}...`}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  )}
 
                   {/* Filter Buttons */}
-                  <div className="flex gap-2 justify-center">
-                    <Button
-                      variant={filterBy === "all" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFilterBy("all")}
-                    >
-                      Todas
-                    </Button>
-                    <Button
-                      variant={filterBy === "recent" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFilterBy("recent")}
-                    >
-                      Mais Recentes
-                    </Button>
-                    <Button
-                      variant={filterBy === "liked" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFilterBy("liked")}
-                    >
-                      Mais Curtidas
-                    </Button>
-                  </div>
+                  {showFilterByButtons && (
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        variant={filterBy === "all" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFilterBy("all")}
+                      >
+                        Todas
+                      </Button>
+                      <Button
+                        variant={filterBy === "recent" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFilterBy("recent")}
+                      >
+                        Mais Recentes
+                      </Button>
+                      <Button
+                        variant={filterBy === "liked" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFilterBy("liked")}
+                      >
+                        Mais Curtidas
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </CardHeader>

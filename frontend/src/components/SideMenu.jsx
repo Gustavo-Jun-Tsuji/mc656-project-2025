@@ -77,7 +77,7 @@ const SideMenu = () => {
             className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
           >
             <ThumbsUp size={20} />
-            <span className="text-lg">Rotas Favoritas</span>
+            <span className="text-lg">Rotas Curtidas</span>
           </Link>
           <Link
             to="/denunciar-rotas"

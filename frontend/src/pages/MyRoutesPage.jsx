@@ -42,6 +42,7 @@ const MyRoutesPage = () => {
       error={error}
       showDeleteButton={true}
       showSearchFilter={true}
+      showFilterByButtons={true}
       onDeleteRoute={handleDeleteRoute}
       emptyStateMessage="Você ainda não criou nenhuma rota. Que tal criar a primeira?"
     />
