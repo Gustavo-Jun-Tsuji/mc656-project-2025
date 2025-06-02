@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import ExpandedRouteCard from "../components/ExpandedRouteCard";
 import Header from "../components/Header";
 
@@ -12,23 +13,26 @@ const RouteListPage = ({
   loading = false,
   error = null,
   showDeleteButton = false,
-  showLikeButton = false,
+  showVoteButtons = false,
   showSearchFilter = false,
-  showFilterByButtons = false,
-  onDeleteRoute,
-  onLikeRoute,
+  showOrderByButtons = false,
+  onRoutesUpdate, // Optional callback to update routes in parent
   emptyStateMessage = "Nenhuma rota encontrada",
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filteredRoutes, setFilteredRoutes] = useState(routes);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterBy, setFilterBy] = useState("all"); // all, liked, recent
+  const [localRoutes, setLocalRoutes] = useState(routes);
+
+  // Get state from URL params
+  const searchTerm = searchParams.get("search") || "";
+  const orderBy = searchParams.get("orderBy") || "recent";
 
   useEffect(() => {
-    setFilteredRoutes(routes);
+    setLocalRoutes(routes);
   }, [routes]);
 
   useEffect(() => {
-    let filtered = routes;
+    let filtered = [...localRoutes]; // Use local routes for filtering
 
     // Apply search filter
     if (searchTerm.trim()) {
@@ -45,19 +49,59 @@ const RouteListPage = ({
       );
     }
 
-    // Apply category filter
-    if (filterBy === "recent") {
+    // Apply ordering
+    if (orderBy === "recent") {
       filtered = filtered.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
-    } else if (filterBy === "liked") {
+    } else if (orderBy === "liked") {
       filtered = filtered.sort(
-        (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
+        (a, b) => (b.upvotes_count || 0) - (a.upvotes_count || 0)
       );
+    } else if (orderBy === "longest") {
+      filtered = filtered.sort((a, b) => (b.distance || 0) - (a.distance || 0));
     }
 
     setFilteredRoutes(filtered);
-  }, [searchTerm, filterBy, routes]);
+  }, [searchTerm, orderBy, localRoutes]);
+
+  const updateSearchTerm = (newSearchTerm) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newSearchTerm.trim()) {
+      newParams.set("search", newSearchTerm);
+    } else {
+      newParams.delete("search");
+    }
+    setSearchParams(newParams);
+  };
+
+  const updateOrderBy = (newOrderBy) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("orderBy", newOrderBy);
+    setSearchParams(newParams);
+  };
+
+  const handleRouteDeleted = (routeId) => {
+    const updatedRoutes = localRoutes.filter((route) => route.id !== routeId);
+    setLocalRoutes(updatedRoutes);
+
+    // Notify parent component if callback provided
+    if (onRoutesUpdate) {
+      onRoutesUpdate(updatedRoutes);
+    }
+  };
+
+  const handleRouteUpdated = (updatedRoute) => {
+    const updatedRoutes = localRoutes.map((route) =>
+      route.id === updatedRoute.id ? updatedRoute : route
+    );
+    setLocalRoutes(updatedRoutes);
+
+    // Notify parent component if callback provided
+    if (onRoutesUpdate) {
+      onRoutesUpdate(updatedRoutes);
+    }
+  };
 
   if (loading) {
     return (
@@ -97,15 +141,7 @@ const RouteListPage = ({
                 {title}
               </CardTitle>
 
-              {filteredRoutes.length > 0 && (
-                <div className="text-center mt-8 text-gray-500">
-                  {filteredRoutes.length} rota
-                  {filteredRoutes.length !== 1 ? "s" : ""} encontrada
-                  {filteredRoutes.length !== 1 ? "s" : ""}
-                </div>
-              )}
-
-              {(showSearchFilter || showFilterByButtons) && (
+              {(showSearchFilter || showOrderByButtons) && (
                 <div className="space-y-4 pt-4">
                   {/* Search Bar */}
                   {showSearchFilter && (
@@ -115,38 +151,53 @@ const RouteListPage = ({
                         type="text"
                         placeholder={`Buscar em ${title}...`}
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => updateSearchTerm(e.target.value)}
                         className="pl-10"
                       />
                     </div>
                   )}
 
-                  {/* Filter Buttons */}
-                  {showFilterByButtons && (
-                    <div className="flex gap-2 justify-center">
-                      <Button
-                        variant={filterBy === "all" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilterBy("all")}
-                      >
-                        Todas
-                      </Button>
-                      <Button
-                        variant={filterBy === "recent" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilterBy("recent")}
-                      >
-                        Mais Recentes
-                      </Button>
-                      <Button
-                        variant={filterBy === "liked" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilterBy("liked")}
-                      >
-                        Mais Curtidas
-                      </Button>
+                  {/* Order By Buttons */}
+                  {showOrderByButtons && (
+                    <div className="space-y-2">
+                      <p className="text-center text-sm text-gray-600">
+                        Ordenar por:
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <Button
+                          variant={orderBy === "recent" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => updateOrderBy("recent")}
+                        >
+                          Mais Recentes
+                        </Button>
+                        <Button
+                          variant={orderBy === "liked" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => updateOrderBy("liked")}
+                        >
+                          Mais Curtidas
+                        </Button>
+                        <Button
+                          variant={
+                            orderBy === "longest" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => updateOrderBy("longest")}
+                        >
+                          Mais Longas
+                        </Button>
+                      </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {filteredRoutes.length > 0 && (
+                <div className="text-center mt-4 text-gray-500">
+                  {filteredRoutes.length} rota
+                  {filteredRoutes.length !== 1 ? "s" : ""} encontrada
+                  {filteredRoutes.length !== 1 ? "s" : ""}
                 </div>
               )}
             </CardHeader>
@@ -165,9 +216,9 @@ const RouteListPage = ({
                   key={route.id}
                   route={route}
                   showDeleteButton={showDeleteButton}
-                  onDelete={onDeleteRoute}
-                  onLike={showLikeButton ? onLikeRoute : undefined}
-                  isLiked={route.is_liked}
+                  showVoteButtons={showVoteButtons}
+                  onRouteDeleted={handleRouteDeleted}
+                  onRouteUpdated={handleRouteUpdated}
                 />
               ))}
             </div>

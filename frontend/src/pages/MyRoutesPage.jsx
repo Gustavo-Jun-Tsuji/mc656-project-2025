@@ -24,16 +24,6 @@ const MyRoutesPage = () => {
     }
   };
 
-  const handleDeleteRoute = async (routeId) => {
-    try {
-      await api.deleteRoute(routeId);
-      setRoutes(routes.filter((route) => route.id !== routeId));
-    } catch (err) {
-      console.error("Erro ao deletar rota:", err);
-      throw err;
-    }
-  };
-
   return (
     <RouteListPage
       title="Minhas Rotas"
@@ -42,8 +32,8 @@ const MyRoutesPage = () => {
       error={error}
       showDeleteButton={true}
       showSearchFilter={true}
-      showFilterByButtons={true}
-      onDeleteRoute={handleDeleteRoute}
+      showOrderByButtons={true}
+      showVoteButtons={true}
       emptyStateMessage="Você ainda não criou nenhuma rota. Que tal criar a primeira?"
     />
   );

@@ -24,21 +24,6 @@ const LikedRoutesPage = () => {
     }
   };
 
-  const handleLikeRoute = async (routeId, isLiked) => {
-    try {
-      if (isLiked) {
-        await api.likeRoute(routeId);
-      } else {
-        await api.unlikeRoute(routeId);
-        // Remove from liked routes when unliked
-        setRoutes(routes.filter((route) => route.id !== routeId));
-      }
-    } catch (err) {
-      console.error("Erro ao curtir/descurtir rota:", err);
-      throw err;
-    }
-  };
-
   return (
     <RouteListPage
       title="Rotas Curtidas"
@@ -47,9 +32,9 @@ const LikedRoutesPage = () => {
       error={error}
       showLikeButton={true}
       showSearchFilter={true}
-      showFilterByButtons={true}
-      onLikeRoute={handleLikeRoute}
-      emptyStateMessage="Você ainda não favoritou nenhuma rota. Explore e encontre rotas interessantes!"
+      showOrderByButtons={true}
+      showVoteButtons={true}
+      emptyStateMessage="Você ainda não curtiu nenhuma rota. Explore e encontre rotas interessantes!"
     />
   );
 };

@@ -66,7 +66,8 @@ const SearchResultsPage = () => {
         loading={loading}
         error={error}
         showSearchFilter={false}
-        showFilterByButtons={true}
+        showOrderByButtons={true}
+        showVoteButtons={true}
         emptyStateMessage={`Nenhuma rota encontrada para "${searchQuery}". Tente usar termos diferentes.`}
       />
     </div>

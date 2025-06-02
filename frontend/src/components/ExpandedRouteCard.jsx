@@ -1,20 +1,32 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "@/api";
 import {
   ArrowRight,
   Trash2,
   Clock,
   MapPin,
   Image as ImageIcon,
+  ThumbsUp,
+  ThumbsDown,
+  Route,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
+const ExpandedRouteCard = ({
+  route: initialRoute,
+  showDeleteButton = false,
+  showVoteButtons = false,
+  onRouteDeleted, // Optional callback when route is deleted
+  onRouteUpdated, // Optional callback when route is updated (after voting)
+}) => {
   const navigate = useNavigate();
+  const [route, setRoute] = useState(initialRoute);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [voteLoading, setVoteLoading] = useState(false);
 
   const username = route.username || route.user?.username || "Usuário";
   const avatarSeed = username;
@@ -32,7 +44,11 @@ const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
 
     setIsDeleting(true);
     try {
-      await onDelete(route.id);
+      await api.deleteRoute(route.id);
+
+      if (onRouteDeleted) {
+        onRouteDeleted(route.id);
+      }
     } catch (error) {
       console.error("Erro ao deletar rota:", error);
     } finally {
@@ -40,8 +56,42 @@ const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
     }
   };
 
+  const handleVote = async (e, voteType) => {
+    e.stopPropagation();
+    if (voteLoading) return;
+
+    setVoteLoading(true);
+    try {
+      const response = await api.voteRoute(route.id, voteType);
+
+      // Update local state with new vote counts
+      const updatedRoute = {
+        ...route,
+        upvotes_count: response.data.upvotes_count,
+        downvotes_count: response.data.downvotes_count,
+        user_vote: response.data.user_vote,
+      };
+
+      setRoute(updatedRoute);
+
+      if (onRouteUpdated) {
+        onRouteUpdated(updatedRoute);
+      }
+    } catch (error) {
+      console.error("Erro ao votar:", error);
+    } finally {
+      setVoteLoading(false);
+    }
+  };
+
   const handleCardClick = () => {
     navigate(`/routes/${route.id}`);
+  };
+
+  const formatDistance = (distance) => {
+    if (!distance) return null;
+    const numDistance = parseFloat(distance);
+    return isNaN(numDistance) ? null : numDistance.toFixed(2);
   };
 
   return (
@@ -65,16 +115,54 @@ const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {/* Vote buttons */}
+            {showVoteButtons && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => handleVote(e, "upvote")}
+                  disabled={voteLoading}
+                  className={`p-1.5 ${
+                    route.user_vote === "upvote"
+                      ? "text-green-600 bg-green-50"
+                      : "text-gray-400 hover:text-green-600"
+                  }`}
+                >
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <span className="text-xs ml-1">
+                    {route.upvotes_count || 0}
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => handleVote(e, "downvote")}
+                  disabled={voteLoading}
+                  className={`p-1.5 ${
+                    route.user_vote === "downvote"
+                      ? "text-red-600 bg-red-50"
+                      : "text-gray-400 hover:text-red-600"
+                  }`}
+                >
+                  <ThumbsDown className="h-3.5 w-3.5" />
+                  <span className="text-xs ml-1">
+                    {route.downvotes_count || 0}
+                  </span>
+                </Button>
+              </>
+            )}
+
             {showDeleteButton && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="p-2 text-gray-400 hover:text-red-500"
+                className="p-1.5 text-gray-400 hover:text-red-500 ml-1"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
@@ -113,7 +201,6 @@ const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
 
           {/* Route Info */}
           <div className="space-y-3">
-            {/* Origin to Destination */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-green-600" />
@@ -130,22 +217,12 @@ const ExpandedRouteCard = ({ route, showDeleteButton = false, onDelete }) => {
               </div>
             </div>
 
-            {/* Additional Info */}
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <div className="flex items-center gap-4">
-                {route.duration && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{route.duration}</span>
-                  </div>
-                )}
-                {route.difficulty && (
-                  <Badge variant="outline" className="text-xs">
-                    {route.difficulty}
-                  </Badge>
-                )}
+            {formatDistance(route.distance) && (
+              <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+                <Route className="h-4 w-4" />
+                <span>{formatDistance(route.distance)} km</span>
               </div>
-            </div>
+            )}
 
             {/* Tags */}
             {route.tags && route.tags.length > 0 && (
