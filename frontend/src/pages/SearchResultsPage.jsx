@@ -60,19 +60,6 @@ const SearchResultsPage = () => {
 
   return (
     <div className="relative">
-      {/* Back Button */}
-      <div className="absolute top-6 left-4 z-10">
-        <Button
-          onClick={handleGoBack}
-          variant="outline"
-          size="sm"
-          className="bg-white/90 backdrop-blur-sm"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Button>
-      </div>
-
       <RouteListPage
         title={`Resultados para "${searchQuery}"`}
         routes={routes}
