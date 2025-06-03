@@ -30,6 +30,7 @@ export const api = {
   // Route endpoints
   getAllRoutes: () => caller.get(`/routes/`),
   getMyRoutes: () => caller.get(`/routes/my_routes/`),
+  getLikedRoutes: () => caller.get(`/routes/my_liked_routes/`),
   getRoute: (id) => caller.get(`/routes/${id}/`),
   createRoute: (data) =>
     caller.post(`/routes/`, data, {
@@ -40,8 +41,8 @@ export const api = {
   updateRoute: (id, data) => caller.put(`/routes/${id}/`, data),
   deleteRoute: (id) => caller.delete(`/routes/${id}/`),
   searchRoutes: (term) => caller.get(`/routes/?search=${term}`),
-  voteRoute: (id, voteType) => caller.post(`/routes/${id}/vote/`, { vote_type: voteType }),
-  
+  voteRoute: (id, voteType) =>
+    caller.post(`/routes/${id}/vote/`, { vote_type: voteType }),
 };
 
 export default api;

@@ -74,10 +74,10 @@ const HomePage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-10">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-20">
         <div className="flex flex-row gap-12 p-4 w-4/5 mx-auto">
           <div className="flex-1">
-            <div className="rounded-lg shadow-md h-[650px]">
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow h-[650px]">
               <div className="map-section h-full">
                 <MapComponent
                   coordinates={currentHoveredRoute?.coordinates || []}
@@ -89,7 +89,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="flex-1 max-w-[550px] flex items-center">
+          <div className="flex-1 max-w-[550px] h-[650px]">
             <LatestRoute
               routes={routes}
               onHoveredRouteChange={handleHoveredRouteChange}
@@ -97,10 +97,11 @@ const HomePage = () => {
           </div>
           <button
             onClick={() => navigate("/routes/create")}
-            className="fixed bottom-12 right-12 bg-primary-dark hover:bg-primary text-white rounded-full w-[100px] h-[100px] flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            className="fixed bottom-12 right-12 bg-primary-dark hover:bg-primary text-white rounded-full w-20 h-20 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             aria-label="Criar nova rota"
+            title="Criar nova rota"
           >
-            <PlusIcon size={48} />
+            <PlusIcon size={36} />
           </button>
         </div>
       </div>

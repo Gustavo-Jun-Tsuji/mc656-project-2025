@@ -113,7 +113,7 @@ const CreateRoutePage = () => {
               <div>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 text-secondary-dark text-xl"
+                  className="flex items-center gap-2 text-secondary-dark text-xl h-12 w-[250px]"
                   onClick={handleCancel}
                 >
                   <ArrowLeft className="w-8 h-8" />
@@ -137,7 +137,7 @@ const CreateRoutePage = () => {
                 </div>
                 <div className="flex justify-center mt-[50px]">
                   <Button
-                    className="bg-primary-dark hover:bg-orange-400 text-secondary-dark text-xl rounded-xl px-8 w-[250px]"
+                    className="bg-primary-dark hover:bg-orange-400 text-secondary-dark text-xl rounded-xl px-8 w-[250px] h-12"
                     type="button"
                     onClick={handleSubmit}
                   >

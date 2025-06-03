@@ -2,23 +2,23 @@ import React, { useState, useEffect } from "react";
 import { api } from "@/api";
 import RouteListPage from "./RouteListPage";
 
-const MyRoutesPage = () => {
+const LikedRoutesPage = () => {
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchMyRoutes();
+    fetchLikedRoutes();
   }, []);
 
-  const fetchMyRoutes = async () => {
+  const fetchLikedRoutes = async () => {
     try {
       setLoading(true);
-      const response = await api.getMyRoutes(); // You'll need to implement this API call
+      const response = await api.getLikedRoutes(); // You'll need to implement this API call
       setRoutes(response.data);
     } catch (err) {
-      setError("Erro ao carregar suas rotas");
-      console.error("Erro ao buscar rotas:", err);
+      setError("Erro ao carregar rotas favoritas");
+      console.error("Erro ao buscar rotas favoritas:", err);
     } finally {
       setLoading(false);
     }
@@ -26,17 +26,17 @@ const MyRoutesPage = () => {
 
   return (
     <RouteListPage
-      title="Minhas Rotas"
+      title="Rotas Curtidas"
       routes={routes}
       loading={loading}
       error={error}
-      showDeleteButton={true}
+      showLikeButton={true}
       showSearchFilter={true}
       showOrderByButtons={true}
       showVoteButtons={true}
-      emptyStateMessage="Você ainda não criou nenhuma rota. Que tal criar a primeira?"
+      emptyStateMessage="Você ainda não curtiu nenhuma rota. Explore e encontre rotas interessantes!"
     />
   );
 };
 
-export default MyRoutesPage;
+export default LikedRoutesPage;
