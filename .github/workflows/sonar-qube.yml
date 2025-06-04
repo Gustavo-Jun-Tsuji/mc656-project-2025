@@ -26,18 +26,21 @@ jobs:
           echo "DEBUG=1" > backend/dotenv_files/.env
           echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
           echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
+          # Use SQLite instead of PostgreSQL
           echo "DATABASE_URL=sqlite:///db.sqlite3" >> backend/dotenv_files/.env
           echo "DATABASE_NAME=db.sqlite3" >> backend/dotenv_files/.env
+          # Explicitly disable PostgreSQL
+          echo "USE_POSTGRES=0" >> backend/dotenv_files/.env
 
-      # Start services with proper error checking
-      - name: Start backend services
+      # Start just the backend container with SQLite
+      - name: Start backend service
         run: |
-          docker-compose up -d db
-          sleep 5
+          # Skip starting the PostgreSQL container
           docker-compose up -d backend
           docker-compose ps
           docker-compose logs backend
-          if ! docker-compose ps backend | grep -q "Up"; then
+          # Check if backend is running (using 'running' instead of 'Up')
+          if ! docker-compose ps backend | grep -q "running"; then
             echo "Backend container failed to start"
             exit 1
           fi
