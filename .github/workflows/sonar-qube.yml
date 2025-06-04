@@ -58,11 +58,8 @@ jobs:
         run: |
           docker-compose exec -T backend mkdir -p /tmp/coverage
           docker-compose exec -T backend chmod 777 /tmp/coverage
-
           docker-compose exec -T backend bash -c "COVERAGE_FILE=/tmp/coverage/.coverage coverage run --source='.' manage.py test"
-
           docker-compose exec -T backend bash -c "COVERAGE_FILE=/tmp/coverage/.coverage coverage xml -o /tmp/coverage/coverage.xml"
-
           mkdir -p coverage-reports
           docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml ./coverage-reports/
 
