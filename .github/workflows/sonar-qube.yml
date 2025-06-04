@@ -13,6 +13,12 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
+      # Set up Docker Compose
+      - name: Set up Docker Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          version: v2.10.2
+
       - name: Run tests with coverage
         run: |
           docker-compose up -d backend
