@@ -38,14 +38,12 @@ jobs:
           echo "DEBUG=1" > backend/dotenv_files/.env
           echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
           echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
-          # PostgreSQL configuration
           echo "POSTGRES_ENGINE=django.db.backends.postgresql" >> backend/dotenv_files/.env
           echo "POSTGRES_DB=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_USER=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_PASSWORD=postgres" >> backend/dotenv_files/.env
-          echo "POSTGRES_HOST=postgres" >> backend/dotenv_files/.env  # Matches the service name
+          echo "POSTGRES_HOST=postgres" >> backend/dotenv_files/.env  # Must match service name
           echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
-          echo "USE_POSTGRES=1" >> backend/dotenv_files/.env
 
       - name: Start services
         run: |
