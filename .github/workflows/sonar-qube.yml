@@ -29,11 +29,18 @@ jobs:
           echo "DATABASE_URL=sqlite:///db.sqlite3" >> backend/dotenv_files/.env
           echo "DATABASE_NAME=db.sqlite3" >> backend/dotenv_files/.env
 
-      # Start services and wait for DB to be ready
+      # Start services with proper error checking
       - name: Start backend services
         run: |
-          docker-compose up -d db backend
-          sleep 10  # Wait for DB to initialize
+          docker-compose up -d db
+          sleep 5
+          docker-compose up -d backend
+          docker-compose ps
+          docker-compose logs backend
+          if ! docker-compose ps backend | grep -q "Up"; then
+            echo "Backend container failed to start"
+            exit 1
+          fi
 
       # Run tests with coverage
       - name: Run tests with coverage
