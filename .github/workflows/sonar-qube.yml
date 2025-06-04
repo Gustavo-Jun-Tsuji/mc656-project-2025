@@ -98,12 +98,36 @@ jobs:
           cat > sonar-project.properties << EOF
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
           sonar.organization=unjun-organization
-          sonar.sources=backend,frontend/src
-          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/node_modules/**,**/tests/**
-          sonar.test.inclusions=**/tests.py,**/test_*.py,**/*_test.py
-          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
+
+          # Define source directories but DON'T exclude tests
+          sonar.sources=backend
+
+          # Less aggressive exclusions
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/node_modules/**,**/tests/test_*.py
+
+          # Define test files separately
+          sonar.tests=backend
+          sonar.test.inclusions=**/tests.py,**/test_*.py
+          sonar.test.exclusions=**/migrations/**,**/__pycache__/**
+
+          # Absolute coverage path
+          sonar.python.coverage.reportPaths=/github/workspace/coverage-reports/coverage.xml
+
+          # Enable debug
+          sonar.verbose=true
           sonar.sourceEncoding=UTF-8
           EOF
+
+          # Print the properties file for verification
+          cat sonar-project.properties
+
+      - name: Inspect Coverage File
+        run: |
+          echo "=== Verifying coverage file ==="
+          ls -la coverage-reports/
+          head -n 30 coverage-reports/coverage.xml
+          echo "=== First 10 lines with coverage data ==="
+          grep -A 10 "<line " coverage-reports/coverage.xml
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
