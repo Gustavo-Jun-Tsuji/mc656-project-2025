@@ -42,14 +42,31 @@ jobs:
           echo "POSTGRES_DB=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_USER=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_PASSWORD=postgres" >> backend/dotenv_files/.env
-          echo "POSTGRES_HOST=db" >> backend/dotenv_files/.env  
+          echo "POSTGRES_HOST=db" >> backend/dotenv_files/.env
           echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
 
-      - name: Start services (backend only)
+      # Start services with database first
+      - name: Start services properly
         run: |
+          # Start db first
+          docker-compose up -d db
+
+          # Wait until PostgreSQL is really available
+          echo "Waiting for PostgreSQL to become available..."
+          docker-compose run --rm backend bash -c '
+            for i in $(seq 1 30); do
+              pg_isready -h db -p 5432 -U postgres && echo "PostgreSQL is up!" && exit 0
+              echo "PostgreSQL is still starting up. Waiting..."
+              sleep 2
+            done
+            echo "Failed waiting for PostgreSQL" && exit 1
+          '
+
+          # Now start backend
           docker-compose up -d backend
           docker-compose ps
 
+      # Continue with migrations once DB is ready
       - name: Run migrations
         run: |
           docker-compose exec -T backend python manage.py migrate --noinput
@@ -67,7 +84,7 @@ jobs:
         run: |
           cat > sonar-project.properties << EOF
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
-          sonar.organization=your-organization
+          sonar.organization=unjun-organization
           sonar.sources=backend,frontend/src
           sonar.tests=backend/core/tests
           sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
