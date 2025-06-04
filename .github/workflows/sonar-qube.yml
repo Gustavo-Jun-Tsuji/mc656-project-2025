@@ -42,39 +42,52 @@ jobs:
           echo "POSTGRES_DB=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_USER=postgres" >> backend/dotenv_files/.env
           echo "POSTGRES_PASSWORD=postgres" >> backend/dotenv_files/.env
-          echo "POSTGRES_HOST=db" >> backend/dotenv_files/.env
+          echo "POSTGRES_HOST=db" >> backend/dotenv_files/.env  
           echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
 
-      # Start services with database first
-      - name: Start services properly
+      - name: Start services
         run: |
-          # Start db first
-          docker-compose up -d db
+          docker-compose up -d
 
-          # Wait until PostgreSQL is really available
-          echo "Waiting for PostgreSQL to become available..."
-          docker-compose run --rm backend bash -c '
-            for i in $(seq 1 30); do
-              pg_isready -h db -p 5432 -U postgres && echo "PostgreSQL is up!" && exit 0
-              echo "PostgreSQL is still starting up. Waiting..."
-              sleep 2
-            done
-            echo "Failed waiting for PostgreSQL" && exit 1
-          '
+          # Wait for PostgreSQL to be ready using Python (more reliable than pg_isready)
+          docker-compose exec -T backend python -c "
+          import os
+          import time
+          import psycopg2
+          from psycopg2 import OperationalError
 
-          # Now start backend
-          docker-compose up -d backend
-          docker-compose ps
+          max_retries = 30
+          retry_delay = 2
 
-      # Continue with migrations once DB is ready
+          db_config = {
+              'dbname': os.getenv('POSTGRES_DB'),
+              'user': os.getenv('POSTGRES_USER'),
+              'password': os.getenv('POSTGRES_PASSWORD'),
+              'host': os.getenv('POSTGRES_HOST'),
+              'port': os.getenv('POSTGRES_PORT')
+          }
+
+          for attempt in range(max_retries):
+              try:
+                  conn = psycopg2.connect(**db_config)
+                  conn.close()
+                  print('PostgreSQL is ready!')
+                  exit(0)
+              except OperationalError as e:
+                  print(f'Attempt {attempt + 1}/{max_retries}: PostgreSQL not ready yet - {e}')
+                  time.sleep(retry_delay)
+
+          print('PostgreSQL never became ready')
+          exit(1)
+          "
+
       - name: Run migrations
         run: |
           docker-compose exec -T backend python manage.py migrate --noinput
 
       - name: Run tests with coverage
         run: |
-          docker-compose exec -T backend mkdir -p /tmp/coverage
-          docker-compose exec -T backend chmod 777 /tmp/coverage
+          docker-compose exec -T backend bash -c "mkdir -p /tmp/coverage && chmod 777 /tmp/coverage"
           docker-compose exec -T backend bash -c "COVERAGE_FILE=/tmp/coverage/.coverage coverage run --source='.' manage.py test"
           docker-compose exec -T backend bash -c "COVERAGE_FILE=/tmp/coverage/.coverage coverage xml -o /tmp/coverage/coverage.xml"
           mkdir -p coverage-reports
