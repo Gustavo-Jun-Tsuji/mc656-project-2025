@@ -95,41 +95,50 @@ jobs:
 
       - name: Configure SonarQube
         run: |
+          # First verify the actual paths in the workspace
+          echo "=== Current directory structure ==="
+          find . -type d | sort
+
           cat > sonar-project.properties << EOF
+          # Project identification
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
           sonar.organization=unjun-organization
 
-          # Define source directories but DON'T exclude tests
-          sonar.sources=backend
+          # Source configuration - point directly to your Python package
+          sonar.sources=backend/core
 
-          # Less aggressive exclusions
-          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/node_modules/**,**/tests/test_*.py
+          # Test configuration
+          sonar.tests=backend/core/tests
 
-          # Define test files separately
-          sonar.tests=backend
-          sonar.test.inclusions=**/tests.py,**/test_*.py
-          sonar.test.exclusions=**/migrations/**,**/__pycache__/**
+          # Coverage configuration - use absolute path
+          sonar.python.coverage.reportPaths=${GITHUB_WORKSPACE}/coverage-reports/coverage.xml
 
-          # Absolute coverage path
-          sonar.python.coverage.reportPaths=/github/workspace/coverage-reports/coverage.xml
+          # Exclusions - be more specific
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/static/**,**/templates/**
 
-          # Enable debug
-          sonar.verbose=true
+          # Test inclusions
+          sonar.test.inclusions=**/test_*.py,**/tests.py
+
+          # Python specific settings
+          sonar.python.version=3.8
           sonar.sourceEncoding=UTF-8
+          sonar.verbose=true
           EOF
 
-          # Print the properties file for verification
+          echo "=== Sonar properties file ==="
           cat sonar-project.properties
 
-      - name: Inspect Coverage File
+      - name: Verify Paths Before Scan
         run: |
-          echo "=== Verifying coverage file ==="
-          ls -la coverage-reports/
-          head -n 30 coverage-reports/coverage.xml
-          echo "=== First 10 lines with coverage data ==="
-          grep -A 10 "<line " coverage-reports/coverage.xml
+          echo "=== Coverage file exists? ==="
+          ls -la ${GITHUB_WORKSPACE}/coverage-reports/coverage.xml
+
+          echo "=== Python files exist? ==="
+          find backend -name "*.py" | head -10
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ${{ github.workspace }}
