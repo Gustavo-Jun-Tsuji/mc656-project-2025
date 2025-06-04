@@ -99,10 +99,9 @@ jobs:
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
           sonar.organization=unjun-organization
           sonar.sources=backend,frontend/src
-          sonar.tests=backend/core/tests
-          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
           sonar.exclusions=**/migrations/**,**/__pycache__/**,**/node_modules/**,**/tests/**
-          sonar.test.inclusions=**/tests.py,**/tests/**/*.py
+          sonar.test.inclusions=**/tests.py,**/test_*.py,**/*_test.py
+          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
           sonar.sourceEncoding=UTF-8
           EOF
 
