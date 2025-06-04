@@ -27,10 +27,17 @@ jobs:
           echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
           echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
           echo "DATABASE_URL=sqlite:///db.sqlite3" >> backend/dotenv_files/.env
+          echo "DATABASE_NAME=db.sqlite3" >> backend/dotenv_files/.env
 
+      # Start services and wait for DB to be ready
+      - name: Start backend services
+        run: |
+          docker-compose up -d db backend
+          sleep 10  # Wait for DB to initialize
+
+      # Run tests with coverage
       - name: Run tests with coverage
         run: |
-          docker-compose up -d backend
           docker-compose exec -T backend bash -c "coverage run --source='.' manage.py test"
           docker-compose exec -T backend coverage xml
           mkdir -p coverage-reports
