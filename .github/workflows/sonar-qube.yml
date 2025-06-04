@@ -19,6 +19,15 @@ jobs:
         with:
           version: v2.10.2
 
+      # Create required .env file
+      - name: Create environment file
+        run: |
+          mkdir -p backend/dotenv_files
+          echo "DEBUG=1" > backend/dotenv_files/.env
+          echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
+          echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
+          echo "DATABASE_URL=sqlite:///db.sqlite3" >> backend/dotenv_files/.env
+
       - name: Run tests with coverage
         run: |
           docker-compose up -d backend
