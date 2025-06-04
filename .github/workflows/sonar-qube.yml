@@ -11,7 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Run tests with coverage
+        run: |
+          docker-compose up -d backend
+          docker-compose exec -T backend bash -c "coverage run --source='.' manage.py test"
+          docker-compose exec -T backend coverage xml
+          mkdir -p coverage-reports
+          docker cp $(docker-compose ps -q backend):/code/coverage.xml ./coverage-reports/
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
