@@ -63,6 +63,19 @@ jobs:
           mkdir -p coverage-reports
           docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml ./coverage-reports/
 
+      - name: Configure SonarQube
+        run: |
+          cat > sonar-project.properties << EOF
+          sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
+          sonar.organization=your-organization
+          sonar.sources=backend,frontend/src
+          sonar.tests=backend/core/tests
+          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/node_modules/**,**/tests/**
+          sonar.test.inclusions=**/tests.py,**/tests/**/*.py
+          sonar.sourceEncoding=UTF-8
+          EOF
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
