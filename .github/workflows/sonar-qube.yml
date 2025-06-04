@@ -8,44 +8,56 @@ jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
-      # Set up Docker Compose
       - name: Set up Docker Compose
         uses: ndeloof/install-compose-action@v0.0.1
         with:
           version: v2.10.2
 
-      # Create required .env file
       - name: Create environment file
         run: |
           mkdir -p backend/dotenv_files
           echo "DEBUG=1" > backend/dotenv_files/.env
           echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
           echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
-          # Use SQLite instead of PostgreSQL
-          echo "DATABASE_URL=sqlite:///db.sqlite3" >> backend/dotenv_files/.env
-          echo "DATABASE_NAME=db.sqlite3" >> backend/dotenv_files/.env
-          # Explicitly disable PostgreSQL
-          echo "USE_POSTGRES=0" >> backend/dotenv_files/.env
+          # PostgreSQL configuration
+          echo "POSTGRES_ENGINE=django.db.backends.postgresql" >> backend/dotenv_files/.env
+          echo "POSTGRES_DB=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_USER=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_PASSWORD=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_HOST=postgres" >> backend/dotenv_files/.env  # Matches the service name
+          echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
+          echo "USE_POSTGRES=1" >> backend/dotenv_files/.env
 
-      # Start just the backend container with SQLite
-      - name: Start backend service
+      - name: Start services
         run: |
-          # Skip starting the PostgreSQL container
           docker-compose up -d backend
           docker-compose ps
-          docker-compose logs backend
-          # Check if backend is running (using 'running' instead of 'Up')
-          if ! docker-compose ps backend | grep -q "running"; then
-            echo "Backend container failed to start"
-            exit 1
-          fi
+          # Wait for PostgreSQL to be ready
+          docker-compose exec -T backend bash -c "while ! nc -z postgres 5432; do sleep 1; done"
 
-      # Run tests with coverage
+      - name: Run migrations
+        run: |
+          docker-compose exec -T backend python manage.py migrate --noinput
+
       - name: Run tests with coverage
         run: |
           docker-compose exec -T backend bash -c "coverage run --source='.' manage.py test"
