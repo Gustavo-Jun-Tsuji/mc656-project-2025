@@ -18,6 +18,8 @@ const RouteListPage = ({
   showOrderByButtons = false,
   onRoutesUpdate, // Optional callback to update routes in parent
   emptyStateMessage = "Nenhuma rota encontrada",
+  footer = null, // Add support for custom footer
+  customHeader = null, // Add support for custom header
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredRoutes, setFilteredRoutes] = useState(routes);
@@ -135,6 +137,7 @@ const RouteListPage = ({
       <Header />
       <div className="min-h-screen pt-24 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
+          {customHeader}
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="text-2xl text-blue-800 text-center">
@@ -202,7 +205,7 @@ const RouteListPage = ({
               )}
             </CardHeader>
           </Card>
-
+          
           {filteredRoutes.length === 0 ? (
             <Card className="p-12 text-center">
               <CardContent>
@@ -223,6 +226,7 @@ const RouteListPage = ({
               ))}
             </div>
           )}
+          {footer && <div className="mt-6">{footer}</div>}
         </div>
       </div>
     </>

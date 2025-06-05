@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Route
+from .models import Route, UserDetails
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,3 +54,9 @@ class RouteSerializer(serializers.ModelSerializer):
             elif request.user in obj.downvotes.all():
                 return "downvote"
         return None
+    
+class UserDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDetails
+        fields = ['route_history']
+        read_only_fields = ['route_history']

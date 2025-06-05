@@ -3,6 +3,9 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from typing import List
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 
 class Route(models.Model):
     id = models.AutoField(primary_key=True)
@@ -99,3 +102,63 @@ class Route(models.Model):
         for i in range(len(self.coordinates)-1):
             total += haversine(self.coordinates[i], self.coordinates[i+1])
         return total
+
+class UserDetails(models.Model):
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE,
+        related_name='details'
+    )
+    # Store route history as a JSONField
+    route_history = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of recently viewed routes with timestamps"
+    )
+    
+    def __str__(self):
+        return f"{self.user.username}'s details"
+    
+    def add_to_history(self, route_id, route_title=None):
+        """Add a route to the user's history"""
+        # Create new history entry
+        entry = {
+            "route_id": route_id,
+            "viewed_at": timezone.now().isoformat(),
+            "title": route_title
+        }
+        
+        # Get current history
+        history = list(self.route_history)
+        
+        # Remove if already exists
+        history = [item for item in history if item.get('route_id') != route_id]
+        
+        # Add to beginning
+        history.insert(0, entry)
+        
+        # Limit to 50 entries
+        if len(history) > 50:
+            history = history[:50]
+            
+        # Save back
+        self.route_history = history
+        self.save(update_fields=['route_history'])
+        
+        return history
+
+    def get_history(self, limit=None):
+        """Get user's route history, optionally limited"""
+        history = self.route_history
+        if limit and isinstance(limit, int):
+            return history[:limit]
+        return history
+
+@receiver(post_save, sender=User)
+def create_user_details(sender, instance, created, **kwargs):
+    if created:
+        UserDetails.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_details(sender, instance, **kwargs):
+    instance.details.save()
