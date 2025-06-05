@@ -82,11 +82,17 @@ jobs:
           # Create persistent coverage output directory
           mkdir -p .coverage-reports
 
-          # Run coverage in one step, similar to the docs example
-          docker-compose exec -T backend bash -c "cd /code && coverage run manage.py test && coverage xml -o coverage.xml"
+          # Create a temp directory inside the container with proper permissions
+          docker-compose exec -T backend bash -c "mkdir -p /tmp/coverage && chmod 777 /tmp/coverage"
+
+          # Run coverage with proper file location
+          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage run --source='.' manage.py test"
+
+          # Generate XML with same environment variable
+          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage xml -o /tmp/coverage/coverage.xml"
 
           # Copy the report to the expected location
-          docker cp $(docker-compose ps -q backend):/code/coverage.xml .coverage-reports/
+          docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml .coverage-reports/
 
       # Use more standardized SonarQube properties
       - name: Create sonar-project.properties
