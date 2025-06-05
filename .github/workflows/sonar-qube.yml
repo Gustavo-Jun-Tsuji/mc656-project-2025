@@ -76,22 +76,10 @@ jobs:
           docker-compose up -d backend
           docker-compose ps
 
-      # Fix path mappings in the coverage report
-      - name: Fix coverage report paths
-        run: |
-          # Create a backup
-          cp .coverage-reports/coverage.xml .coverage-reports/coverage.xml.bak
 
-          # Replace Docker container paths with local paths
-          sed -i 's|filename="/code/|filename="backend/|g' .coverage-reports/coverage.xml
-
-          # View the changes
-          echo "=== After fixing paths ==="
-          grep "filename=" .coverage-reports/coverage.xml | head -10
-
-      # Run tests with coverage - make this match the documentation example
-      - name: Run tests with coverage
-        run: |
+          # Run tests with coverage - make this match the documentation example
+          - name: Run tests with coverage
+          run: |
           # Create persistent coverage output directory
           mkdir -p .coverage-reports
 
@@ -107,6 +95,18 @@ jobs:
           # Copy the report to the expected location
           docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml .coverage-reports/
 
+      # Fix path mappings in the coverage report
+      - name: Fix coverage report paths
+        run: |
+          # Create a backup
+          cp .coverage-reports/coverage.xml .coverage-reports/coverage.xml.bak
+
+          # Replace Docker container paths with local paths
+          sed -i 's|filename="/code/|filename="backend/|g' .coverage-reports/coverage.xml
+
+          # View the changes
+          echo "=== After fixing paths ==="
+          grep "filename=" .coverage-reports/coverage.xml | head -10
       # Use more standardized SonarQube properties
       - name: Create sonar-project.properties
         run: |
