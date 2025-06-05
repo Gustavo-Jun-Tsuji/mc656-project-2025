@@ -57,6 +57,10 @@ jobs:
           docker-compose up -d backend
           docker-compose ps
 
+      - name: Install coverage in Docker container
+        run: |
+          docker-compose exec -T backend pip install coverage
+
       - name: Run tests with coverage
         run: |
           docker-compose exec -T backend bash -c "cd /code && coverage run --source='.' manage.py test"
