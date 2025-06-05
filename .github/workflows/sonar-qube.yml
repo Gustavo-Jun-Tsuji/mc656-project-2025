@@ -68,10 +68,18 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          docker-compose exec -T backend bash -c "cd /code && coverage run --source='.' manage.py test"
-          docker-compose exec -T backend bash -c "cd /code && coverage xml"
+          # Create a directory with proper permissions for coverage data
+          docker-compose exec -T backend bash -c "mkdir -p /tmp/coverage && chmod 777 /tmp/coverage"
+
+          # Run tests with coverage using explicit file path
+          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage run --source='.' manage.py test"
+
+          # Generate coverage XML report
+          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage xml -o /tmp/coverage/coverage.xml"
+
+          # Copy the report to host
           mkdir -p coverage-reports
-          docker cp $(docker-compose ps -q backend):/code/coverage.xml ./coverage-reports/
+          docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml ./coverage-reports/
 
       - name: Update sonar-project.properties
         run: |
