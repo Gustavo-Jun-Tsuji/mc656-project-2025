@@ -45,13 +45,23 @@ jobs:
           echo "POSTGRES_HOST=db" >> backend/dotenv_files/.env
           echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
 
+      # Create a compliant coverage configuration
       - name: Create .coveragerc
         run: |
-          echo "[run]" > backend/.coveragerc
-          echo "source = ." >> backend/.coveragerc
-          echo "omit = */migrations/*,*/tests.py,*/tests/*,*/admin.py" >> backend/.coveragerc
-          echo "relative_files = True" >> backend/.coveragerc
+          cat > backend/.coveragerc << EOF
+          [run]
+          source = .
+          omit = */migrations/*,*/tests.py,*/tests/*,*/admin.py
+          relative_files = True
+          branch = True
 
+          [report]
+          exclude_lines = 
+              pragma: no cover
+              def __repr__
+          EOF
+
+      # Start the backend service
       - name: Start backend for testing
         run: |
           # Update the docker-compose.yml file to add memory limits
@@ -66,41 +76,54 @@ jobs:
           docker-compose up -d backend
           docker-compose ps
 
+      # Run tests with coverage - make this match the documentation example
       - name: Run tests with coverage
         run: |
-          # Create a directory with proper permissions for coverage data
-          docker-compose exec -T backend bash -c "mkdir -p /tmp/coverage && chmod 777 /tmp/coverage"
+          # Create persistent coverage output directory
+          mkdir -p .coverage-reports
 
-          # Run tests with coverage using explicit file path
-          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage run --source='.' manage.py test"
+          # Run coverage in one step, similar to the docs example
+          docker-compose exec -T backend bash -c "cd /code && coverage run manage.py test && coverage xml -o coverage.xml"
 
-          # Generate coverage XML report
-          docker-compose exec -T backend bash -c "cd /code && COVERAGE_FILE=/tmp/coverage/.coverage coverage xml -o /tmp/coverage/coverage.xml"
+          # Copy the report to the expected location
+          docker cp $(docker-compose ps -q backend):/code/coverage.xml .coverage-reports/
 
-          # Copy the report to host
-          mkdir -p coverage-reports
-          docker cp $(docker-compose ps -q backend):/tmp/coverage/coverage.xml ./coverage-reports/
-
-      - name: Update sonar-project.properties
+      # Use more standardized SonarQube properties
+      - name: Create sonar-project.properties
         run: |
           cat > sonar-project.properties << EOF
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
           sonar.organization=unjun-organization
 
-          # Sources
+          # Source code information
           sonar.sources=backend
-          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/admin.py,**/tests.py,**/tests/**
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/tests/**
 
-          # Tests
-          sonar.tests=backend/core
+          # Tests configuration
+          sonar.tests=backend
           sonar.test.inclusions=**/tests.py,**/tests/**/*.py
 
-          # Coverage
-          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
+          # Coverage report path - use standard location from docs
+          sonar.python.coverage.reportPaths=.coverage-reports/coverage.xml
 
-          # Additional configurations
+          # Additional settings
+          sonar.verbose=true
+          sonar.branch.name=develop
           sonar.sourceEncoding=UTF-8
           EOF
+
+      - name: Debug coverage report
+        run: |
+          echo "=== Coverage Report Structure ==="
+          if [ -f .coverage-reports/coverage.xml ]; then
+            echo "Coverage file exists!"
+            grep -A 3 "<source>" .coverage-reports/coverage.xml
+            grep -A 10 "<class " .coverage-reports/coverage.xml | head -20
+            echo "=== File paths in coverage report ==="
+            grep "filename=" .coverage-reports/coverage.xml | head -10
+          else
+            echo "Coverage file not found!"
+          fi
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
