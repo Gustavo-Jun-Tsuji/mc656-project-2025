@@ -54,7 +54,16 @@ jobs:
 
       - name: Start backend for testing
         run: |
-          docker-compose up -d --memory=4g backend
+          # Update the docker-compose.yml file to add memory limits
+          cat > docker-compose.override.yml << EOF
+          version: '3'
+          services:
+            backend:
+              mem_limit: 4g
+          EOF
+
+          # Start the backend service
+          docker-compose up -d backend
           docker-compose ps
 
       - name: Run tests with coverage
