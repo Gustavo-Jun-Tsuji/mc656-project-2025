@@ -59,7 +59,7 @@ jobs:
 
       - name: Install coverage in Docker container
         run: |
-          docker-compose exec -T backend pip install coverage
+          docker-compose exec -T backend pip install --user=root coverage
 
       - name: Run tests with coverage
         run: |
