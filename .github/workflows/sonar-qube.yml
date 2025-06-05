@@ -76,6 +76,19 @@ jobs:
           docker-compose up -d backend
           docker-compose ps
 
+      # Fix path mappings in the coverage report
+      - name: Fix coverage report paths
+        run: |
+          # Create a backup
+          cp .coverage-reports/coverage.xml .coverage-reports/coverage.xml.bak
+
+          # Replace Docker container paths with local paths
+          sed -i 's|filename="/code/|filename="backend/|g' .coverage-reports/coverage.xml
+
+          # View the changes
+          echo "=== After fixing paths ==="
+          grep "filename=" .coverage-reports/coverage.xml | head -10
+
       # Run tests with coverage - make this match the documentation example
       - name: Run tests with coverage
         run: |
@@ -101,20 +114,19 @@ jobs:
           sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
           sonar.organization=unjun-organization
 
-          # Source code information
+          # Source code path settings
           sonar.sources=backend
-          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/tests/**
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/tests/**,**/admin.py,**/apps.py,**/urls.py
 
-          # Tests configuration
+          # Test path settings
           sonar.tests=backend
-          sonar.test.inclusions=**/tests.py,**/tests/**/*.py
+          sonar.test.inclusions=**/tests.py,**/test_*.py,**/tests/**/*.py
 
-          # Coverage report path - use standard location from docs
+          # Coverage settings
           sonar.python.coverage.reportPaths=.coverage-reports/coverage.xml
 
-          # Additional settings
+          # Debug settings
           sonar.verbose=true
-          sonar.branch.name=develop
           sonar.sourceEncoding=UTF-8
           EOF
 
