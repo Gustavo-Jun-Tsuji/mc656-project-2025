@@ -8,10 +8,83 @@ jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up Docker Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          version: v2.10.2
+
+      - name: Create environment file
+        run: |
+          mkdir -p backend/dotenv_files
+          echo "DEBUG=1" > backend/dotenv_files/.env
+          echo "SECRET_KEY=github-actions-test-key" >> backend/dotenv_files/.env
+          echo "ALLOWED_HOSTS=*" >> backend/dotenv_files/.env
+          echo "POSTGRES_ENGINE=django.db.backends.postgresql" >> backend/dotenv_files/.env
+          echo "POSTGRES_DB=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_USER=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_PASSWORD=postgres" >> backend/dotenv_files/.env
+          echo "POSTGRES_HOST=localhost" >> backend/dotenv_files/.env
+          echo "POSTGRES_PORT=5432" >> backend/dotenv_files/.env
+
+      - name: Create .coveragerc
+        run: |
+          echo "[run]" > backend/.coveragerc
+          echo "source = ." >> backend/.coveragerc
+          echo "omit = */migrations/*,*/tests.py,*/tests/*,*/admin.py" >> backend/.coveragerc
+          echo "relative_files = True" >> backend/.coveragerc
+
+      - name: Start backend for testing
+        run: |
+          docker-compose up -d backend
+          docker-compose ps
+
+      - name: Run tests with coverage
+        run: |
+          docker-compose exec -T backend bash -c "cd /code && coverage run --source='.' manage.py test"
+          docker-compose exec -T backend bash -c "cd /code && coverage xml"
+          mkdir -p coverage-reports
+          docker cp $(docker-compose ps -q backend):/code/coverage.xml ./coverage-reports/
+
+      - name: Update sonar-project.properties
+        run: |
+          cat > sonar-project.properties << EOF
+          sonar.projectKey=Gustavo-Jun-Tsuji_mc656-project-2025
+          sonar.organization=unjun-organization
+
+          # Sources
+          sonar.sources=backend
+          sonar.exclusions=**/migrations/**,**/__pycache__/**,**/admin.py,**/tests.py,**/tests/**
+
+          # Tests
+          sonar.tests=backend/core
+          sonar.test.inclusions=**/tests.py,**/tests/**/*.py
+
+          # Coverage
+          sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
+
+          # Additional configurations
+          sonar.sourceEncoding=UTF-8
+          EOF
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
