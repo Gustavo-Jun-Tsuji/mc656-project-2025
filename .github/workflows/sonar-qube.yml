@@ -54,12 +54,8 @@ jobs:
 
       - name: Start backend for testing
         run: |
-          docker-compose up -d backend
+          docker-compose up -d --memory=4g backend
           docker-compose ps
-
-      - name: Install coverage in Docker container
-        run: |
-          docker-compose exec -T backend bash -c "pip install coverage"
 
       - name: Run tests with coverage
         run: |
