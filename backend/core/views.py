@@ -166,9 +166,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         vote_type = request.data.get('vote_type', '').lower()
         
         if vote_type == 'upvote':
-            # Remove downvote se existir
             route.downvotes.remove(user)
-            # Adiciona ou remove upvote
             if user in route.upvotes.all():
                 route.upvotes.remove(user)
                 message = "Removed upvote"
@@ -177,9 +175,7 @@ class RouteViewSet(viewsets.ModelViewSet):
                 message = "Added upvote"
         
         elif vote_type == 'downvote':
-            # Remove upvote se existir
             route.upvotes.remove(user)
-            # Adiciona ou remove downvote
             if user in route.downvotes.all():
                 route.downvotes.remove(user)
                 message = "Removed downvote"

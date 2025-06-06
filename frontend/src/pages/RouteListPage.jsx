@@ -12,6 +12,8 @@ const RouteListPage = ({
   routes = [],
   loading = false,
   error = null,
+  showTitle = true,
+  showResultsCount = true,
   showDeleteButton = false,
   showVoteButtons = false,
   showSearchFilter = false,
@@ -144,9 +146,11 @@ const RouteListPage = ({
           {customHeader}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="text-2xl text-blue-800 text-center">
-                {title}
-              </CardTitle>
+              {showTitle && (
+                <CardTitle className="text-2xl text-blue-800 text-center">
+                  {title}
+                </CardTitle>
+              )}
 
               {(showSearchFilter || showOrderByButtons) && (
                 <div className="space-y-4 pt-4">
@@ -200,7 +204,7 @@ const RouteListPage = ({
                 </div>
               )}
 
-              {filteredRoutes.length > 0 && (
+              {showResultsCount && filteredRoutes.length > 0 && (
                 <div className="text-center mt-4 text-gray-500">
                   {filteredRoutes.length} rota
                   {filteredRoutes.length !== 1 ? "s" : ""} encontrada
