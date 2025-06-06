@@ -20,7 +20,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import LikedRoutesPage from "./pages/LikedRoutesPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import RouteHistoryPage from './pages/RouteHistoryPage';
-import FullRouteHistoryPage from './pages/FullRouteHistoryPage';
 
 
 function Logout() {
@@ -96,15 +95,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RouteHistoryPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/route-history-full"
-              element={
-                <ProtectedRoute>
-                  <FullRouteHistoryPage />
                 </ProtectedRoute>
               }
             />

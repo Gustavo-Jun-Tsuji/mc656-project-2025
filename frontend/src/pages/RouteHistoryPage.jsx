@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RouteListPage from "./RouteListPage";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import routeHistoryService from "../services/routeHistoryService";
 
 const RouteHistoryPage = () => {
@@ -14,9 +15,10 @@ const RouteHistoryPage = () => {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const recentHistory = await routeHistoryService.getRecentHistory(20);
+        // Get all history, not just recent
+        const fullHistory = await routeHistoryService.getHistory();
         // Format data to match the expected structure for RouteListPage with ALL required fields
-        const formattedHistory = recentHistory.map(entry => ({
+        const formattedHistory = fullHistory.map(entry => ({
           id: entry.route_id,
           title: entry.title || "Rota sem título",
           description: entry.description || "",
@@ -43,16 +45,31 @@ const RouteHistoryPage = () => {
     fetchHistory();
   }, []);
 
-  // Add a custom footer component with "See More" button
-  const HistoryFooter = () => (
-    <div className="flex justify-center mt-8">
-      <Button 
-        onClick={() => navigate('/route-history-full')}
-        variant="outline"
-        className="border-primary-dark text-primary-dark hover:bg-primary-light"
-      >
-        Ver histórico completo
-      </Button>
+  const handleClearHistory = async () => {
+    if (window.confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+      try {
+        await routeHistoryService.clearHistory();
+        setHistory([]);
+      } catch (error) {
+        console.error("Error clearing history:", error);
+        alert('Erro ao limpar o histórico. Tente novamente.');
+      }
+    }
+  };
+
+  // Custom header with clear history button
+  const HistoryHeader = (
+    <div className="flex justify-end mb-4">
+      {history.length > 0 && (
+        <Button 
+          variant="outline" 
+          className="text-red-600 border-red-600 hover:bg-red-50 flex items-center gap-2"
+          onClick={handleClearHistory}
+        >
+          <Trash2 size={18} />
+          <span>Limpar histórico</span>
+        </Button>
+      )}
     </div>
   );
 
@@ -65,7 +82,7 @@ const RouteHistoryPage = () => {
       showSearchFilter={true}
       showOrderByButtons={true}
       emptyStateMessage="Você ainda não visualizou nenhuma rota"
-      footer={history.length >= 20 ? <HistoryFooter /> : null}
+      customHeader={HistoryHeader}
     />
   );
 };
