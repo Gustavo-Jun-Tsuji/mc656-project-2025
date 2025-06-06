@@ -5,7 +5,6 @@ import MapComponent from "../components/map/MapComponent";
 import api from "../api";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import routeHistoryService from '../services/routeHistoryService';
 import {
   ArrowLeft,
   ThumbsUp,
@@ -44,10 +43,9 @@ const RouteDetailsPage = () => {
         const response = await api.getRoute(id);
         const data = response.data;
         setRouteData(data);
-        
-        // Add route to history when successfully fetched
-        await routeHistoryService.addToHistory(data);
-        
+
+        await api.addToHistory(id);
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching route:", err);
