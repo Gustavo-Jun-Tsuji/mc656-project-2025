@@ -9,6 +9,9 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from .models import Route, UserDetails
 from .serializers import RouteSerializer, UserSerializer, UserDetailsSerializer
+from django.db.models import Count, F, Q, ExpressionWrapper, FloatField
+from django.utils import timezone
+import datetime
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -37,18 +40,19 @@ class RouteViewSet(viewsets.ModelViewSet):
         or even    /routes/?user=1&search=keyword
         """
         
-        # If user id is provided in the query parameters, filter by user
+        queryset = super().get_queryset()
+        
+        search_term = self.request.query_params.get('search', None)
         user_term = self.request.query_params.get('user', None)
+        order_by = self.request.query_params.get('order_by', None)
+        
+        
         if user_term:
             try:
                 user_id = int(user_term)
-                return self.queryset.filter(user_id=user_id)
+                return queryset.filter(user_id=user_id)
             except (ValueError, TypeError):
                 return self.queryset.none()
-            
-        # Allow filtering by query parameters
-        queryset = super().get_queryset()
-        search_term = self.request.query_params.get('search', None)
         
         if search_term:
             queryset = queryset.filter(
@@ -58,6 +62,28 @@ class RouteViewSet(viewsets.ModelViewSet):
                 Q(ending_location__icontains=search_term) |
                 Q(tags__icontains=search_term)
             )
+        
+        if order_by:
+            if order_by == 'liked':
+                queryset = queryset.annotate(
+                    upvote_count=Count('upvotes'),
+                    downvote_count=Count('downvotes'),
+                    net_votes=F('upvote_count') - F('downvote_count')
+                ).order_by('-net_votes')
+            elif order_by == 'trending':
+                seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+            
+                # Count recent upvotes and downvotes
+                queryset = queryset.annotate(
+                    recent_upvotes=Count('upvotes', filter=Q(upvotes__date_joined__gte=seven_days_ago)),
+                    recent_downvotes=Count('downvotes', filter=Q(downvotes__date_joined__gte=seven_days_ago)),
+                    trending_score=ExpressionWrapper(
+                        F('recent_upvotes') * 3 - F('recent_downvotes') * 2,
+                        output_field=FloatField()
+                    )
+                ).order_by('-trending_score')
+            else:
+                queryset = queryset.order_by(order_by)
         
         return queryset
 
