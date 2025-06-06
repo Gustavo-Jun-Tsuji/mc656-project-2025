@@ -65,7 +65,7 @@ const RouteHistoryPage = () => {
       loading={loading}
       error={error}
       showSearchFilter={true}
-      showOrderByButtons={true}
+      showOrderByButtons={false}
       emptyStateMessage="Você ainda não visualizou nenhuma rota"
       customHeader={HistoryHeader}
     />

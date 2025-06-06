@@ -217,11 +217,8 @@ class UserDetailsViewSet(viewsets.ReadOnlyModelViewSet):
     def route_history(self, request):
         """Get the user's route viewing history"""
         try:
-            limit = request.query_params.get('limit', None)
-            if limit:
-                limit = int(limit)
-                
-            history = request.user.details.get_history(limit)
+            # Get the complete history without any limit
+            history = request.user.details.get_history()
             
             detailed_history = []
             for entry in history:

@@ -44,14 +44,11 @@ export const api = {
   voteRoute: (id, voteType) =>
     caller.post(`/routes/${id}/vote/`, { vote_type: voteType }),
 
-  getRouteHistory: (limit = 20) => 
-    caller.get(`/user-details/route_history/?limit=${limit}`),
-  
-  addToHistory: (routeId) => 
-    caller.post(`/routes/${routeId}/add_to_history/`),
+  getRouteHistory: () => caller.get(`/user-details/route_history/`),
 
-  clearHistory: () => 
-    caller.delete('/user-details/clear_history/')
+  addToHistory: (routeId) => caller.post(`/routes/${routeId}/add_to_history/`),
+
+  clearHistory: () => caller.delete("/user-details/clear_history/"),
 };
 
 export default api;

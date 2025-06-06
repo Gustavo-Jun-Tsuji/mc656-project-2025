@@ -51,21 +51,25 @@ const RouteListPage = ({
       );
     }
 
-    // Apply ordering
-    if (orderBy === "recent") {
-      filtered = filtered.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-      );
-    } else if (orderBy === "liked") {
-      filtered = filtered.sort(
-        (a, b) => (b.upvotes_count || 0) - (a.upvotes_count || 0)
-      );
-    } else if (orderBy === "longest") {
-      filtered = filtered.sort((a, b) => (b.distance || 0) - (a.distance || 0));
+    // Only apply ordering if showOrderByButtons is true
+    if (showOrderByButtons) {
+      if (orderBy === "recent") {
+        filtered = filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+      } else if (orderBy === "liked") {
+        filtered = filtered.sort(
+          (a, b) => (b.upvotes_count || 0) - (a.upvotes_count || 0)
+        );
+      } else if (orderBy === "longest") {
+        filtered = filtered.sort(
+          (a, b) => (b.distance || 0) - (a.distance || 0)
+        );
+      }
     }
 
     setFilteredRoutes(filtered);
-  }, [searchTerm, orderBy, localRoutes]);
+  }, [searchTerm, orderBy, localRoutes, showOrderByButtons]);
 
   const updateSearchTerm = (newSearchTerm) => {
     const newParams = new URLSearchParams(searchParams);
@@ -205,7 +209,7 @@ const RouteListPage = ({
               )}
             </CardHeader>
           </Card>
-          
+
           {filteredRoutes.length === 0 ? (
             <Card className="p-12 text-center">
               <CardContent>

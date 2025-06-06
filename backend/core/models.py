@@ -121,27 +121,21 @@ class UserDetails(models.Model):
     
     def add_to_history(self, route_id, route_title=None):
         """Add a route to the user's history"""
-        # Create new history entry
+        
         entry = {
             "route_id": route_id,
             "viewed_at": timezone.now().isoformat(),
             "title": route_title
         }
         
-        # Get current history
         history = list(self.route_history)
-        
-        # Remove if already exists
-        history = [item for item in history if item.get('route_id') != route_id]
-        
-        # Add to beginning
-        history.insert(0, entry)
+        history = [item for item in history if item.get('route_id') != route_id] # Remove if already exists
+        history.insert(0, entry) # Add to beginning
         
         # Limit to 50 entries
         if len(history) > 50:
             history = history[:50]
-            
-        # Save back
+        
         self.route_history = history
         self.save(update_fields=['route_history'])
         
