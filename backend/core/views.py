@@ -228,17 +228,12 @@ class UserDetailsViewSet(viewsets.ReadOnlyModelViewSet):
                 route_id = entry.get('route_id')
                 try:
                     route = Route.objects.get(id=route_id)
+                    # Use the RouteSerializer to serialize the route
+                    route_serializer = RouteSerializer(route, context={'request': request})
+                    # Merge the history entry with the serialized route data
                     detailed_entry = {
                         **entry,
-                        "title": route.title,
-                        "description": route.description,
-                        "starting_location": route.starting_location,
-                        "ending_location": route.ending_location,
-                        "distance": route.distance,
-                        "upvotes_count": route.upvotes.count(),
-                        "downvotes_count": route.downvotes.count(),
-                        "coordinates": route.coordinates,
-                        "user": {"username": route.user.username}
+                        **route_serializer.data
                     }
                     detailed_history.append(detailed_entry)
                 except Route.DoesNotExist:

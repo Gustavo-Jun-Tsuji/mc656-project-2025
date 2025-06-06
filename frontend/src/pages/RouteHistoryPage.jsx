@@ -1,58 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import RouteListPage from "./RouteListPage";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import routeHistoryService from "../services/routeHistoryService";
+import { api } from "@/api";
 
 const RouteHistoryPage = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await api.getRouteHistory();
+      setHistory(response.data);
+    } catch (err) {
+      console.error("Error fetching history:", err);
+      setError("Não foi possível carregar o histórico de rotas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      setLoading(true);
-      try {
-        // Get all history, not just recent
-        const fullHistory = await routeHistoryService.getHistory();
-        // Format data to match the expected structure for RouteListPage with ALL required fields
-        const formattedHistory = fullHistory.map(entry => ({
-          id: entry.route_id,
-          title: entry.title || "Rota sem título",
-          description: entry.description || "",
-          starting_location: entry.starting_location || "Origem não especificada",
-          ending_location: entry.ending_location || "Destino não especificado",
-          created_at: entry.viewed_at, // Use view time for date sorting
-          viewed_at: entry.viewed_at,
-          distance: entry.distance || 0,
-          upvotes_count: entry.upvotes_count || 0, // Required for "liked" sorting
-          downvotes_count: entry.downvotes_count || 0,
-          user_vote: entry.user_vote || null,
-          coordinates: entry.coordinates || [],
-          user: entry.user || { username: "" }
-        }));
-        setHistory(formattedHistory);
-      } catch (error) {
-        console.error("Error fetching history:", error);
-        setError("Não foi possível carregar o histórico de rotas");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchHistory();
   }, []);
 
   const handleClearHistory = async () => {
-    if (window.confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+    if (
+      window.confirm(
+        "Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita."
+      )
+    ) {
       try {
-        await routeHistoryService.clearHistory();
+        await api.clearHistory();
         setHistory([]);
       } catch (error) {
         console.error("Error clearing history:", error);
-        alert('Erro ao limpar o histórico. Tente novamente.');
+        alert("Erro ao limpar o histórico. Tente novamente.");
       }
     }
   };
@@ -61,8 +46,8 @@ const RouteHistoryPage = () => {
   const HistoryHeader = (
     <div className="flex justify-end mb-4">
       {history.length > 0 && (
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="text-red-600 border-red-600 hover:bg-red-50 flex items-center gap-2"
           onClick={handleClearHistory}
         >
