@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .models import Route
-from .serializers import RouteSerializer, UserSerializer
+from .models import Route, UserDetails
+from .serializers import RouteSerializer, UserSerializer, UserDetailsSerializer
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -182,3 +182,86 @@ class RouteViewSet(viewsets.ModelViewSet):
         elif user in route.downvotes.all():
             return "downvote"
         return None
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def add_to_history(self, request, pk=None):
+        """
+        Add a route to the user's view history
+        """
+        try:
+            route = self.get_object()
+            user_details = request.user.details
+            
+            # Add to history
+            user_details.add_to_history(
+                route_id=route.id,
+                route_title=route.title
+            )
+            
+            return Response({
+                "message": "Added to history"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserDetailsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailsSerializer
+    
+    def get_queryset(self):
+        return UserDetails.objects.filter(user=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def route_history(self, request):
+        """Get the user's route viewing history"""
+        try:
+            limit = request.query_params.get('limit', None)
+            if limit:
+                limit = int(limit)
+                
+            history = request.user.details.get_history(limit)
+            
+            detailed_history = []
+            for entry in history:
+                route_id = entry.get('route_id')
+                try:
+                    route = Route.objects.get(id=route_id)
+                    detailed_entry = {
+                        **entry,
+                        "title": route.title,
+                        "description": route.description,
+                        "starting_location": route.starting_location,
+                        "ending_location": route.ending_location,
+                        "distance": route.distance,
+                        "upvotes_count": route.upvotes.count(),
+                        "downvotes_count": route.downvotes.count(),
+                        "coordinates": route.coordinates,
+                        "user": {"username": route.user.username}
+                    }
+                    detailed_history.append(detailed_entry)
+                except Route.DoesNotExist:
+                    detailed_history.append(entry)
+            
+            return Response(detailed_history, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    @action(detail=False, methods=['delete'])
+    def clear_history(self, request):
+        """Clear the user's route history"""
+        try:
+            user_details = request.user.details
+            user_details.route_history = []
+            user_details.save()
+            
+            return Response({
+                "message": "History cleared"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)

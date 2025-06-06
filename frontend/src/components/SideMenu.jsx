@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Menu, MapPin, ThumbsUp, Flag, Compass } from "lucide-react";
+import { Menu, MapPin, ThumbsUp, Flag, Compass, History } from "lucide-react";
 import { api } from "../api";
 
 const SideMenu = () => {
@@ -92,6 +92,13 @@ const SideMenu = () => {
           >
             <Compass size={20} />
             <span className="text-lg">Explorar Rotas</span>
+          </Link>
+          <Link
+            to="/route-history"
+            className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
+          >
+            <History size={20} />
+            <span className="text-lg">Histórico de Rotas</span>
           </Link>
         </nav>
       </SheetContent>

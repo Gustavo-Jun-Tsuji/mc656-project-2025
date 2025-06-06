@@ -19,6 +19,8 @@ import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LikedRoutesPage from "./pages/LikedRoutesPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
+import RouteHistoryPage from './pages/RouteHistoryPage';
+
 
 function Logout() {
   localStorage.clear();
@@ -84,6 +86,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RouteDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/route-history"
+              element={
+                <ProtectedRoute>
+                  <RouteHistoryPage />
                 </ProtectedRoute>
               }
             />
