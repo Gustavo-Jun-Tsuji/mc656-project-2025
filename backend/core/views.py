@@ -141,7 +141,13 @@ class RouteViewSet(viewsets.ModelViewSet):
         Custom action to get routes created by the current user.
         endpoints: /routes/my_routes/
         """
-        user_routes = self.queryset.filter(user=request.user)
+        user_routes = self.get_queryset().filter(user=request.user)
+        
+        page = self.paginate_queryset(user_routes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
         serializer = self.get_serializer(user_routes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -151,7 +157,13 @@ class RouteViewSet(viewsets.ModelViewSet):
         Custom action to get routes liked (upvoted) by the current user.
         endpoints: /routes/my_liked_routes/
         """
-        liked_routes = self.queryset.filter(upvotes=request.user)
+        liked_routes = self.get_queryset().filter(upvotes=request.user)
+        
+        page = self.paginate_queryset(liked_routes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
         serializer = self.get_serializer(liked_routes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
