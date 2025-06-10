@@ -87,7 +87,7 @@ const SideMenu = () => {
             <span className="text-lg">Denunciar Rotas</span>
           </Link>
           <Link
-            to="/explorar-rotas"
+            to="/explore"
             className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
           >
             <Compass size={20} />

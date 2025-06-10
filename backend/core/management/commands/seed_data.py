@@ -149,11 +149,11 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="CB",
             coordinates=[
-                [-22.817623718567944, -47.0711516458838],
-                [-22.818256628413273, -47.0706155481404],
-                [-22.818474190493244, -47.07001511866778],
-                [-22.818454412136706, -47.06909303054912],
-                [-22.817861060104644, -47.06840682543757],
+            [-22.817623718567944, -47.0711516458838],
+            [-22.818256628413273, -47.0706155481404],
+            [-22.818474190493244, -47.07001511866778],
+            [-22.818454412136706, -47.06909303054912],
+            [-22.817861060104644, -47.06840682543757],
             ],
             tags=["caminhada", "plana"],
             image="route_images/cover_image_unicamp.jpg",
@@ -166,10 +166,10 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816812798529927, -47.071340552585085],
-                [-22.817010584350285, -47.069710815445134],
-                [-22.814874482289913, -47.0640925110942],
-                [-22.814063545882522, -47.064482259658625],
+            [-22.816812798529927, -47.071340552585085],
+            [-22.817010584350285, -47.069710815445134],
+            [-22.814874482289913, -47.0640925110942],
+            [-22.814063545882522, -47.064482259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
@@ -182,10 +182,10 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816812798529927, -47.071340552585085],
-                [-22.817110584350285, -47.069710815445134],
-                [-22.814974482289913, -47.0640925110942],
-                [-22.814163545882522, -47.064582259658625],
+            [-22.816812798529927, -47.071340552585085],
+            [-22.817110584350285, -47.069710815445134],
+            [-22.814974482289913, -47.0640925110942],
+            [-22.814163545882522, -47.064582259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
@@ -198,10 +198,10 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816912798529927, -47.071440552585085],
-                [-22.817210584350285, -47.069810815445134],
-                [-22.814774482289913, -47.0641925110942],
-                [-22.814263545882522, -47.064682259658625],
+            [-22.816912798529927, -47.071440552585085],
+            [-22.817210584350285, -47.069810815445134],
+            [-22.814774482289913, -47.0641925110942],
+            [-22.814263545882522, -47.064682259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
@@ -214,10 +214,10 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816712798529927, -47.071240552585085],
-                [-22.817310584350285, -47.069910815445134],
-                [-22.814674482289913, -47.0642925110942],
-                [-22.814363545882522, -47.064782259658625],
+            [-22.816712798529927, -47.071240552585085],
+            [-22.817310584350285, -47.069910815445134],
+            [-22.814674482289913, -47.0642925110942],
+            [-22.814363545882522, -47.064782259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
@@ -230,10 +230,10 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816612798529927, -47.071140552585085],
-                [-22.817410584350285, -47.070010815445134],
-                [-22.814574482289913, -47.0643925110942],
-                [-22.814463545882522, -47.064882259658625],
+            [-22.816612798529927, -47.071140552585085],
+            [-22.817410584350285, -47.070010815445134],
+            [-22.814574482289913, -47.0643925110942],
+            [-22.814463545882522, -47.064882259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
@@ -246,11 +246,311 @@ class Command(BaseCommand):
             starting_location="PB",
             ending_location="IC",
             coordinates=[
-                [-22.816512798529927, -47.071040552585085],
-                [-22.817510584350285, -47.070110815445134],
-                [-22.814474482289913, -47.0644925110942],
-                [-22.814563545882522, -47.064982259658625],
+            [-22.816512798529927, -47.071040552585085],
+            [-22.817510584350285, -47.070110815445134],
+            [-22.814474482289913, -47.0644925110942],
+            [-22.814563545882522, -47.064982259658625],
             ],
             tags=["subida"],
             image="route_images/cover_image_unicamp.jpg",
+        )
+
+        add_route(
+            user=User.objects.get(username="Dummy"),
+            title="Volta pela Lagoa",
+            description="Uma caminhada relaxante ao redor da lagoa.",
+            starting_location="Lagoa",
+            ending_location="Lagoa",
+            coordinates=[
+            [-22.815200798529927, -47.068340552585085],
+            [-22.815500584350285, -47.068510815445134],
+            [-22.815674482289913, -47.0687925110942],
+            [-22.815563545882522, -47.069082259658625],
+            ],
+            tags=["plana", "natureza"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Sunny"),
+            title="Trilha dos Eucaliptos",
+            description="Caminhada entre eucaliptos no campus.",
+            starting_location="IA",
+            ending_location="FEF",
+            coordinates=[
+            [-22.813200798529927, -47.066340552585085],
+            [-22.813400584350285, -47.066510815445134],
+            [-22.813674482289913, -47.0667925110942],
+            [-22.813863545882522, -47.067082259658625],
+            ],
+            tags=["natureza", "sombra"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Mummy"),
+            title="Rota do Bandejão",
+            description="Caminho para o almoço no bandejão.",
+            starting_location="IC",
+            ending_location="Bandejão",
+            coordinates=[
+            [-22.814200798529927, -47.065340552585085],
+            [-22.814400584350285, -47.065510815445134],
+            [-22.814674482289913, -47.0657925110942],
+            [-22.814863545882522, -47.066082259658625],
+            ],
+            tags=["alimentação", "rápida"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Bunny"),
+            title="Subida da FEF",
+            description="Rota com subida íngreme até a FEF.",
+            starting_location="CB",
+            ending_location="FEF",
+            coordinates=[
+            [-22.815200798529927, -47.067340552585085],
+            [-22.815300584350285, -47.067210815445134],
+            [-22.815174482289913, -47.0665925110942],
+            [-22.814963545882522, -47.066082259658625],
+            ],
+            tags=["subida", "difícil"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Funny"),
+            title="Passagem pela Biblioteca",
+            description="Rota passando pela biblioteca central.",
+            starting_location="IC",
+            ending_location="PB",
+            coordinates=[
+            [-22.816200798529927, -47.068340552585085],
+            [-22.816400584350285, -47.068510815445134],
+            [-22.816674482289913, -47.0687925110942],
+            [-22.816863545882522, -47.069082259658625],
+            ],
+            tags=["estudos", "rápida"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Runny"),
+            title="Corrida Matinal",
+            description="Percurso ideal para corrida matinal.",
+            starting_location="Moradia",
+            ending_location="Moradia",
+            coordinates=[
+            [-22.817200798529927, -47.069340552585085],
+            [-22.817600584350285, -47.069510815445134],
+            [-22.817874482289913, -47.0697925110942],
+            [-22.817563545882522, -47.070082259658625],
+            ],
+            tags=["corrida", "circular"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Honey"),
+            title="Caminho das Flores",
+            description="Rota passando pelos jardins floridos do campus.",
+            starting_location="Reitoria",
+            ending_location="FEF",
+            coordinates=[
+            [-22.818200798529927, -47.070340552585085],
+            [-22.818400584350285, -47.070510815445134],
+            [-22.818674482289913, -47.0707925110942],
+            [-22.818863545882522, -47.071082259658625],
+            ],
+            tags=["natureza", "flores"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Nanny"),
+            title="Trilha Noturna",
+            description="Rota bem iluminada para caminhadas noturnas.",
+            starting_location="PB",
+            ending_location="CB",
+            coordinates=[
+            [-22.819200798529927, -47.071340552585085],
+            [-22.819400584350285, -47.071510815445134],
+            [-22.819674482289913, -47.0717925110942],
+            [-22.819863545882522, -47.072082259658625],
+            ],
+            tags=["noturna", "segura"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Dummy"),
+            title="Rota dos Laboratórios",
+            description="Passagem pelos principais laboratórios do campus.",
+            starting_location="IC",
+            ending_location="IA",
+            coordinates=[
+            [-22.820200798529927, -47.072340552585085],
+            [-22.820400584350285, -47.072510815445134],
+            [-22.820674482289913, -47.0727925110942],
+            [-22.820863545882522, -47.073082259658625],
+            ],
+            tags=["acadêmica", "laboratórios"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Sunny"),
+            title="Volta Completa",
+            description="Rota que circunda todo o campus principal.",
+            starting_location="Portaria",
+            ending_location="Portaria",
+            coordinates=[
+            [-22.821200798529927, -47.073340552585085],
+            [-22.821400584350285, -47.073510815445134],
+            [-22.821674482289913, -47.0737925110942],
+            [-22.821863545882522, -47.074082259658625],
+            [-22.822000798529927, -47.074240552585085],
+            ],
+            tags=["longa", "completa"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Mummy"),
+            title="Descida da Colina",
+            description="Rota com descida suave pela colina do campus.",
+            starting_location="Topo da Colina",
+            ending_location="Vale",
+            coordinates=[
+            [-22.822200798529927, -47.074340552585085],
+            [-22.822300584350285, -47.074410815445134],
+            [-22.822174482289913, -47.0743925110942],
+            [-22.821963545882522, -47.074282259658625],
+            ],
+            tags=["descida", "fácil"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Bunny"),
+            title="Caminho dos Pássaros",
+            description="Rota onde é possível observar diversas aves.",
+            starting_location="Bosque",
+            ending_location="Lagoa",
+            coordinates=[
+            [-22.823200798529927, -47.075340552585085],
+            [-22.823400584350285, -47.075510815445134],
+            [-22.823674482289913, -47.0757925110942],
+            [-22.823863545882522, -47.076082259658625],
+            ],
+            tags=["natureza", "observação"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Funny"),
+            title="Rota Histórica",
+            description="Passando pelos marcos históricos do campus.",
+            starting_location="Monumento",
+            ending_location="Memorial",
+            coordinates=[
+            [-22.824200798529927, -47.076340552585085],
+            [-22.824400584350285, -47.076510815445134],
+            [-22.824674482289913, -47.0767925110942],
+            [-22.824863545882522, -47.077082259658625],
+            ],
+            tags=["histórica", "cultural"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Runny"),
+            title="Treino de Velocidade",
+            description="Percurso curto para treinos de alta intensidade.",
+            starting_location="Pista",
+            ending_location="Pista",
+            coordinates=[
+            [-22.825200798529927, -47.077340552585085],
+            [-22.825400584350285, -47.077510815445134],
+            [-22.825674482289913, -47.0777925110942],
+            ],
+            tags=["treino", "velocidade"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Honey"),
+            title="Relaxamento Total",
+            description="Rota tranquila para meditação e relaxamento.",
+            starting_location="Jardim Zen",
+            ending_location="Jardim Zen",
+            coordinates=[
+            [-22.826200798529927, -47.078340552585085],
+            [-22.826400584350285, -47.078510815445134],
+            [-22.826674482289913, -47.0787925110942],
+            [-22.826863545882522, -47.079082259658625],
+            ],
+            tags=["relaxamento", "zen"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Nanny"),
+            title="Aventura Radical",
+            description="Rota desafiadora com obstáculos diversos.",
+            starting_location="Base",
+            ending_location="Topo",
+            coordinates=[
+            [-22.827200798529927, -47.079340552585085],
+            [-22.827500584350285, -47.079510815445134],
+            [-22.827874482289913, -47.0797925110942],
+            [-22.828263545882522, -47.080082259658625],
+            [-22.828563545882522, -47.080382259658625],
+            ],
+            tags=["radical", "desafio"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Dummy"),
+            title="Rota Gastronômica",
+            description="Passando pelos principais pontos de alimentação.",
+            starting_location="Praça de Alimentação",
+            ending_location="Cantina",
+            coordinates=[
+            [-22.828200798529927, -47.080340552585085],
+            [-22.828400584350285, -47.080510815445134],
+            [-22.828674482289913, -47.0807925110942],
+            ],
+            tags=["gastronomia", "alimentação"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Sunny"),
+            title="Circuito Esportivo",
+            description="Rota conectando todas as instalações esportivas.",
+            starting_location="Ginásio",
+            ending_location="Campo",
+            coordinates=[
+            [-22.829200798529927, -47.081340552585085],
+            [-22.829400584350285, -47.081510815445134],
+            [-22.829674482289913, -47.0817925110942],
+            [-22.829863545882522, -47.082082259658625],
+            ],
+            tags=["esporte", "ginásio"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Mummy"),
+            title="Caminho da Sabedoria",
+            description="Rota passando pelas principais bibliotecas e centros de estudo.",
+            starting_location="Biblioteca Central",
+            ending_location="Sala de Estudos",
+            coordinates=[
+            [-22.830200798529927, -47.082340552585085],
+            [-22.830400584350285, -47.082510815445134],
+            [-22.830674482289913, -47.0827925110942],
+            [-22.830863545882522, -47.083082259658625],
+            ],
+            tags=["estudos", "biblioteca"],
+        )
+
+        add_route(
+            user=User.objects.get(username="Bunny"),
+            title="Rota da Inovação",
+            description="Passando pelos laboratórios de pesquisa e inovação.",
+            starting_location="Lab de Inovação",
+            ending_location="Centro de Pesquisa",
+            coordinates=[
+            [-22.831200798529927, -47.083340552585085],
+            [-22.831400584350285, -47.083510815445134],
+            [-22.831674482289913, -47.0837925110942],
+            [-22.831863545882522, -47.084082259658625],
+            ],
+            tags=["inovação", "pesquisa"],
         )

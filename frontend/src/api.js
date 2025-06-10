@@ -28,9 +28,28 @@ export const api = {
   getCurrentUser: () => caller.get("/user/current/"),
 
   // Route endpoints
-  getAllRoutes: () => caller.get(`/routes/`),
-  getMyRoutes: () => caller.get(`/routes/my_routes/`),
-  getLikedRoutes: () => caller.get(`/routes/my_liked_routes/`),
+  getAllRoutes: (page = 1) => {
+    const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    return caller.get(`/routes/?${params.toString()}`);
+  },
+
+  getMyRoutes: (page = 1, search = "", orderBy = "") => {
+    const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    if (search) params.append("search", search);
+    if (orderBy) params.append("order_by", orderBy);
+    return caller.get(`/routes/my_routes/?${params.toString()}`);
+  },
+
+  getLikedRoutes: (page = 1, search = "", orderBy = "") => {
+    const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    if (search) params.append("search", search);
+    if (orderBy) params.append("order_by", orderBy);
+    return caller.get(`/routes/my_liked_routes/?${params.toString()}`);
+  },
+
   getRoute: (id) => caller.get(`/routes/${id}/`),
   createRoute: (data) =>
     caller.post(`/routes/`, data, {
@@ -40,7 +59,13 @@ export const api = {
     }),
   updateRoute: (id, data) => caller.put(`/routes/${id}/`, data),
   deleteRoute: (id) => caller.delete(`/routes/${id}/`),
-  searchRoutes: (term) => caller.get(`/routes/?search=${term}`),
+  searchRoutes: (page = 1, search = "", orderBy = "") => {
+    const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    if (search) params.append("search", search);
+    if (orderBy) params.append("order_by", orderBy);
+    return caller.get(`/routes/?${params.toString()}`);
+  },
   voteRoute: (id, voteType) =>
     caller.post(`/routes/${id}/vote/`, { vote_type: voteType }),
 
