@@ -6,308 +6,435 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Route, UserDetails
 import json
 
+
 class AuthViewsTests(APITestCase):
     """Tests for the authentication views"""
-    
+
     def setUp(self):
         """Create test data"""
-        self.register_url = reverse('register')
-        self.token_url = reverse('token_obtain_pair')
-        self.token_refresh_url = reverse('token_refresh')
-        self.current_user_url = reverse('current_user')
-        
+        self.register_url = reverse("register")
+        self.token_url = reverse("token_obtain_pair")
+        self.token_refresh_url = reverse("token_refresh")
+        self.current_user_url = reverse("current_user")
+
         # Test user data
         self.user_data = {
-            'username': 'testuser',
-            'email': 'testuser@example.com',
-            'password': 'testpassword123'
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password": "testpassword123",
         }
-        
+
         # Create a user for token refresh and current user tests
         self.user = User.objects.create_user(
-            username='existinguser',
-            email='existing@example.com',
-            password='existingpassword123'
+            username="existinguser",
+            email="existing@example.com",
+            password="existingpassword123",
         )
-    
+
     def get_tokens_for_user(self, user):
         """Helper method to get tokens for a user"""
         refresh = RefreshToken.for_user(user)
         return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
         }
-    
+
     def test_register_user(self):
-        """Test registering a new user"""
-        response = self.client.post(self.register_url, self.user_data, format='json')
-        
+        """Test registering a new user (valid class)"""
+        response = self.client.post(self.register_url, self.user_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)  # including the user from setUp
-        self.assertEqual(User.objects.get(username='testuser').username, 'testuser')
-    
+        self.assertEqual(User.objects.get(username="testuser").username, "testuser")
+
     def test_register_user_duplicate_username(self):
-        """Test registering with a duplicate username"""
+        """Test registering with a duplicate username (invalid class)"""
         # First create a user
-        User.objects.create_user(username='testuser', email='other@example.com', password='pass123')
-        
+        User.objects.create_user(
+            username="testuser", email="other@example.com", password="pass123"
+        )
+
         # Try to register with the same username
-        response = self.client.post(self.register_url, self.user_data, format='json')
-        
+        response = self.client.post(self.register_url, self.user_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
+    def test_register_user_username_too_long(self):
+        """Test registering with a username that exceeds the maximum length (boundary value)"""
+        long_username = "a" * 151
+
+        long_username_data = {
+            "username": long_username,
+            "email": "longuser@example.com",
+            "password": "testpassword123",
+        }
+
+        response = self.client.post(
+            self.register_url, long_username_data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.filter(username=long_username).count(), 0)
+
+    def test_register_user_password_too_long(self):
+        """Test registering a user with maximum length password (boundary value)"""
+        max_length_password = "x" * 129
+
+        max_password_data = {
+            "username": "maxpassuser",
+            "email": "maxpass@example.com",
+            "password": max_length_password,
+        }
+
+        # Attempt to register with the maximum length password
+        response = self.client.post(self.register_url, max_password_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.filter(username="maxpassuser").count(), 0)
+
+    def test_register_user_invalid_email(self):
+        """Test registering with an invalid email format (invalid class)"""
+        invalid_email_data = {
+            "username": "invalidemail",
+            "email": "not-an-email-format",
+            "password": "testpassword123",
+        }
+
+        response = self.client.post(
+            self.register_url, invalid_email_data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.filter(username="invalidemail").count(), 0)
+
+    def test_register_user_missing_fields(self):
+        """Test registering with missing required fields (invalid class)"""
+        missing_data = {
+            "username": "missingfields",
+            # Missing email and password
+        }
+        response = self.client.post(self.register_url, missing_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_valid_credentials(self):
+        """Test login with valid credentials (valid class)"""
+        test_login_user = User.objects.create_user(
+            username="logintest",
+            email="logintest@example.com",
+            password="correctpassword123",
+        )
+
+        login_data = {"username": "logintest", "password": "correctpassword123"}
+
+        response = self.client.post(self.token_url, login_data, format="json")
+
+        # Verify successful login
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verify tokens are returned
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
+        # Verify token works by using it to access a protected endpoint
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {response.data["access"]}')
+        user_response = self.client.get(self.current_user_url)
+
+        # Verify we can access user data with the token
+        self.assertEqual(user_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(user_response.data["username"], "logintest")
+        self.assertEqual(user_response.data["email"], "logintest@example.com")
+
+    def test_login_nonexistent_user(self):
+        """Test login with nonexistent username (invalid class)"""
+        nonexistent_login_data = {
+            "username": "nonexistentuser",
+            "password": "somepassword",
+        }
+
+        response = self.client.post(
+            self.token_url, nonexistent_login_data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn("detail", response.data)
+
+    def test_login_wrong_password(self):
+        """Test login with wrong password (invalid class)"""
+        wrong_password_data = {"username": "existinguser", "password": "wrongpassword"}
+
+        response = self.client.post(self.token_url, wrong_password_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn("detail", response.data)
+
+    def test_login_missing_fields(self):
+        """Test login with missing required fields (invalid class)"""
+        missing_username = {"password": "existingpassword123"}
+        missing_password = {"username": "existinguser"}
+
+        response1 = self.client.post(self.token_url, missing_username, format="json")
+        response2 = self.client.post(self.token_url, missing_password, format="json")
+
+        self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_obtain_token(self):
         """Test obtaining JWT tokens"""
         # Try to login with the user created in setUp
-        login_data = {
-            'username': 'existinguser',
-            'password': 'existingpassword123'
-        }
-        
-        response = self.client.post(self.token_url, login_data, format='json')
-        
+        login_data = {"username": "existinguser", "password": "existingpassword123"}
+
+        response = self.client.post(self.token_url, login_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
-        self.assertIn('refresh', response.data)
-    
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
     def test_refresh_token(self):
         """Test refreshing a JWT token"""
         # Get tokens for the user
         tokens = self.get_tokens_for_user(self.user)
-        
+
         # Try to refresh the token
-        refresh_data = {'refresh': tokens['refresh']}
-        response = self.client.post(self.token_refresh_url, refresh_data, format='json')
-        
+        refresh_data = {"refresh": tokens["refresh"]}
+        response = self.client.post(self.token_refresh_url, refresh_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
-    
+        self.assertIn("access", response.data)
+
     def test_current_user(self):
         """Test the current user endpoint"""
         # Get tokens for the user
         tokens = self.get_tokens_for_user(self.user)
-        
+
         # Set the token in the header
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {tokens["access"]}')
-        
+
         # Try to get the current user
         response = self.client.get(self.current_user_url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['username'], self.user.username)
-        self.assertEqual(response.data['email'], self.user.email)
-    
+        self.assertEqual(response.data["username"], self.user.username)
+        self.assertEqual(response.data["email"], self.user.email)
+
     def test_unauthorized_access(self):
         """Test that unauthorized access is denied"""
         # Try to access current user without token
         response = self.client.get(self.current_user_url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class RouteViewSetTests(APITestCase):
     """Tests for the RouteViewSet"""
-    
+
     def setUp(self):
         """Create test data"""
-        self.routes_url = reverse('route-list')
-        
+        self.routes_url = reverse("route-list")
+
         # Create a test user
         self.user = User.objects.create_user(
-            username='routetestuser',
-            email='routetest@example.com',
-            password='routetestpass123'
+            username="routetestuser",
+            email="routetest@example.com",
+            password="routetestpass123",
         )
-        
+
         # Get JWT token for this user
         refresh = RefreshToken.for_user(self.user)
         self.access_token = str(refresh.access_token)
-        
+
         # Set the token in the header for all requests
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
-        
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
+
         # Create some test routes with valid coordinates
         self.route1 = Route.objects.create(
             title="Test Route 1",
             description="This is test route 1",
             starting_location="Start Point 1",
             ending_location="End Point 1",
-            coordinates=[[40.7128, -74.0060], [40.7129, -74.0061], [40.7130, -74.0062]],  # NYC coordinates
-            user=self.user  # Associate with the test user
+            coordinates=[
+                [40.7128, -74.0060],
+                [40.7129, -74.0061],
+                [40.7130, -74.0062],
+            ],  # NYC coordinates
+            user=self.user,  # Associate with the test user
         )
-        
+
         self.route2 = Route.objects.create(
             title="Different Route 2",
             description="This is test route 2",
             starting_location="Start Point 2",
             ending_location="End Point 2",
             coordinates=[[34.0522, -118.2437], [34.0523, -118.2438]],  # LA coordinates
-            user=self.user
+            user=self.user,
         )
-        
+
         self.route3 = Route.objects.create(
             title="Special Route",
             description="This is a route with special keyword",
             starting_location="Special Start",
             ending_location="End Point 3",
-            coordinates=[[41.8781, -87.6298], [41.8782, -87.6299], [41.8783, -87.6300]],  # Chicago coordinates
-            user=self.user
+            coordinates=[
+                [41.8781, -87.6298],
+                [41.8782, -87.6299],
+                [41.8783, -87.6300],
+            ],  # Chicago coordinates
+            user=self.user,
         )
-        
+
         # Create another user for testing user isolation
         self.other_user = User.objects.create_user(
-            username='otheruser',
-            email='other@example.com',
-            password='otherpass123'
+            username="otheruser", email="other@example.com", password="otherpass123"
         )
-        
+
         # Create a route for the other user
         self.other_user_route = Route.objects.create(
             title="Other User's Route",
             description="This belongs to another user",
             starting_location="Other Start",
             ending_location="Other End",
-            coordinates=[[42.3601, -71.0589], [42.3602, -71.0590]],  # Boston coordinates
-            user=self.other_user
+            coordinates=[
+                [42.3601, -71.0589],
+                [42.3602, -71.0590],
+            ],  # Boston coordinates
+            user=self.other_user,
         )
-    
+
     def test_get_all_routes_authenticated(self):
         """Test retrieving all routes when authenticated"""
         response = self.client.get(self.routes_url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 4)
-    
+        self.assertEqual(len(response.data["results"]), 4)
+
     def test_get_all_routes_unauthenticated(self):
         """Test that unauthenticated users cannot access routes"""
         # Remove credentials
         self.client.credentials()
-        
+
         response = self.client.get(self.routes_url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    
+
     def test_get_single_route_authenticated(self):
         """Test retrieving a single route when authenticated"""
-        url = reverse('route-detail', args=[self.route1.id])
+        url = reverse("route-detail", args=[self.route1.id])
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], self.route1.title)
-    
+        self.assertEqual(response.data["title"], self.route1.title)
+
     def test_create_route_authenticated(self):
         """Test creating a new route when authenticated"""
         new_route_data = {
-            'title': 'New Test Route',
-            'description': 'This is a new test route',
-            'starting_location': 'New Start',
-            'ending_location': 'New End',
-            'coordinates': [[37.7749, -122.4194], [37.7750, -122.4195]]  # SF coordinates
+            "title": "New Test Route",
+            "description": "This is a new test route",
+            "starting_location": "New Start",
+            "ending_location": "New End",
+            "coordinates": [
+                [37.7749, -122.4194],
+                [37.7750, -122.4195],
+            ],  # SF coordinates
         }
-        
+
         response = self.client.post(
             self.routes_url,
             data=json.dumps(new_route_data),
-            content_type='application/json'
+            content_type="application/json",
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         # Verify the route was created and associated with the current user
-        new_route = Route.objects.get(title='New Test Route')
+        new_route = Route.objects.get(title="New Test Route")
         self.assertEqual(new_route.user, self.user)
-    
+
     def test_create_route_unauthenticated(self):
         """Test that unauthenticated users cannot create routes"""
         # Remove credentials
         self.client.credentials()
-        
+
         new_route_data = {
-            'title': 'Unauthenticated Route',
-            'description': 'This should not be created',
-            'starting_location': 'Start',
-            'ending_location': 'End',
-            'coordinates': [[1.0, 1.0], [2.0, 2.0]]
+            "title": "Unauthenticated Route",
+            "description": "This should not be created",
+            "starting_location": "Start",
+            "ending_location": "End",
+            "coordinates": [[1.0, 1.0], [2.0, 2.0]],
         }
-        
+
         response = self.client.post(
             self.routes_url,
             data=json.dumps(new_route_data),
-            content_type='application/json'
+            content_type="application/json",
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    
+
     def test_update_route_authenticated(self):
         """Test updating an existing route when authenticated"""
-        url = reverse('route-detail', args=[self.route1.id])
+        url = reverse("route-detail", args=[self.route1.id])
         updated_data = {
-            'title': 'Updated Route Title',
-            'description': self.route1.description,
-            'starting_location': self.route1.starting_location,
-            'ending_location': self.route1.ending_location,
-            'coordinates': self.route1.coordinates
+            "title": "Updated Route Title",
+            "description": self.route1.description,
+            "starting_location": self.route1.starting_location,
+            "ending_location": self.route1.ending_location,
+            "coordinates": self.route1.coordinates,
         }
-        
+
         response = self.client.put(
-            url,
-            data=json.dumps(updated_data),
-            content_type='application/json'
+            url, data=json.dumps(updated_data), content_type="application/json"
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.route1.refresh_from_db()
-        self.assertEqual(self.route1.title, 'Updated Route Title')
-    
+        self.assertEqual(self.route1.title, "Updated Route Title")
+
     def test_cannot_update_other_users_route(self):
         """Test that a user cannot update another user's route"""
-        url = reverse('route-detail', args=[self.other_user_route.id])
+        url = reverse("route-detail", args=[self.other_user_route.id])
         updated_data = {
-            'title': 'Should Not Update',
-            'description': self.other_user_route.description,
-            'starting_location': self.other_user_route.starting_location,
-            'ending_location': self.other_user_route.ending_location,
-            'coordinates': self.other_user_route.coordinates
+            "title": "Should Not Update",
+            "description": self.other_user_route.description,
+            "starting_location": self.other_user_route.starting_location,
+            "ending_location": self.other_user_route.ending_location,
+            "coordinates": self.other_user_route.coordinates,
         }
-        
+
         response = self.client.put(
-            url,
-            data=json.dumps(updated_data),
-            content_type='application/json'
+            url, data=json.dumps(updated_data), content_type="application/json"
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
+
         # Verify the title was not updated
         self.other_user_route.refresh_from_db()
         self.assertEqual(self.other_user_route.title, "Other User's Route")
-    
+
     def test_delete_route_authenticated(self):
         """Test deleting a route when authenticated"""
-        url = reverse('route-detail', args=[self.route1.id])
+        url = reverse("route-detail", args=[self.route1.id])
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        
+
         # Verify the route was deleted
         with self.assertRaises(Route.DoesNotExist):
             Route.objects.get(id=self.route1.id)
-    
+
     def test_cannot_delete_other_users_route(self):
         """Test that a user cannot delete another user's route"""
-        url = reverse('route-detail', args=[self.other_user_route.id])
+        url = reverse("route-detail", args=[self.other_user_route.id])
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
+
         # Verify the route was not deleted
         self.assertEqual(Route.objects.filter(id=self.other_user_route.id).count(), 1)
-    
+
     def test_search_routes_authenticated(self):
         """Test searching for routes when authenticated"""
         # Clear existing routes for this test
         Route.objects.filter(user=self.user).delete()
-        
+
         # Create specific test routes for this user
         special_route = Route.objects.create(
             title="Special Route",
@@ -315,18 +442,18 @@ class RouteViewSetTests(APITestCase):
             starting_location="Start Special",
             ending_location="End Special",
             coordinates=[[1.0, 1.0], [2.0, 2.0]],
-            user=self.user
+            user=self.user,
         )
-        
+
         regular_route = Route.objects.create(
             title="Regular Route",
             description="This is a regular route",
             starting_location="Start Regular",
             ending_location="End Regular",
             coordinates=[[3.0, 3.0], [4.0, 4.0]],
-            user=self.user
+            user=self.user,
         )
-        
+
         # Create a route for the other user with similar search terms
         other_special_route = Route.objects.create(
             title="Other Special Route",
@@ -334,24 +461,24 @@ class RouteViewSetTests(APITestCase):
             starting_location="Start Special Other",
             ending_location="End Special Other",
             coordinates=[[5.0, 5.0], [6.0, 6.0]],
-            user=self.other_user
+            user=self.other_user,
         )
-        
+
         # Search by title
         response = self.client.get(f"{self.routes_url}?search=Special")
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
-    
+        self.assertEqual(len(response.data["results"]), 2)
+
     def test_calculate_distance(self):
         """Test that route distance is calculated correctly"""
-        url = reverse('route-detail', args=[self.route1.id])
+        url = reverse("route-detail", args=[self.route1.id])
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('distance', response.data)
-        self.assertIsInstance(response.data['distance'], float)
-        
+        self.assertIn("distance", response.data)
+        self.assertIsInstance(response.data["distance"], float)
+
         # Route with no coordinates should have 0 distance
         empty_route = Route.objects.create(
             title="Empty Route",
@@ -359,24 +486,24 @@ class RouteViewSetTests(APITestCase):
             starting_location="Empty Start",
             ending_location="Empty End",
             coordinates=[],
-            user=self.user
+            user=self.user,
         )
-        
-        empty_url = reverse('route-detail', args=[empty_route.id])
+
+        empty_url = reverse("route-detail", args=[empty_route.id])
         empty_response = self.client.get(empty_url)
-        
+
         self.assertEqual(empty_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(empty_response.data['distance'], 0)
+        self.assertEqual(empty_response.data["distance"], 0)
 
     def test_upvote_route(self):
         """Test upvoting a route"""
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "upvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 1)
-        self.assertEqual(response.data['downvotes_count'], 0)
-        self.assertEqual(response.data['user_vote'], 'upvote')
+        self.assertEqual(response.data["upvotes_count"], 1)
+        self.assertEqual(response.data["downvotes_count"], 0)
+        self.assertEqual(response.data["user_vote"], "upvote")
 
         # Verify the upvote was added in the database
         self.route1.refresh_from_db()
@@ -385,13 +512,13 @@ class RouteViewSetTests(APITestCase):
 
     def test_downvote_route(self):
         """Test downvoting a route"""
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "downvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 0)
-        self.assertEqual(response.data['downvotes_count'], 1)
-        self.assertEqual(response.data['user_vote'], 'downvote')
+        self.assertEqual(response.data["upvotes_count"], 0)
+        self.assertEqual(response.data["downvotes_count"], 1)
+        self.assertEqual(response.data["user_vote"], "downvote")
 
         # Verify the downvote was added in the database
         self.route1.refresh_from_db()
@@ -403,12 +530,12 @@ class RouteViewSetTests(APITestCase):
         # First upvote the route
         self.route1.upvotes.add(self.user)
 
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "upvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 0)
-        self.assertEqual(response.data['user_vote'], None)
+        self.assertEqual(response.data["upvotes_count"], 0)
+        self.assertEqual(response.data["user_vote"], None)
 
         # Verify the upvote was removed in the database
         self.route1.refresh_from_db()
@@ -419,12 +546,12 @@ class RouteViewSetTests(APITestCase):
         # First downvote the route
         self.route1.downvotes.add(self.user)
 
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "downvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['downvotes_count'], 0)
-        self.assertEqual(response.data['user_vote'], None)
+        self.assertEqual(response.data["downvotes_count"], 0)
+        self.assertEqual(response.data["user_vote"], None)
 
         # Verify the downvote was removed in the database
         self.route1.refresh_from_db()
@@ -434,15 +561,15 @@ class RouteViewSetTests(APITestCase):
         """Test changing vote from upvote to downvote"""
         # First upvote the route
         self.route1.upvotes.add(self.user)
-        
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'downvote'}, format='json')
-        
+
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "downvote"}, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 0)
-        self.assertEqual(response.data['downvotes_count'], 1)
-        self.assertEqual(response.data['user_vote'], 'downvote')
-        
+        self.assertEqual(response.data["upvotes_count"], 0)
+        self.assertEqual(response.data["downvotes_count"], 1)
+        self.assertEqual(response.data["user_vote"], "downvote")
+
         # Verify the vote was changed in the database
         self.route1.refresh_from_db()
         self.assertEqual(self.route1.upvotes.count(), 0)
@@ -454,13 +581,13 @@ class RouteViewSetTests(APITestCase):
         # First downvote the route
         self.route1.downvotes.add(self.user)
 
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "upvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 1)
-        self.assertEqual(response.data['downvotes_count'], 0)
-        self.assertEqual(response.data['user_vote'], 'upvote')
+        self.assertEqual(response.data["upvotes_count"], 1)
+        self.assertEqual(response.data["downvotes_count"], 0)
+        self.assertEqual(response.data["user_vote"], "upvote")
 
         # Verify the vote was changed in the database
         self.route1.refresh_from_db()
@@ -473,8 +600,8 @@ class RouteViewSetTests(APITestCase):
         # Remove credentials
         self.client.credentials()
 
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'upvote'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "upvote"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -485,22 +612,22 @@ class RouteViewSetTests(APITestCase):
 
     def test_invalid_vote_type(self):
         """Test that an invalid vote type returns an error"""
-        url = reverse('route-detail', args=[self.route1.id]) + 'vote/'
-        response = self.client.post(url, {'vote_type': 'invalid_type'}, format='json')
+        url = reverse("route-detail", args=[self.route1.id]) + "vote/"
+        response = self.client.post(url, {"vote_type": "invalid_type"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
+        self.assertIn("error", response.data)
 
     def test_vote_counts_in_route_detail(self):
         """Test that vote counts appear in route detail endpoint"""
         # Add upvotes from multiple users
         self.route1.upvotes.add(self.user)
         self.route1.upvotes.add(self.other_user)
-        
-        url = reverse('route-detail', args=[self.route1.id])
+
+        url = reverse("route-detail", args=[self.route1.id])
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['upvotes_count'], 2)
-        self.assertEqual(response.data['downvotes_count'], 0)
-        self.assertEqual(response.data['user_vote'], 'upvote')
+        self.assertEqual(response.data["upvotes_count"], 2)
+        self.assertEqual(response.data["downvotes_count"], 0)
+        self.assertEqual(response.data["user_vote"], "upvote")
