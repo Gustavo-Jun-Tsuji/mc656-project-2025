@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Route, UserDetails
 import json
+from django.db import connection
 
 
 class AuthViewsTests(APITestCase):
@@ -633,7 +634,8 @@ class RouteViewSetTests(APITestCase):
     def test_search_route_special_characters(self):
         """Test searching a route with special characters (valid class)"""
 
-        if "sqlite" in os.environ.get("POSTGRES_ENGINE", ""):
+        # Check if SQLite is being used
+        if connection.vendor == "sqlite":
             self.skipTest("Special character search behaves differently in SQLite")
 
         # Clear existing routes for this test
