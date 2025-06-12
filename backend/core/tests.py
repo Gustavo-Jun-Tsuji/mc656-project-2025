@@ -431,7 +431,7 @@ class RouteViewSetTests(APITestCase):
         self.assertEqual(Route.objects.filter(id=self.other_user_route.id).count(), 1)
 
     def test_search_routes_authenticated(self):
-        """Test searching for routes when authenticated"""
+        """Test searching for routes when authenticated (valid class)"""
         # Clear existing routes for this test
         Route.objects.filter(user=self.user).delete()
 
@@ -469,6 +469,262 @@ class RouteViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 2)
+    
+    def test_search_routes_unauthenticated(self):
+        """Test that unauthenticated users cannot search routes (invalid class)"""
+        # Remove credentials
+        self.client.credentials()
+
+        response = self.client.get(f"{self.routes_url}?search=Special")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_search_routes_empty_database(self):
+        """Test searching when database has no routes (valid class)"""
+        # Clear existing routes for this test
+        Route.objects.filter(user=self.user).delete()
+        Route.objects.filter(user=self.other_user).delete()
+        
+        response = self.client.get(f"{self.routes_url}?search=%20")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+
+    def test_search_route_by_different_fields(self):
+        """Test searching for a route by its different fields (valid class)"""
+        # Clear existing routes for this test
+        Route.objects.filter(user=self.user).delete()
+        Route.objects.filter(user=self.other_user).delete()
+
+        different_fields_route = Route.objects.create(
+            title="Title",
+            description="Description",
+            starting_location="Start",
+            ending_location="End",
+            coordinates=[[1.0, 1.0], [2.0, 2.0]],
+            tags=["passeio"],
+            user=self.user
+        )
+        
+        # Test search by title
+        response = self.client.get(f"{self.routes_url}?search=Title")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test search by description
+        response = self.client.get(f"{self.routes_url}?search=Description")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test search by starting location
+        response = self.client.get(f"{self.routes_url}?search=Start")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test search by ending location
+        response = self.client.get(f"{self.routes_url}?search=End")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test search by tags
+        response = self.client.get(f"{self.routes_url}?search=passeio")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        # Test search by coordinates (should not match)
+        response = self.client.get(f"{self.routes_url}?search=1.0")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+
+        # Test search by two or more fields combined (should not match)
+        response = self.client.get(f"{self.routes_url}?search=Title%20Start")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+
+    def test_search_routes_partial_matching(self):
+        """Test partial word matching in route search (valid class)"""
+        # Clear existing routes for this test
+        Route.objects.filter(user=self.user).delete()
+        Route.objects.filter(user=self.other_user).delete()
+
+        partial_matching_route = Route.objects.create(
+            title="Partial Matching Search Test",
+            description="Regular description",
+            starting_location="Regular start",
+            ending_location="Regular end",
+            coordinates=[[10.0, 10.0], [11.0, 11.0]],
+            user=self.user
+        )
+        
+        # Test beginning of a word
+        response = self.client.get(f"{self.routes_url}?search=Part")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test middle of a word
+        response = self.client.get(f"{self.routes_url}?search=script")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test end of a word
+        response = self.client.get(f"{self.routes_url}?search=art")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        # Test search with multiple word parts
+        response = self.client.get(f"{self.routes_url}?search=ching%20Sea")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_search_routes_nonexistent_term(self):
+        """Test searching with a term that doesn't exist in any route (valid class)"""
+        response = self.client.get(f"{self.routes_url}?search=ThisTermDoesntExist")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+
+    def test_search_routes_no_parameter(self):
+        """Test searching when no search parameter is provided (invalid class)"""  
+        response = self.client.get(f"{self.routes_url}?search=")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+    def test_search_routes_very_long_term(self):
+        """Test searching with very long search term (valid class)"""
+        very_long_term = "x" * 500
+        
+        response = self.client.get(f"{self.routes_url}?search={very_long_term}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_routes_case_insensitivity(self):
+        """Test case insensitivity in route search (valid class)"""
+        case_route = Route.objects.create(
+            title="UPPERCASE mixedCASE lowercase",
+            description="Regular description",
+            starting_location="Regular start",
+            ending_location="Regular end",
+            coordinates=[[1.0, 1.0], [2.0, 2.0]],
+            user=self.user
+        )
+        
+        # Test lowercase searches
+        response = self.client.get(f"{self.routes_url}?search=uppercase")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get(f"{self.routes_url}?search=mixedcase")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        # Test uppercase searches
+        response = self.client.get(f"{self.routes_url}?search=LOWERCASE")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get(f"{self.routes_url}?search=MIXEDCASE")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        # Test multiple-word searches with mixed cases
+        response = self.client.get(f"{self.routes_url}?search=uppercase%20MIXEDcase%20LOWERCASE")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_search_route_special_characters(self):
+        """Test searching a route with special characters (valid class)"""   
+        # Clear existing routes for this test
+        Route.objects.filter(user=self.user).delete()
+        Route.objects.filter(user=self.other_user).delete()
+
+        special_chars_route = Route.objects.create(
+            title="Spéçial!@#$% Route",
+            description="Contains spêcial-charàcters & symbols",
+            starting_location="🗺 start",
+            ending_location="汉字/漢字",
+            coordinates=[[1.0, 1.0], [2.0, 2.0]],
+            user=self.user
+        )
+        
+        response = self.client.get(f"{self.routes_url}?search=Spéçial!@#$%")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        
+        response = self.client.get(f"{self.routes_url}?search=spÊcial-charÀcters%20&")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get(f"{self.routes_url}?search=🗺")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get(f"{self.routes_url}?search=汉字/漢字")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get(f"{self.routes_url}?search=%20")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_search_routes_with_filters(self):
+        """Test search with user and ordering filters (valid class)"""
+        # Clear existing routes for this test
+        Route.objects.filter(user=self.user).delete()
+        Route.objects.filter(user=self.other_user).delete()
+        
+        route1 = Route.objects.create(
+            title="Test Kinda Popular Route",
+            description="This route has 1 upvote",
+            starting_location="Kinda popular start",
+            ending_location="Kinda popular end",
+            coordinates=[[1.0, 1.0], [2.0, 2.0]],
+            user=self.other_user
+        )
+        route1.upvotes.add(self.user)  # Add 1 upvote
+
+        route2 = Route.objects.create(
+            title="Test Popular Route",
+            description="This route has 2 upvotes",
+            starting_location="Popular start",
+            ending_location="Popular end",
+            coordinates=[[3.0, 3.0], [4.0, 4.0]],
+            user=self.user
+        )
+        route2.upvotes.add(self.user, self.other_user)  # Add 2 upvotes
+
+        route3 = Route.objects.create(
+            title="Test Unpopular Route",
+            description="This route has no upvotes",
+            starting_location="Unpopular start",
+            ending_location="Unpopular end",
+            coordinates=[[5.0, 5.0], [6.0, 6.0]],
+            user=self.user
+        )
+
+        # Test search with ordering by creation date (most recent first)
+        response = self.client.get(f"{self.routes_url}?search=Test&order_by=-created_at")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 3)
+        self.assertEqual(response.data['results'][0]['id'], route3.id)
+
+        # Test search with ordering by likes
+        response = self.client.get(f"{self.routes_url}?search=Test&order_by=liked")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 3)
+        self.assertEqual(response.data['results'][0]['id'], route2.id)
+
+        # Test search with ordering by trending
+        response = self.client.get(f"{self.routes_url}?search=Test&order_by=trending")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 3)
+        self.assertEqual(response.data['results'][0]['id'], route2.id)
+
+        # Test search with user filter
+        response = self.client.get(f"{self.routes_url}?search=Test&user={self.other_user.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        # Test with invalid order_by parameter (should fall back to default: -created_at)
+        response = self.client.get(f"{self.routes_url}?search=Test&order_by=invalid_field")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'][0]['id'], route3.id)
 
     def test_calculate_distance(self):
         """Test that route distance is calculated correctly"""
