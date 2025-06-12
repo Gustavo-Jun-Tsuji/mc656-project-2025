@@ -631,3 +631,155 @@ class RouteViewSetTests(APITestCase):
         self.assertEqual(response.data["upvotes_count"], 2)
         self.assertEqual(response.data["downvotes_count"], 0)
         self.assertEqual(response.data["user_vote"], "upvote")
+
+    def test_creation_special_character_title(self):
+        """
+        Test creation with special characters title (valid class)
+        """
+        
+        special_chars_data = {
+            "title": "Special Ch@r$ Rouťé!",
+            "description": "Route with spécial ch@racters & symbols",
+            "starting_location": "Sp€cial Start!",
+            "ending_location": "End Po!nt with $ymb@ls",
+            "coordinates": [
+                [40.7128, -74.0060],
+                [40.7130, -74.0062]
+            ]
+        }
+    
+        special_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(special_chars_data),
+            content_type="application/json",
+        )
+        
+        self.assertEqual(special_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(special_response.data["title"], "Special Ch@r$ Rouťé!")
+
+    
+    def test_creation_title_too_long(self):
+        """
+        Test creation with title that exceeds the maximum length (Boundary value)
+        """
+        max_title_length = 256
+        max_length_data = {
+            "title": "T" * max_title_length,
+            "description": "Route with title too long",
+            "starting_location": "Long Start",
+            "ending_location": "Long End",
+            "coordinates": [
+                [40.7128, -74.0060],
+                [40.7130, -74.0062]
+            ]
+        }
+        
+        max_length_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(max_length_data),
+            content_type="application/json",
+        )
+        
+        self.assertEqual(max_length_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_start_point_too_long(self):
+        """
+        Test creation with start location that exceeds the maximum length (Boundary value)
+        """
+        max_loc_length = 256
+        max_length_data = {
+            "title": "Start location length too long",
+            "description": "A route with start location too long",
+            "starting_location": "S" * max_loc_length,
+            "ending_location": "Long End",
+            "coordinates": [
+                [40.7128, -74.0060],
+                [40.7130, -74.0062]
+            ]
+        }
+        
+        max_length_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(max_length_data),
+            content_type="application/json",
+        )
+        
+        self.assertEqual(max_length_response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_end_point_too_long(self):
+        """
+        Test creation with end location that exceeds the maximum length (Boundary value)
+        """
+        max_loc_length = 256  # Assuming CharField with max_length=255
+        max_length_data = {
+            "title": "End location length too long",
+            "description": "A route with end location too long",
+            "starting_location": "Long Start",
+            "ending_location": "E" * max_loc_length,
+            "coordinates": [
+                [40.7128, -74.0060],
+                [40.7130, -74.0062]
+            ]
+        }
+        
+        max_length_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(max_length_data),
+            content_type="application/json",
+        )
+        
+        self.assertEqual(max_length_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_route_creation_single_point(self):
+        """
+        Test creation with only one point (invalid class)
+        """
+        only_start_point_data = {
+            "title": "Route with only start point",
+            "description": "A route with only a start point",
+            "starting_location": "Start",
+            "coordinates": [
+                [40.7128, -74.0060],
+            ]
+        }
+
+        only_end_point_data = {
+            "title": "End location length too long",
+            "description": "A route with end location too long",
+            "starting_location": "Long Start",
+            "coordinates": [
+                [40.7128, -74.0060],
+            ]
+        }
+        
+        start_point_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(only_start_point_data),
+            content_type="application/json",
+        )
+        
+        end_point_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(only_end_point_data),
+            content_type="application/json",
+        )
+
+        self.assertEqual(start_point_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(end_point_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_route_missing_fields(self):
+        """
+        Test route creation with missing fields (invalid class)
+        """
+
+        route_missing_data = {
+            "title": "End location length too long",
+        }
+
+        route_missing_response = self.client.post(
+            self.routes_url,
+            data=json.dumps(route_missing_data),
+            content_type="application/json",
+        )
+        
+        self.assertEqual(route_missing_response.status_code, status.HTTP_400_BAD_REQUEST)
