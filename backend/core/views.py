@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from rest_framework import viewsets, status, filters, generics
 from rest_framework.decorators import api_view, action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
@@ -46,7 +47,9 @@ class RouteViewSet(viewsets.ModelViewSet):
         user_term = self.request.query_params.get('user', None)
         order_by = self.request.query_params.get('order_by', None)
         
-        
+        if 'search' in self.request.query_params and not search_term:
+            raise ValidationError({"error": "Search parameter cannot be empty"})
+
         if user_term:
             try:
                 user_id = int(user_term)
@@ -82,8 +85,11 @@ class RouteViewSet(viewsets.ModelViewSet):
                         output_field=FloatField()
                     )
                 ).order_by('-trending_score')
+            elif order_by in ['created_at', '-created_at']:
+                    queryset = queryset.order_by(order_by)
             else:
-                queryset = queryset.order_by(order_by)
+                # Invalid order_by parameter, fall back to default
+                queryset = queryset.order_by('-created_at')
         
         return queryset
 

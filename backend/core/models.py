@@ -19,8 +19,8 @@ class Route(models.Model):
     
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    starting_location = models.CharField(max_length=255, blank=True)
-    ending_location = models.CharField(max_length=255, blank=True)
+    starting_location = models.CharField(max_length=255)
+    ending_location = models.CharField(max_length=255)
     
     # Store coordinates as a JSON array of [lat, lng] pairs
     coordinates = models.JSONField(
