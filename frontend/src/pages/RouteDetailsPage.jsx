@@ -13,6 +13,7 @@ import {
   MapPin,
   Clock,
   Image as ImageIcon,
+  Share2,
 } from "lucide-react";
 
 const RouteDetailsPage = () => {
@@ -36,6 +37,7 @@ const RouteDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [voteLoading, setVoteLoading] = useState(false);
+  const [shareMessage, setShareMessage] = useState("");
 
   useEffect(() => {
     const fetchRouteData = async () => {
@@ -58,7 +60,19 @@ const RouteDetailsPage = () => {
   }, [id]);
 
   const handleBack = () => {
-    navigate(-1); // Go back to previous page instead of home
+    navigate(-1);
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareMessage("Link copiado");
+      setTimeout(() => setShareMessage(""), 2000);
+    } catch (err) {
+      console.error("Error copying to clipboard:", err);
+      setShareMessage("Erro");
+      setTimeout(() => setShareMessage(""), 2000);
+    }
   };
 
   const handleVote = async (voteType) => {
@@ -121,150 +135,173 @@ const RouteDetailsPage = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-secondary-very_light via-secondary-very_light to-primary-light flex flex-col pt-20">
         <div className="flex flex-col rounded-3xl shadow-2xl p-[80px] pt-[30px] pb-[30px] w-4/5 mx-auto">
-          {/* Back Button */}
-          <div className="mb-6">
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 text-secondary-dark text-xl h-12"
-              onClick={handleBack}
-            >
-              <ArrowLeft className="w-6 h-6" />
-              Voltar
-            </Button>
-          </div>
-
           {/* Main Content */}
           <div className="flex gap-[50px] h-[600px]">
             {/* Details Section */}
             <div className="flex-1">
-              <div className="bg-white p-6 rounded-xl shadow border border-gray-200 h-full overflow-y-auto">
-                <div className="space-y-6">
-                  {/* Route Image or Placeholder - Same as ExpandedRouteCard */}
-                  <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
-                    {routeData.image ? (
-                      <img
-                        src={routeData.image}
-                        alt={routeData.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                        <div className="text-center text-gray-400">
-                          <ImageIcon className="h-12 w-12 mx-auto mb-2" />
-                          <p className="text-sm font-medium">Sem imagem</p>
+              <div className="bg-white p-6 rounded-xl shadow border border-gray-200 h-full flex flex-col">
+                {/* Scrollable content area */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="space-y-6">
+                    {/* Route Image or Placeholder */}
+                    <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+                      {routeData.image ? (
+                        <img
+                          src={routeData.image}
+                          alt={routeData.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                          <div className="text-center text-gray-400">
+                            <ImageIcon className="h-12 w-12 mx-auto mb-2" />
+                            <p className="text-sm font-medium">Sem imagem</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Title and Actions */}
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <h1 className="font-semibold text-2xl text-secondary-dark">
+                          {routeData.title}
+                        </h1>
+
+                        {/* Voting and Share section */}
+                        <div className="flex items-center gap-2 ml-6">
+                          {/* Share button with improved tooltip - moved to the left */}
+                          <div className="relative inline-block">
+                            <button
+                              className="flex items-center gap-1 px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                              onClick={handleShare}
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+
+                            {/* Share message tooltip */}
+                            {shareMessage && (
+                              <div
+                                className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 
+                                  bg-gray-800 text-white text-xs px-2 py-1 rounded 
+                                  whitespace-nowrap pointer-events-none
+                                  animate-fadeIn z-50`}
+                                style={{
+                                  opacity: shareMessage ? 1 : 0,
+                                  transition: "opacity 200ms ease-in-out",
+                                }}
+                              >
+                                {shareMessage}
+                                {/* Arrow pointing down */}
+                                <div
+                                  className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 
+                                  border-l-4 border-r-4 border-t-4 
+                                  border-transparent border-t-gray-800"
+                                ></div>
+                              </div>
+                            )}
+                          </div>
+
+                          <button
+                            className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                              routeData.user_vote === "upvote"
+                                ? "bg-green-100 border-green-300 text-green-700"
+                                : "bg-white border-gray-300 text-gray-600 hover:bg-green-50"
+                            }`}
+                            onClick={() => handleVote("upvote")}
+                            disabled={voteLoading}
+                          >
+                            <ThumbsUp className="w-4 h-4" />
+                            <span className="text-sm font-medium">
+                              {routeData.upvotes_count || 0}
+                            </span>
+                          </button>
+                          <button
+                            className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                              routeData.user_vote === "downvote"
+                                ? "bg-red-100 border-red-300 text-red-700"
+                                : "bg-white border-gray-300 text-gray-600 hover:bg-red-50"
+                            }`}
+                            onClick={() => handleVote("downvote")}
+                            disabled={voteLoading}
+                          >
+                            <ThumbsDown className="w-4 h-4" />
+                            <span className="text-sm font-medium">
+                              {routeData.downvotes_count || 0}
+                            </span>
+                          </button>
                         </div>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Title and Description - Similar to ExpandedRouteCard */}
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <h1 className="font-semibold text-2xl text-secondary-dark">
-                        {routeData.title}
-                      </h1>
-
-                      {/* Voting section */}
-                      <div className="flex gap-2 ml-6">
-                        <button
-                          className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
-                            routeData.user_vote === "upvote"
-                              ? "bg-green-100 border-green-300 text-green-700"
-                              : "bg-white border-gray-300 text-gray-600 hover:bg-green-50"
-                          }`}
-                          onClick={() => handleVote("upvote")}
-                          disabled={voteLoading}
-                        >
-                          <ThumbsUp className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            {routeData.upvotes_count || 0}
-                          </span>
-                        </button>
-                        <button
-                          className={`flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
-                            routeData.user_vote === "downvote"
-                              ? "bg-red-100 border-red-300 text-red-700"
-                              : "bg-white border-gray-300 text-gray-600 hover:bg-red-50"
-                          }`}
-                          onClick={() => handleVote("downvote")}
-                          disabled={voteLoading}
-                        >
-                          <ThumbsDown className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            {routeData.downvotes_count || 0}
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 text-base leading-relaxed">
-                      {routeData.description || "Sem descrição"}
-                    </p>
-                  </div>
-
-                  {/* Origin to Destination - Same as ExpandedRouteCard */}
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-green-600" />
-                      <span className="font-medium">
-                        {routeData.starting_location || "Origem"}
-                      </span>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-gray-400" />
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-red-600" />
-                      <span className="font-medium">
-                        {routeData.ending_location || "Destino"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Additional Info */}
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                        Criado em
-                      </h3>
-                      <p className="text-gray-700">
-                        {formattedDate || "Data não disponível"}
+                      <p className="text-gray-600 text-base leading-relaxed">
+                        {routeData.description || "Sem descrição"}
                       </p>
                     </div>
 
+                    {/* Origin to Destination */}
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-green-600" />
+                        <span className="font-medium">
+                          {routeData.starting_location || "Origem"}
+                        </span>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-gray-400" />
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-red-600" />
+                        <span className="font-medium">
+                          {routeData.ending_location || "Destino"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Additional Info */}
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Criado em
+                        </h3>
+                        <p className="text-gray-700">
+                          {formattedDate || "Data não disponível"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-semibold text-secondary-dark mb-2">
+                          Criado por
+                        </h3>
+                        <p className="text-gray-700">
+                          {routeData.username || "Usuário desconhecido"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
                     <div>
                       <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                        Criado por
+                        Tags
                       </h3>
-                      <p className="text-gray-700">
-                        {routeData.username || "Usuário desconhecido"}
-                      </p>
+                      {routeData.tags && routeData.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {routeData.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-700">Sem tags</p>
+                      )}
                     </div>
-                  </div>
-
-                  {/* Tags - Same style as ExpandedRouteCard */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-secondary-dark mb-2">
-                      Tags
-                    </h3>
-                    {routeData.tags && routeData.tags.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {routeData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="bg-primary-light text-secondary-dark px-3 py-1 rounded-full text-sm"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-700">Sem tags</p>
-                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Map Section - Same height as details */}
+            {/* Map Section */}
             <div className="flex-1">
               <div className="rounded-xl overflow-hidden border border-gray-200 shadow h-full">
                 <MapComponent
@@ -275,6 +312,18 @@ const RouteDetailsPage = () => {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Back button at bottom left */}
+          <div className="flex justify-start mt-8">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-secondary-dark text-xl h-12 w-[250px]"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="w-8 h-8" />
+              Voltar
+            </Button>
           </div>
         </div>
       </div>
