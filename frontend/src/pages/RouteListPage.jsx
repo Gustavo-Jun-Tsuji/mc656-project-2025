@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, PlusIcon } from "lucide-react";
 import ExpandedRouteCard from "../components/ExpandedRouteCard";
 import Header from "../components/Header";
 
@@ -31,6 +31,7 @@ const RouteListPage = ({
   enableServerSideFiltering = false,
   onFilterChange,
 }) => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredRoutes, setFilteredRoutes] = useState(routes);
   const [localRoutes, setLocalRoutes] = useState(routes);
@@ -369,6 +370,14 @@ const RouteListPage = ({
           {footer && <div className="mt-6">{footer}</div>}
         </div>
       </div>
+      <button
+        onClick={() => navigate("/routes/create")}
+        className="fixed bottom-12 right-12 bg-primary-dark hover:bg-primary text-white rounded-full w-20 h-20 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+        aria-label="Criar nova rota"
+        title="Criar nova rota"
+      >
+        <PlusIcon size={36} />
+      </button>
     </>
   );
 };

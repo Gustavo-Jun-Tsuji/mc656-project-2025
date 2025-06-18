@@ -43,7 +43,7 @@ const SideMenu = () => {
           size="icon"
           className="text-white hover:bg-primary-dark" // 100px × 100px
         >
-          <Menu size={48} className="min-w-[50px] min-h-[50px]" />
+          <Menu size={48} className="min-w-[30px] min-h-[30px]" />
           <span className="sr-only">Menu</span>
         </Button>
       </SheetTrigger>
@@ -61,7 +61,14 @@ const SideMenu = () => {
               {avatarFallback}
             </AvatarFallback>
           </Avatar>
-          <span className="text-blue-950 font-medium text-lg">{userName}</span>
+          <div className="flex flex-col">
+            <span className="text-blue-950 font-medium text-lg">
+              {userName}
+            </span>
+            <a href="/logout" className="text-sm text-red-600 hover:underline">
+              Sair
+            </a>
+          </div>
         </div>
 
         <nav className="flex flex-col">
@@ -78,13 +85,6 @@ const SideMenu = () => {
           >
             <ThumbsUp size={20} />
             <span className="text-lg">Rotas Curtidas</span>
-          </Link>
-          <Link
-            to="/denunciar-rotas"
-            className="flex items-center gap-3 p-4 text-blue-900 hover:bg-blue-200 border-b transition-colors"
-          >
-            <Flag size={20} />
-            <span className="text-lg">Denunciar Rotas</span>
           </Link>
           <Link
             to="/explore"
