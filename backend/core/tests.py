@@ -1042,3 +1042,115 @@ class RouteViewSetTests(APITestCase):
         self.assertEqual(
             route_missing_response.status_code, status.HTTP_400_BAD_REQUEST
         )
+
+    def test_filter_by_user_id_numeric(self):
+        """Test filtering routes by user ID (numeric)"""
+        url = f"{self.routes_url}?user={self.user.id}"
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Should return only routes for the specified user
+        self.assertEqual(len(response.data["results"]), 3)  # route1, route2, route3
+        
+    def test_filter_by_user_id_invalid(self):
+        """Test filtering routes with invalid user ID"""
+        url = f"{self.routes_url}?user=abc"  # Non-numeric ID
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Should return empty list for non-numeric ID
+        self.assertEqual(len(response.data["results"]), 0)
+
+    def test_partial_update_as_owner(self):
+        """Test partial update as route owner"""
+        url = reverse("route-detail", args=[self.route1.id])
+        patch_data = {"title": "Partially Updated"}
+        
+        response = self.client.patch(
+            url, data=json.dumps(patch_data), content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.route1.refresh_from_db()
+        self.assertEqual(self.route1.title, "Partially Updated")
+
+    def test_partial_update_as_staff(self):
+        """Test partial update as staff"""
+        # Make user staff
+        self.user.is_staff = True
+        self.user.save()
+        
+        # Try to update another user's route
+        url = reverse("route-detail", args=[self.other_user_route.id])
+        patch_data = {"title": "Updated by Staff"}
+        
+        response = self.client.patch(
+            url, data=json.dumps(patch_data), content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.other_user_route.refresh_from_db()
+        self.assertEqual(self.other_user_route.title, "Updated by Staff")
+
+    def test_partial_update_unauthorized(self):
+        """Test partial update without permission"""
+        # Ensure user is not staff
+        self.user.is_staff = False
+        self.user.save()
+        
+        # Try to update another user's route
+        url = reverse("route-detail", args=[self.other_user_route.id])
+        patch_data = {"title": "Should Not Update"}
+        
+        response = self.client.patch(
+            url, data=json.dumps(patch_data), content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.other_user_route.refresh_from_db()
+        self.assertEqual(self.other_user_route.title, "Other User's Route")
+
+    def test_my_routes_with_pagination(self):
+        """Test my_routes endpoint with pagination"""
+        # Create many routes to force pagination
+        for i in range(30):
+            Route.objects.create(
+                title=f"My Route {i}",
+                description=f"Description {i}",
+                starting_location=f"Start {i}",
+                ending_location=f"End {i}",
+                coordinates=[[10.0, 10.0], [11.0, 11.0]],
+                user=self.user
+            )
+        
+        url = reverse("route-my-routes")
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if paginated structure is returned
+        self.assertIn("results", response.data)
+        self.assertIn("count", response.data)
+        
+    def test_my_liked_routes(self):
+        """Test my_liked_routes endpoint"""
+        # Create some routes and like them
+        liked_route = Route.objects.create(
+            title="Route I Like",
+            description="A route I liked",
+            starting_location="Like Start",
+            ending_location="Like End",
+            coordinates=[[20.0, 20.0], [21.0, 21.0]],
+            user=self.other_user
+        )
+        liked_route.upvotes.add(self.user)
+        
+        url = reverse("route-my-liked-routes")
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        if "results" in response.data:
+            self.assertTrue(any(route['id'] == liked_route.id for route in response.data["results"]))
+        else:
+            self.assertTrue(liked_route.id in [route['id'] for route in response.data])
+
+    
