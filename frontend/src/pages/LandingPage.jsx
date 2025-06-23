@@ -20,7 +20,7 @@ const FirstPage = () => {
       <div
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: "url('/images/UnicampMap.png')",
+          backgroundImage: "url('src/assets/UnicampMap.png'",
           backgroundSize: "cover",
           backgroundPosition: "center",
           opacity: 1,
@@ -39,13 +39,13 @@ const FirstPage = () => {
               Descubra e Compartilhe Rotas na Unicamp!
             </h1>
             <p className="text-gray-700 mb-4">
-              Bem-vindo ao UniMaps, uma plataforma desenvolvida para incentivar e facilitar a 
-              mobilidade ativa no campus da Unicamp.
+              Bem-vindo ao UniMaps, uma plataforma desenvolvida para incentivar
+              e facilitar a mobilidade ativa no campus da Unicamp.
             </p>
             <p className="text-gray-700 mb-6">
-              Uma solução tecnológica e divertida pensada para melhorar a 
-              qualidade de vida das pessoas que frequentam o campus, promovendo deslocamentos 
-              mais saudáveis, eficientes e sustentáveis.
+              Uma solução tecnológica e divertida pensada para melhorar a
+              qualidade de vida das pessoas que frequentam o campus, promovendo
+              deslocamentos mais saudáveis, eficientes e sustentáveis.
             </p>
           </div>
 
@@ -55,29 +55,36 @@ const FirstPage = () => {
               <div className="bg-primary-light w-12 h-12 rounded-full flex items-center justify-center mb-3">
                 <MapPin className="text-primary-dark w-6 h-6" />
               </div>
-              <h3 className="font-semibold mb-1 text-secondary-dark">Crie Rotas</h3>
+              <h3 className="font-semibold mb-1 text-secondary-dark">
+                Crie Rotas
+              </h3>
               <p className="text-sm text-gray-600">
                 Desenhe e compartilhe os melhores caminhos pelo campus.
               </p>
             </div>
-            
+
             <div className="flex flex-col items-center text-center">
               <div className="bg-primary-light w-12 h-12 rounded-full flex items-center justify-center mb-3">
                 <RouteIcon className="text-primary-dark w-6 h-6" />
               </div>
-              <h3 className="font-semibold mb-1 text-secondary-dark">Descubra Caminhos</h3>
+              <h3 className="font-semibold mb-1 text-secondary-dark">
+                Descubra Caminhos
+              </h3>
               <p className="text-sm text-gray-600">
                 Encontre rotas ideais para sua caminhada .
               </p>
             </div>
-            
+
             <div className="flex flex-col items-center text-center">
               <div className="bg-primary-light w-12 h-12 rounded-full flex items-center justify-center mb-3">
                 <Heart className="text-primary-dark w-6 h-6" />
               </div>
-              <h3 className="font-semibold mb-1 text-secondary-dark">Qualidade de Vida</h3>
+              <h3 className="font-semibold mb-1 text-secondary-dark">
+                Qualidade de Vida
+              </h3>
               <p className="text-sm text-gray-600">
-                Promova hábitos mais saudáveis e sustentáveis em seus deslocamentos.
+                Promova hábitos mais saudáveis e sustentáveis em seus
+                deslocamentos.
               </p>
             </div>
           </div>
@@ -85,8 +92,9 @@ const FirstPage = () => {
           {/* Additional paragraph about benefits */}
           <div className="text-center mb-8">
             <p className="text-gray-700">
-              Com o UniMaps, você pode descobrir caminhos mais agradáveis, seguros e eficientes para se 
-              deslocar no campus, contribuindo para um estilo de vida mais ativo e sustentável.
+              Com o UniMaps, você pode descobrir caminhos mais agradáveis,
+              seguros e eficientes para se deslocar no campus, contribuindo para
+              um estilo de vida mais ativo e sustentável.
             </p>
           </div>
 
@@ -109,9 +117,7 @@ const FirstPage = () => {
           {/* Footer text */}
           <div className="mt-8 text-center text-xs text-gray-500">
             <p>© 2025 UniMaps. Todos os direitos reservados.</p>
-            <p className="mt-1">
-              Um projeto desenvolvido para MC656
-            </p>
+            <p className="mt-1">Um projeto desenvolvido para MC656</p>
           </div>
         </div>
       </div>

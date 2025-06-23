@@ -90,11 +90,11 @@ const CreateRoutePage = () => {
       }
 
       await api.createRoute(routeData);
-      alert("Route created successfully!");
+      alert("Rota criada com sucesso!");
       navigate("/");
     } catch (error) {
-      console.error("Error creating route:", error);
-      alert("Failed to create route. Please try again.");
+      console.error("Erro ao criar rota:", error);
+      alert("Erro ao criar rota. Por favor, tente novamente.");
     }
   };
 

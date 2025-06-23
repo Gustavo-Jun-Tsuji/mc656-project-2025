@@ -31,7 +31,7 @@ const LoginPage = () => {
       <div
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: "url('/images/UnicampMap.png')",
+          backgroundImage: "url('src/assets/UnicampMap.png'",
           backgroundSize: "cover",
           backgroundPosition: "center",
           opacity: 1,
