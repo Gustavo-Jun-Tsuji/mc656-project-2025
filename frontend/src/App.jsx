@@ -32,8 +32,9 @@ function Logout() {
 const ConditionalHomeRoute = () => {
   // Check if there's a token in localStorage
   const isAuthenticated = localStorage.getItem(ACCESS_TOKEN_KEYNAME);
-  
+
   // If authenticated, show HomePage; otherwise show FirstPage
+  console.log("isAuthenticated:", isAuthenticated);
   return isAuthenticated ? <HomePage /> : <FirstPage />;
 };
 
@@ -48,7 +49,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/logout" element={<Logout />} />
-            
+
             {/* Conditional Home Route */}
             <Route path="/" element={<ConditionalHomeRoute />} />
 

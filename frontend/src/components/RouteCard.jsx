@@ -57,12 +57,16 @@ const RouteCard = ({ route, onRouteHover }) => {
             </div>
           </div>
 
-          <div>
-            <div className="text-xs px-3 py-1 border border-primary-dark rounded-md text-secondary-dark flex items-center">
-              <span>{route.starting_location}</span>
-              <ArrowRight className="h-3 w-3 mx-1 text-secondary-dark" />
-              <span>{route.ending_location}</span>
-            </div>
+          <div className="text-xs px-3 py-1 border border-primary-dark rounded-md text-secondary-dark flex items-center w-[100px] h-8 justify-center">
+            <span title={route.starting_location}>
+              {route.starting_location?.substring(0, 4)}
+              {route.starting_location?.length > 4 ? ".." : ""}
+            </span>
+            <ArrowRight className="h-3 w-3 mx-1 text-secondary-dark flex-shrink-0" />
+            <span title={route.ending_location}>
+              {route.ending_location?.substring(0, 4)}
+              {route.ending_location?.length > 4 ? ".." : ""}
+            </span>
           </div>
         </div>
       </CardContent>
