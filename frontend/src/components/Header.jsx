@@ -1,6 +1,6 @@
 import SearchBar from "./SearchBar";
 import SideMenu from "./SideMenu";
-import logo from "../assets/logo2-white.png";
+import logo from "../assets/logo-3.png";
 
 const Header = () => {
   return (
