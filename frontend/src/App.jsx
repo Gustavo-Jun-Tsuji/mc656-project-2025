@@ -1,5 +1,5 @@
 import React from "react";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import {
   BrowserRouter as Router,
   Routes,
@@ -21,11 +21,21 @@ import LikedRoutesPage from "./pages/LikedRoutesPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import RouteHistoryPage from "./pages/RouteHistoryPage";
 import ExploreRoutesPage from "./pages/ExploreRoutesPage";
+import FirstPage from "./pages/LandingPage";
 
 function Logout() {
   localStorage.clear();
-  return <Navigate to="/login" />;
+  return <Navigate to="/" />;
 }
+
+// Conditional home route that checks authentication
+const ConditionalHomeRoute = () => {
+  // Check if there's a token in localStorage
+  const isAuthenticated = localStorage.getItem(ACCESS_TOKEN_KEYNAME);
+  
+  // If authenticated, show HomePage; otherwise show FirstPage
+  return isAuthenticated ? <HomePage /> : <FirstPage />;
+};
 
 function App() {
   return (
@@ -34,19 +44,15 @@ function App() {
         <div className="app pt-20">
           {/* Added padding to avoid overlap with header */}
           <Routes>
+            {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/logout" element={<Logout />} />
+            
+            {/* Conditional Home Route */}
+            <Route path="/" element={<ConditionalHomeRoute />} />
 
             {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/explore"
               element={
@@ -58,7 +64,6 @@ function App() {
             <Route
               path="/my-routes"
               element={
-                // Add this route
                 <ProtectedRoute>
                   <MyRoutesPage />
                 </ProtectedRoute>
@@ -67,7 +72,6 @@ function App() {
             <Route
               path="/liked-routes"
               element={
-                // Add this route
                 <ProtectedRoute>
                   <LikedRoutesPage />
                 </ProtectedRoute>
@@ -97,7 +101,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/route-history"
               element={
